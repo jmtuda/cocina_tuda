@@ -1,8 +1,11 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f4efe4;
+  --foreground: #29241e;
+  --ink-soft: #746a5e;
+  --accent: #c44d2d;
+  --paper: #fffaf0;
 }
 
 @theme inline {
@@ -14,5 +17,156 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Georgia, "Times New Roman", serif;
+  margin: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+button {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.65rem 1rem;
+  background: #29241e;
+  color: white;
+  cursor: pointer;
+}
+input,
+select,
+textarea {
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid #d8cdbd;
+  border-radius: 0.7rem;
+  background: white;
+  padding: 0.75rem;
+  color: var(--foreground);
+}
+textarea {
+  min-height: 6rem;
+  resize: vertical;
+}
+label {
+  display: grid;
+  gap: 0.45rem;
+  color: var(--ink-soft);
+  font-family: Arial, sans-serif;
+  font-size: 0.85rem;
+}
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+h1 {
+  max-width: 11ch;
+  margin-bottom: 0.6rem;
+  font-size: clamp(3rem, 8vw, 6.8rem);
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: -0.055em;
+}
+h2 {
+  margin-bottom: 0.8rem;
+  font-size: 1.7rem;
+  font-weight: 400;
+}
+
+.shell {
+  width: min(1080px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 5rem 0;
+}
+.shell > header {
+  border-bottom: 1px solid #cfc3b1;
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+}
+.shell > header p {
+  color: var(--ink-soft);
+  font:
+    1.1rem/1.6 Arial,
+    sans-serif;
+}
+.eyebrow {
+  display: block;
+  margin-bottom: 0.9rem;
+  color: var(--accent);
+  font:
+    700 0.72rem Arial,
+    sans-serif;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.panel {
+  border: 1px solid #d9cebd;
+  border-radius: 1.2rem;
+  background: var(--paper);
+  box-shadow: 0 10px 30px rgb(65 48 31 / 7%);
+  padding: 1.4rem;
+}
+.catalogs {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.catalogs > div,
+.catalogs form {
+  display: flex;
+  align-items: end;
+  gap: 0.7rem;
+}
+.catalogs > div {
+  display: block;
+}
+.recipe {
+  display: grid;
+  gap: 1rem;
+}
+.panel-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+}
+.row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 0.8rem;
+}
+.primary {
+  justify-self: start;
+  background: var(--accent);
+  padding: 0.85rem 1.3rem;
+}
+.quiet {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+.status {
+  margin: 1rem;
+  color: var(--ink-soft);
+  font:
+    0.9rem Arial,
+    sans-serif;
+}
+
+@media (max-width: 760px) {
+  .shell {
+    padding: 2rem 0;
+  }
+  .catalogs,
+  .row {
+    grid-template-columns: 1fr;
+  }
+  .catalogs > div,
+  .catalogs form {
+    align-items: stretch;
+    flex-direction: column;
+  }
 }
