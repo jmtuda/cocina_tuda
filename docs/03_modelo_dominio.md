@@ -1,6 +1,6 @@
 # Cocina Tuda — Modelo de dominio
 
-**Versión:** 2.0  
+**Versión:** 2.1
 **Estado:** Aprobado
 **Responsable:** Project Manager
 
@@ -73,7 +73,7 @@ Uso de un ingrediente dentro de una lista. Contiene cantidad opcional, unidad op
 - Los nombres normalizados de ingredientes, unidades, categorías y etiquetas son únicos en su catálogo.
 - Una variante siempre pertenece al ingrediente que especializa.
 - Cantidad, unidad y observaciones pertenecen al uso del ingrediente.
-- Una receta no contiene ingredientes o clasificaciones duplicados sin una justificación funcional.
+- Una receta puede contener varios usos del mismo ingrediente y variante; cada ingrediente de receta es un uso culinario independiente.
 - Categorías y etiquetas son relaciones muchos-a-muchos y no jerárquicas.
 - El importador nunca persiste una receta sin confirmación del usuario.
 - La planificación referencia recetas existentes y no las modifica.
@@ -84,8 +84,6 @@ Uso de un ingrediente dentro de una lista. Contiene cantidad opcional, unidad op
 
 Antes de implementar cada capacidad deberán concretarse, mediante criterios de aceptación:
 
-- precisión y representación de cantidades;
 - consolidación y conversión entre unidades;
 - comportamiento al archivar una receta planificada;
-- tratamiento de duplicados del catálogo;
 - retención de fuentes importadas durante el proceso de revisión.

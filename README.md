@@ -2,7 +2,7 @@
 
 Cocina Tuda es una plataforma personal para convertir recetas procedentes de distintas fuentes en conocimiento culinario estructurado, consultable y reutilizable.
 
-La línea base documental incluida en [`docs/`](docs/README.md) está aprobada. La implementación todavía no ha comenzado.
+La documentación normativa se encuentra en [`docs/`](docs/README.md). Sprint 1 implementa el primer corte vertical de la biblioteca.
 
 ## Estado actual
 
@@ -10,9 +10,8 @@ La línea base documental incluida en [`docs/`](docs/README.md) está aprobada. 
 - Documentación funcional: aprobada.
 - Arquitectura técnica: aprobada como punto de partida.
 - Base técnica: Sprint 0B finalizado.
-- Funcionalidades de producto: no iniciadas.
-- Sprint documental: finalizado.
-- Próximo paso: definir el primer corte vertical de la biblioteca.
+- Sprint 1: activo.
+- Funcionalidades: catálogos y creación, consulta, edición y archivo de recetas en implementación.
 
 Los cambios de alcance o arquitectura deberán actualizar la documentación correspondiente antes de implementarse.
 
@@ -20,12 +19,15 @@ Los cambios de alcance o arquitectura deberán actualizar la documentación corr
 
 - Node.js 24 LTS o posterior compatible.
 - pnpm 11.19.0, gestionado mediante Corepack.
+- PostgreSQL accesible mediante `DATABASE_URL`.
 
 ## Instalación
 
 ```bash
 corepack enable
 pnpm install
+export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/cocina_tuda"
+pnpm --filter @cocina-tuda/api db:migrate
 ```
 
 ## Desarrollo
@@ -38,7 +40,8 @@ pnpm dev
 
 - Web: `http://localhost:3000`
 - API: `http://localhost:3001`
-- Estado de la API: `http://localhost:3001/health`
+- Estado de la API: `http://localhost:3001/api/v1/health`
+- OpenAPI: `http://localhost:3001/api/v1/docs`
 
 ## Validación
 
@@ -51,4 +54,4 @@ pnpm test:e2e
 pnpm build
 ```
 
-PostgreSQL y Prisma se incorporarán con el primer corte vertical que necesite persistencia.
+La migración de Sprint 1 crea exclusivamente recetas, pasos, ingredientes, variantes, unidades e ingredientes de receta.
