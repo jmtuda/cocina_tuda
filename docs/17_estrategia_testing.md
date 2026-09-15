@@ -1,7 +1,7 @@
 # Cocina Tuda — Estrategia de pruebas
 
 **Versión:** 2.0  
-**Estado:** Propuesto  
+**Estado:** Aprobado
 **Responsable:** QA / Arquitecto Técnico
 
 ## 1. Objetivo
@@ -52,4 +52,3 @@ No se fijan inicialmente porcentajes universales. Se medirá cobertura para dete
 ## 7. Criterio de salida
 
 Una entrega está preparada cuando pasan las comprobaciones pertinentes, no quedan defectos críticos conocidos, los riesgos residuales están documentados y los criterios de aceptación tienen evidencia verificable.
-

@@ -1,7 +1,7 @@
 # Cocina Tuda — Convenciones de código y colaboración
 
 **Versión:** 2.0  
-**Estado:** Propuesto  
+**Estado:** Aprobado
 **Responsable:** Arquitecto Técnico
 
 ## 1. Código
@@ -67,4 +67,3 @@ Una tarea está terminada cuando:
 - ha sido revisada e integrada.
 
 No se exige ADR para decisiones locales y reversibles. Sí para cambios arquitectónicos duraderos o excepciones relevantes.
-

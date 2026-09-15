@@ -1,7 +1,7 @@
 # Cocina Tuda — Roadmap
 
 **Versión:** 2.0  
-**Estado:** Propuesto  
+**Estado:** Aprobado
 **Responsable:** Project Manager
 
 ## 1. Objetivo
@@ -75,4 +75,3 @@ Resultado: el usuario genera y modifica una lista de compra desde una selección
 - TASK-063 Permitir edición y marcado manual.
 
 El MVP concluye al completar las fases 1 a 6 con sus criterios de calidad. Las capacidades posteriores se priorizarán desde el backlog cuando el núcleo esté validado.
-

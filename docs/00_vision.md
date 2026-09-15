@@ -1,7 +1,7 @@
 # Cocina Tuda — Visión del proyecto
 
 **Versión:** 2.0  
-**Estado:** Propuesto  
+**Estado:** Aprobado
 **Responsable:** Project Manager
 
 ## 1. Propósito
@@ -61,4 +61,3 @@ Las capacidades excluidas podrán incorporarse cuando exista una necesidad valid
 ## 7. Criterios de éxito
 
 El MVP tendrá éxito cuando el usuario pueda conservar recetas estructuradas, incorporar nuevas con poco esfuerzo, localizar cualquiera rápidamente, planificar comidas y obtener una lista de compra útil sin perder el control de sus datos.
-

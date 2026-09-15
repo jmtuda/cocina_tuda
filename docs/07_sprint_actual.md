@@ -1,7 +1,7 @@
 # Cocina Tuda — Sprint actual
 
 **Versión:** 2.0  
-**Estado:** Propuesto  
+**Estado:** Finalizado
 **Responsable:** Project Manager
 
 ## Sprint 0A — Aprobación documental
@@ -32,9 +32,9 @@ Obtener una base documental única, coherente y expresamente aprobada antes de i
 |---|---|
 | Auditoría de coherencia | Finalizado |
 | Propuesta documental | En revisión |
-| Revisión del propietario | Pendiente |
-| Correcciones finales | Pendiente |
-| Aprobación | Pendiente |
+| Revisión del propietario | Finalizado |
+| Correcciones finales | No requeridas |
+| Aprobación | Finalizado |
 
 ### Criterios de finalización
 
@@ -43,11 +43,10 @@ Obtener una base documental única, coherente y expresamente aprobada antes de i
 - Las decisiones pendientes están asignadas a una fase y no se presentan como decisiones ya tomadas.
 - Todos los documentos normativos tienen estado Aprobado.
 
-### Bloqueo actual
+### Resultado
 
-La implementación está bloqueada hasta completar la revisión y aprobación del propietario.
+La línea base documental ha sido aprobada por el propietario. El Sprint 0A queda finalizado.
 
 ### Siguiente sprint propuesto
 
-Sprint 0B — Repositorio y entorno mínimo, correspondiente a TASK-002 a TASK-006. Su alcance se confirmará después de aprobar esta documentación.
-
+Sprint 0B — Repositorio y entorno mínimo, correspondiente a TASK-002 a TASK-006. Todavía no se encuentra activo.

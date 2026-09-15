@@ -2,15 +2,15 @@
 
 Cocina Tuda es una plataforma personal para convertir recetas procedentes de distintas fuentes en conocimiento culinario estructurado, consultable y reutilizable.
 
-El repositorio se encuentra en fase de definición. Antes de comenzar la implementación debe aprobarse la documentación incluida en [`docs/`](docs/README.md).
+La línea base documental incluida en [`docs/`](docs/README.md) está aprobada. La implementación todavía no ha comenzado.
 
 ## Estado actual
 
-- Producto: en definición.
-- Documentación funcional: propuesta para revisión.
-- Arquitectura técnica: propuesta para revisión.
+- Producto: línea base aprobada.
+- Documentación funcional: aprobada.
+- Arquitectura técnica: aprobada como punto de partida.
 - Implementación: no iniciada.
-- Sprint activo: revisión documental.
+- Sprint documental: finalizado.
+- Próximo paso: definir y activar Sprint 0B.
 
-No debe implementarse ninguna funcionalidad hasta que la revisión documental quede aprobada.
-
+Los cambios de alcance o arquitectura deberán actualizar la documentación correspondiente antes de implementarse.
