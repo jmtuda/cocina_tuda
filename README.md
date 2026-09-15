@@ -10,8 +10,8 @@ La documentación normativa se encuentra en [`docs/`](docs/README.md). Sprint 1 
 - Documentación funcional: aprobada.
 - Arquitectura técnica: aprobada como punto de partida.
 - Base técnica: Sprint 0B finalizado.
-- Sprint 1: activo.
-- Funcionalidades: catálogos y creación, consulta, edición y archivo de recetas en implementación.
+- Sprint 1: finalizado.
+- Funcionalidades: catálogos y creación, consulta, edición y archivo de recetas disponibles.
 
 Los cambios de alcance o arquitectura deberán actualizar la documentación correspondiente antes de implementarse.
 
