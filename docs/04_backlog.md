@@ -1,7 +1,7 @@
 # Cocina Tuda — Backlog de producto
 
 **Versión:** 2.0  
-**Estado:** Propuesto  
+**Estado:** Aprobado
 **Responsable:** Project Manager
 
 ## 1. Objetivo
@@ -43,4 +43,3 @@ Estados: pendiente, en análisis, preparado, en desarrollo, en pruebas y finaliz
 Una capacidad puede entrar en desarrollo cuando posee alcance, reglas, criterios de aceptación y dependencias suficientes, y no contradice documentos superiores.
 
 Se considera finalizada cuando satisface sus criterios, supera las pruebas pertinentes, actualiza la documentación y no introduce regresiones conocidas.
-

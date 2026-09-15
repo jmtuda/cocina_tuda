@@ -1,7 +1,7 @@
 # Cocina Tuda — Principios del proyecto
 
 **Versión:** 2.0  
-**Estado:** Propuesto  
+**Estado:** Aprobado
 **Responsable:** Project Manager
 
 Este documento guía las decisiones cuando existan varias alternativas válidas. Los procedimientos concretos pertenecen a otros documentos.
@@ -77,4 +77,3 @@ Las conversaciones explican decisiones; la documentación aprobada es la referen
 ### 4.3 Las excepciones se hacen explícitas
 
 Una excepción relevante debe justificar su contexto, decisión y consecuencias. Las decisiones arquitectónicas duraderas se registran mediante ADR.
-

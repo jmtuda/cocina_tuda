@@ -1,7 +1,7 @@
 # Cocina Tuda — Modelo de datos
 
 **Versión:** 2.0  
-**Estado:** Propuesto  
+**Estado:** Aprobado
 **Responsable:** Arquitecto Técnico
 
 ## 1. Objetivo
@@ -62,4 +62,3 @@ El esquema se modifica mediante migraciones reproducibles. Los índices adiciona
 - integridad ingrediente-variante;
 - archivo de recetas ya planificadas;
 - consolidación de unidades en compras.
-

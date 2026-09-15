@@ -1,7 +1,7 @@
 # Cocina Tuda — Arquitectura funcional
 
 **Versión:** 2.0  
-**Estado:** Propuesto  
+**Estado:** Aprobado
 **Responsable:** Project Manager
 
 ## 1. Objetivo
@@ -61,4 +61,3 @@ Ningún módulo accede a la implementación interna o a la persistencia de otro.
 ## 6. Fuera del MVP
 
 Usuarios múltiples, colaboración, sincronización, offline, inventario, nutrición y aplicaciones móviles se diseñarán cuando entren en alcance. El MVP podrá usar un propietario implícito sin crear todavía un módulo de usuarios.
-

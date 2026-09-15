@@ -1,7 +1,7 @@
 # Cocina Tuda — Modelo de dominio
 
 **Versión:** 2.0  
-**Estado:** Propuesto  
+**Estado:** Aprobado
 **Responsable:** Project Manager
 
 ## 1. Objetivo
@@ -89,4 +89,3 @@ Antes de implementar cada capacidad deberán concretarse, mediante criterios de 
 - comportamiento al archivar una receta planificada;
 - tratamiento de duplicados del catálogo;
 - retención de fuentes importadas durante el proceso de revisión.
-

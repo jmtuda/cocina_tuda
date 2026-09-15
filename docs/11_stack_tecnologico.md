@@ -1,7 +1,7 @@
 # Cocina Tuda — Stack tecnológico
 
 **Versión:** 2.0  
-**Estado:** Propuesto  
+**Estado:** Aprobado
 **Responsable:** Arquitecto Técnico
 
 ## 1. Stack propuesto
@@ -52,4 +52,3 @@ En cada pull request se ejecutarán, cuando existan los scripts correspondientes
 - build.
 
 La entrega y el despliegue continuos quedan fuera del Sprint 0 hasta definir un entorno de publicación.
-

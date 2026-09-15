@@ -1,7 +1,7 @@
 # Cocina Tuda — Arquitectura técnica
 
 **Versión:** 2.0  
-**Estado:** Propuesto  
+**Estado:** Aprobado
 **Responsable:** Arquitecto Técnico
 
 ## 1. Objetivo
@@ -92,4 +92,3 @@ Su adopción futura requiere necesidad demostrada y ADR.
 ## 11. Verificación arquitectónica
 
 Las dependencias entre módulos y capas se verificarán mediante revisión y, cuando resulte útil, reglas automatizadas. La estrategia de pruebas se define en `17_estrategia_testing.md`.
-

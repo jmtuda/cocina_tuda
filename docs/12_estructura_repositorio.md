@@ -1,7 +1,7 @@
 # Cocina Tuda — Estructura del repositorio
 
 **Versión:** 2.0  
-**Estado:** Propuesto  
+**Estado:** Aprobado
 **Responsable:** Arquitecto Técnico
 
 ## 1. Principio
@@ -85,4 +85,3 @@ Se evita usar `shared`, `common`, `utils` o `helpers` como contenedores genéric
 - El código solo se extrae a un paquete cuando compartirlo reduce una duplicación real.
 
 La estructura detallada se validará con el primer corte vertical antes de considerarla definitiva.
-
