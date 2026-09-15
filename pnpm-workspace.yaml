@@ -1,0 +1,19 @@
+packages:
+  - apps/*
+  - packages/*
+
+minimumReleaseAgeExclude:
+  - "@turbo/darwin-64@2.10.13"
+  - "@turbo/darwin-arm64@2.10.13"
+  - "@turbo/linux-64@2.10.13"
+  - "@turbo/linux-arm64@2.10.13"
+  - "@turbo/windows-64@2.10.13"
+  - "@turbo/windows-arm64@2.10.13"
+  - turbo@2.10.13
+  - "@nestjs/common@12.0.3"
+  - "@nestjs/core@12.0.3"
+  - "@nestjs/platform-express@12.0.3"
+  - "@nestjs/testing@12.0.3"
+
+allowBuilds:
+  unrs-resolver: false

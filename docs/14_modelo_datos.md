@@ -10,21 +10,21 @@ Define una traducción persistente inicial de `03_modelo_dominio.md`. Los nombre
 
 ## 2. Tablas iniciales
 
-| Tabla | Datos principales |
-|---|---|
-| `recipes` | id, name, description?, author?, servings?, difficulty?, notes?, status, created_at, updated_at, archived_at? |
-| `recipe_steps` | id, recipe_id, position, text |
-| `ingredients` | id, name, normalized_name, created_at, updated_at |
-| `ingredient_variants` | id, ingredient_id, name, normalized_name |
-| `units` | id, name, abbreviation, normalized_name |
-| `recipe_ingredients` | id, recipe_id, ingredient_id, variant_id?, quantity?, unit_id?, optional, observations?, position |
-| `categories` | id, name, normalized_name |
-| `recipe_categories` | recipe_id, category_id |
-| `tags` | id, name, normalized_name |
-| `recipe_tags` | recipe_id, tag_id |
-| `planned_meals` | id, recipe_id, planned_date, meal_label?, notes?, created_at, updated_at |
-| `shopping_lists` | id, name, source_start?, source_end?, created_at, updated_at |
-| `shopping_list_items` | id, shopping_list_id, ingredient_id, quantity?, unit_id?, notes?, checked, source |
+| Tabla                 | Datos principales                                                                                             |
+| --------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `recipes`             | id, name, description?, author?, servings?, difficulty?, notes?, status, created_at, updated_at, archived_at? |
+| `recipe_steps`        | id, recipe_id, position, text                                                                                 |
+| `ingredients`         | id, name, normalized_name, created_at, updated_at                                                             |
+| `ingredient_variants` | id, ingredient_id, name, normalized_name                                                                      |
+| `units`               | id, name, abbreviation, normalized_name                                                                       |
+| `recipe_ingredients`  | id, recipe_id, ingredient_id, variant_id?, quantity?, unit_id?, optional, observations?, position             |
+| `categories`          | id, name, normalized_name                                                                                     |
+| `recipe_categories`   | recipe_id, category_id                                                                                        |
+| `tags`                | id, name, normalized_name                                                                                     |
+| `recipe_tags`         | recipe_id, tag_id                                                                                             |
+| `planned_meals`       | id, recipe_id, planned_date, meal_label?, notes?, created_at, updated_at                                      |
+| `shopping_lists`      | id, name, source_start?, source_end?, created_at, updated_at                                                  |
+| `shopping_list_items` | id, shopping_list_id, ingredient_id, quantity?, unit_id?, notes?, checked, source                             |
 
 No se crean todavía tablas de usuarios, grupos de recetas, sincronización o documentos importados permanentes.
 

@@ -1,52 +1,55 @@
 # Cocina Tuda — Sprint actual
 
-**Versión:** 2.0  
+**Versión:** 2.0
+
 **Estado:** Finalizado
+
 **Responsable:** Project Manager
 
-## Sprint 0A — Aprobación documental
+## Sprint 0B — Repositorio y entorno mínimo
 
 ### Objetivo
 
-Obtener una base documental única, coherente y expresamente aprobada antes de implementar.
+Preparar un monorepo ejecutable y validado para comenzar el primer corte vertical del producto.
 
 ### Incluido
 
-- TASK-001: auditoría y propuesta documental completa.
-- Revisión por el propietario del producto.
-- Correcciones derivadas de la revisión.
-- Aprobación o rechazo explícito de cada documento.
-- Identificación de decisiones pendientes que bloquean el primer corte funcional.
+- TASK-002: registrar las decisiones arquitectónicas iniciales necesarias.
+- TASK-003: crear el monorepo y las aplicaciones vacías.
+- TASK-004: configurar formato, lint, tipado y pruebas básicas.
+- TASK-005: configurar CI para pull requests.
+- TASK-006: documentar instalación y ejecución local.
 
 ### No incluido
 
-- creación del monorepo o aplicaciones;
-- instalación de dependencias;
-- base de datos y migraciones;
-- CI de código;
-- funcionalidades del producto.
+- base de datos, Prisma y migraciones;
+- módulos funcionales de recetas o catálogos;
+- importación mediante IA;
+- diseño final de interfaz;
+- despliegue.
 
 ### Estado
 
-| Trabajo | Estado |
-|---|---|
-| Auditoría de coherencia | Finalizado |
-| Propuesta documental | En revisión |
-| Revisión del propietario | Finalizado |
-| Correcciones finales | No requeridas |
-| Aprobación | Finalizado |
+| Trabajo                          | Estado     |
+| -------------------------------- | ---------- |
+| TASK-002 Decisiones iniciales    | Finalizado |
+| TASK-003 Monorepo y aplicaciones | Finalizado |
+| TASK-004 Calidad y pruebas       | Finalizado |
+| TASK-005 Integración continua    | Finalizado |
+| TASK-006 Guía de desarrollo      | Finalizado |
 
 ### Criterios de finalización
 
-- El propietario confirma que visión, alcance y prioridades reflejan el producto deseado.
-- No quedan contradicciones conocidas entre dominio, persistencia, arquitectura y planificación.
-- Las decisiones pendientes están asignadas a una fase y no se presentan como decisiones ya tomadas.
-- Todos los documentos normativos tienen estado Aprobado.
+- Instalación reproducible mediante un único comando.
+- API y web arrancan localmente.
+- Formato, lint, tipado, pruebas y build pasan desde la raíz.
+- La misma validación se ejecuta en GitHub Actions.
+- La instalación y los comandos están documentados.
 
 ### Resultado
 
-La línea base documental ha sido aprobada por el propietario. El Sprint 0A queda finalizado.
+El Sprint 0A documental y el Sprint 0B técnico están finalizados. No existen bloqueos conocidos en la base del proyecto.
 
 ### Siguiente sprint propuesto
 
-Sprint 0B — Repositorio y entorno mínimo, correspondiente a TASK-002 a TASK-006. Todavía no se encuentra activo.
+Fase 1 — Biblioteca mínima. No se activará hasta cerrar Sprint 0B.

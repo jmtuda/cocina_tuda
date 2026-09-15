@@ -6,23 +6,23 @@
 
 ## 1. Stack propuesto
 
-| Área | Elección |
-|---|---|
-| Lenguaje | TypeScript en modo estricto |
-| Runtime | Node.js LTS |
-| Backend | NestJS |
-| Frontend | Next.js y React |
-| Estilos | Tailwind CSS |
-| Componentes iniciales | shadcn/ui cuando aporte valor |
-| Base de datos | PostgreSQL |
-| Acceso a datos | Prisma |
-| Gestor de paquetes | pnpm |
-| Monorepo | Turborepo |
-| API | REST con OpenAPI |
-| Pruebas unitarias e integración | Vitest, sujeto a validación con NestJS |
-| Pruebas de navegador | Playwright |
-| Calidad | ESLint, Prettier y EditorConfig |
-| Control de versiones | Git y GitHub |
+| Área                            | Elección                        |
+| ------------------------------- | ------------------------------- |
+| Lenguaje                        | TypeScript en modo estricto     |
+| Runtime                         | Node.js LTS                     |
+| Backend                         | NestJS                          |
+| Frontend                        | Next.js y React                 |
+| Estilos                         | Tailwind CSS                    |
+| Componentes iniciales           | shadcn/ui cuando aporte valor   |
+| Base de datos                   | PostgreSQL                      |
+| Acceso a datos                  | Prisma                          |
+| Gestor de paquetes              | pnpm                            |
+| Monorepo                        | Turborepo                       |
+| API                             | REST con OpenAPI                |
+| Pruebas unitarias e integración | Vitest                          |
+| Pruebas de navegador            | Playwright                      |
+| Calidad                         | ESLint, Prettier y EditorConfig |
+| Control de versiones            | Git y GitHub                    |
 
 ## 2. Criterios
 
@@ -32,7 +32,7 @@ Las versiones exactas se fijarán al crear el proyecto usando versiones estables
 
 ## 3. Decisiones que requieren validación en Sprint 0B
 
-- Confirmar que Vitest cubre correctamente el entorno de NestJS elegido; Jest sigue siendo alternativa si reduce configuración o riesgo.
+- Vitest ha quedado validado mediante el soporte oficial del generador de NestJS 12.
 - Confirmar que Turborepo aporta valor con las aplicaciones y paquetes reales creados.
 - Incorporar shadcn/ui gradualmente, no como requisito para componentes que aún no existen.
 - Decidir si Docker es necesario para PostgreSQL local; no se crearán contenedores de frontend y backend sin necesidad operativa.
