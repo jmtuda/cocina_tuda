@@ -1,6 +1,6 @@
 # Cocina Tuda — Backlog de producto
 
-**Versión:** 2.0  
+**Versión:** 2.1
 **Estado:** Aprobado
 **Responsable:** Project Manager
 
@@ -12,18 +12,18 @@ Estados: pendiente, en análisis, preparado, en desarrollo, en pruebas y finaliz
 
 ## 2. MVP — imprescindible
 
-| ID    | Capacidad                                   | Estado    |
-| ----- | ------------------------------------------- | --------- |
-| B-001 | Crear, consultar, editar y archivar recetas | Pendiente |
-| B-002 | Gestionar pasos e ingredientes de receta    | Pendiente |
-| B-003 | Gestionar ingredientes y variantes          | Pendiente |
-| B-004 | Gestionar unidades                          | Pendiente |
-| B-005 | Gestionar categorías y etiquetas            | Pendiente |
-| B-006 | Buscar y filtrar recetas                    | Pendiente |
-| B-007 | Importar desde texto, imagen o documento    | Pendiente |
-| B-008 | Revisar y confirmar una importación         | Pendiente |
-| B-009 | Planificar comidas                          | Pendiente |
-| B-010 | Generar y editar listas de compra           | Pendiente |
+| ID    | Capacidad                                   | Estado     |
+| ----- | ------------------------------------------- | ---------- |
+| B-001 | Crear, consultar, editar y archivar recetas | Finalizado |
+| B-002 | Gestionar pasos e ingredientes de receta    | Finalizado |
+| B-003 | Gestionar ingredientes y variantes          | Finalizado |
+| B-004 | Gestionar unidades                          | Finalizado |
+| B-005 | Gestionar categorías y etiquetas            | Pendiente  |
+| B-006 | Buscar y filtrar recetas                    | Pendiente  |
+| B-007 | Importar desde texto, imagen o documento    | Pendiente  |
+| B-008 | Revisar y confirmar una importación         | Pendiente  |
+| B-009 | Planificar comidas                          | Pendiente  |
+| B-010 | Generar y editar listas de compra           | Pendiente  |
 
 ## 3. Posterior al MVP
 

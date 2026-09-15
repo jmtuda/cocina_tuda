@@ -1,8 +1,8 @@
 # Cocina Tuda — Sprint actual
 
-**Versión:** 2.2
+**Versión:** 2.3
 
-**Estado:** Activo
+**Estado:** Finalizado
 
 **Responsable:** Project Manager
 
@@ -12,22 +12,26 @@
 
 Entregar el primer corte vertical: una receta puede crearse, consultarse, editarse y archivarse mediante web y API, con pasos e ingredientes vinculados a catálogos persistentes.
 
-Sprint 0A y Sprint 0B están finalizados. El Project Manager ha aprobado este plan y las decisiones funcionales necesarias para iniciar la implementación.
+Sprint 0A, Sprint 0B y Sprint 1 están finalizados. La Fase 2 no está planificada ni activa.
 
 ### Alcance validado
 
 El alcance procede de la Fase 1 de `05_roadmap.md`:
 
-| Orden | Tarea    | Resultado verificable                                                          | Depende de |
-| ----- | -------- | ------------------------------------------------------------------------------ | ---------- |
-| 1     | TASK-010 | Dominio mínimo de receta y paso, con sus invariantes probadas                  | —          |
-| 2     | TASK-011 | Dominio de ingredientes, variantes y unidades, con normalización definida      | —          |
-| 3     | TASK-012 | Ingredientes de receta y validación de variante, cantidad y unidad             | 010, 011   |
-| 4     | TASK-013 | Esquema Prisma, PostgreSQL, repositorios y migraciones reproducibles           | 010–012    |
-| 5     | TASK-014 | Casos de uso y API REST `/api/v1` para el corte completo                       | 010–013    |
-| 6     | TASK-015 | Interfaz mínima de creación, consulta, edición y archivo, y recorrido completo | 014        |
+| Orden | Tarea    | Resultado verificable                                                          | Estado     | Depende de |
+| ----- | -------- | ------------------------------------------------------------------------------ | ---------- | ---------- |
+| 1     | TASK-010 | Dominio mínimo de receta y paso, con sus invariantes probadas                  | Finalizada | —          |
+| 2     | TASK-011 | Dominio de ingredientes, variantes y unidades, con normalización definida      | Finalizada | —          |
+| 3     | TASK-012 | Ingredientes de receta y validación de variante, cantidad y unidad             | Finalizada | 010, 011   |
+| 4     | TASK-013 | Esquema Prisma, PostgreSQL, repositorios y migraciones reproducibles           | Finalizada | 010–012    |
+| 5     | TASK-014 | Casos de uso y API REST `/api/v1` para el corte completo                       | Finalizada | 010–013    |
+| 6     | TASK-015 | Interfaz mínima de creación, consulta, edición y archivo, y recorrido completo | Finalizada | 014        |
 
 `TASK-020` pertenece a la Fase 2 y comprende categorías y etiquetas. `TASK-021` y `TASK-022` también pertenecen a la Fase 2; `TASK-023` no existe en el roadmap vigente. Por tanto, ninguna clasificación entra en este sprint.
+
+### Resultado del cierre
+
+La migración se aplicó desde cero sobre PostgreSQL 17 aislado. Se verificaron el esquema, la precisión decimal, las restricciones de unicidad y pertenencia de variante, y el recorrido creación → persistencia → reinicio → lectura. Formato, lint, tipado, pruebas, e2e y builds finalizaron correctamente antes de integrar la implementación.
 
 ### Correspondencia entre dominio y persistencia
 
