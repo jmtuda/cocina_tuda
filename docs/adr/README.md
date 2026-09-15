@@ -11,4 +11,3 @@ Formato mínimo:
 5. Consecuencias.
 
 Un ADR aceptado no se reescribe para ocultar su historia. Si cambia una decisión, otro ADR lo sustituye y enlaza el anterior.
-
