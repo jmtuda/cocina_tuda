@@ -44,7 +44,7 @@ No se crean todavía tablas de usuarios, grupos de recetas, sincronización o do
 
 Se utilizarán identificadores estables generados por la aplicación o la base de datos. El formato concreto se decidirá antes de la primera migración.
 
-La representación decimal y precisión de cantidades permanece pendiente hasta definir casos como fracciones, cantidades aproximadas y consolidación. No debe cerrarse el esquema antes de esa decisión.
+Las cantidades son valores numéricos decimales opcionales del uso de ingrediente y se persisten con un tipo de precisión exacta, nunca con coma flotante binaria. La ausencia de cantidad es válida y se representa con `NULL`. La escala y precisión concretas son una decisión técnica de la primera migración.
 
 ## 5. Archivo y eliminación
 
@@ -57,8 +57,6 @@ El esquema se modifica mediante migraciones reproducibles. Los índices adiciona
 ## 7. Pendientes antes de implementar
 
 - identificadores;
-- precisión de cantidades;
-- política de normalización y colisiones;
 - integridad ingrediente-variante;
 - archivo de recetas ya planificadas;
 - consolidación de unidades en compras.

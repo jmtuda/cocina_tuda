@@ -1,8 +1,8 @@
 # Cocina Tuda — Sprint actual
 
-**Versión:** 2.1
+**Versión:** 2.2
 
-**Estado:** Propuesto
+**Estado:** Activo
 
 **Responsable:** Project Manager
 
@@ -12,7 +12,7 @@
 
 Entregar el primer corte vertical: una receta puede crearse, consultarse, editarse y archivarse mediante web y API, con pasos e ingredientes vinculados a catálogos persistentes.
 
-Sprint 0A y Sprint 0B están finalizados. Este sprint no se activa hasta que el Project Manager apruebe este plan y resuelva las decisiones abiertas indicadas al final.
+Sprint 0A y Sprint 0B están finalizados. El Project Manager ha aprobado este plan y las decisiones funcionales necesarias para iniciar la implementación.
 
 ### Alcance validado
 
@@ -53,7 +53,7 @@ Los modelos Prisma no se usarán como entidades ni DTO públicos. `library` cons
 - Una variante seleccionada pertenece al ingrediente seleccionado.
 - Cantidad, unidad, opcionalidad y observaciones pertenecen al ingrediente de receta, nunca al catálogo.
 - La unidad, cuando existe, referencia el catálogo; no se admite texto libre.
-- Una receta no duplica el mismo ingrediente sin una justificación funcional explícita.
+- Una receta puede contener varios usos del mismo ingrediente y variante, incluso líneas idénticas; cada línea representa un uso culinario independiente.
 - Los cambios que afecten conjuntamente a receta, pasos e ingredientes de receta son atómicos.
 - El dominio no depende de NestJS, Prisma, PostgreSQL ni HTTP.
 
@@ -91,13 +91,11 @@ Mientras no exista una versión publicada, una corrección de la migración inic
 - Las dependencias respetan los límites `library`/`catalog` y dominio/aplicación/infraestructura/presentación.
 - Todas las comprobaciones de CI pasan y no existen defectos críticos conocidos.
 
-### Decisiones requeridas antes de activar el sprint
+### Decisiones aprobadas para la implementación
 
-El Project Manager debe aprobar las decisiones funcionales; después, Arquitectura concretará su traducción técnica:
-
-1. **Cantidades:** casos admitidos en el MVP (decimal, fracción, aproximada o texto) y comportamiento cuando no exista una cantidad exacta. Esta decisión bloquea TASK-012 y el esquema de TASK-013.
-2. **Colisiones normalizadas:** confirmar si nombres equivalentes tras normalizar se reutilizan, se rechazan solicitando corrección o permiten una excepción explícita. Esta decisión bloquea la escritura del catálogo y sus criterios de conflicto.
-3. **Ingredientes repetidos en una receta:** definir qué constituye la “justificación funcional” prevista por el dominio y cómo la expresa el usuario; hasta entonces no puede fijarse una restricción verificable.
+1. **Cantidades:** `IngredienteReceta` contiene un valor numérico decimal opcional, separado de `Unidad`. No es una entidad independiente, no se representa mediante `float` y su ausencia expresa que no existe una cantidad exacta.
+2. **Colisiones normalizadas:** la normalización detecta y previene duplicados. Una colisión se rechaza o requiere resolución explícita; nunca fusiona entidades automáticamente. Se aplica unicidad normalizada donde el nombre identifica funcionalmente el elemento.
+3. **Ingredientes repetidos en una receta:** se permiten múltiples usos con el mismo ingrediente y variante. No existe una restricción de unicidad por receta, ingrediente y variante ni se impiden por ahora líneas idénticas.
 
 No bloquean este sprint el comportamiento de una receta archivada ya planificada ni la consolidación de unidades en compras, porque planificación y compras pertenecen a fases posteriores. Identificadores, algoritmo exacto de normalización y mecanismo de integridad ingrediente-variante son decisiones técnicas que Arquitectura puede proponer una vez aprobado el comportamiento funcional.
 
