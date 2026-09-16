@@ -18,6 +18,8 @@ export type RecipeInput = {
   notes?: string;
   steps: RecipeStepInput[];
   ingredients: RecipeIngredientInput[];
+  categoryIds?: string[];
+  tagIds?: string[];
 };
 
 export class RecipeDraft {
@@ -28,6 +30,12 @@ export class RecipeDraft {
     if (!name) throw new Error('Recipe name is required');
     this.assertUniquePositions(input.steps, 'step');
     this.assertUniquePositions(input.ingredients, 'ingredient');
+    if (
+      new Set(input.categoryIds ?? []).size !== (input.categoryIds ?? []).length
+    )
+      throw new Error('Categories must be unique');
+    if (new Set(input.tagIds ?? []).size !== (input.tagIds ?? []).length)
+      throw new Error('Tags must be unique');
     for (const ingredient of input.ingredients) {
       if (
         ingredient.quantity !== undefined &&

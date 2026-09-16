@@ -155,12 +155,38 @@ h2 {
     0.9rem Arial,
     sans-serif;
 }
+.library-list {
+  display: grid;
+  gap: 0.55rem;
+}
+.recipe-card {
+  display: flex;
+  justify-content: space-between;
+  border-radius: 0.7rem;
+  background: white;
+  color: var(--foreground);
+  text-align: left;
+}
+.classification-lists {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+.classification-lists button {
+  padding: 0.35rem 0.65rem;
+  font-size: 0.75rem;
+}
+select[multiple] {
+  min-height: 7rem;
+}
 
 @media (max-width: 760px) {
   .shell {
     padding: 2rem 0;
   }
   .catalogs,
+  .classification-lists,
   .row {
     grid-template-columns: 1fr;
   }

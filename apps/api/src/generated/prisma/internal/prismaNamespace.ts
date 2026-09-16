@@ -433,6 +433,10 @@ export const ModelName = {
   IngredientVariant: 'IngredientVariant',
   Unit: 'Unit',
   RecipeIngredient: 'RecipeIngredient',
+  Category: 'Category',
+  Tag: 'Tag',
+  RecipeCategory: 'RecipeCategory',
+  RecipeTag: 'RecipeTag',
 } as const;
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName];
@@ -460,7 +464,11 @@ export type TypeMap<
       | 'ingredient'
       | 'ingredientVariant'
       | 'unit'
-      | 'recipeIngredient';
+      | 'recipeIngredient'
+      | 'category'
+      | 'tag'
+      | 'recipeCategory'
+      | 'recipeTag';
     txIsolationLevel: TransactionIsolationLevel;
   };
   model: {
@@ -920,6 +928,310 @@ export type TypeMap<
         };
       };
     };
+    Category: {
+      payload: Prisma.$CategoryPayload<ExtArgs>;
+      fields: Prisma.CategoryFieldRefs;
+      operations: {
+        findUnique: {
+          args: Prisma.CategoryFindUniqueArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryPayload> | null;
+        };
+        findUniqueOrThrow: {
+          args: Prisma.CategoryFindUniqueOrThrowArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryPayload>;
+        };
+        findFirst: {
+          args: Prisma.CategoryFindFirstArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryPayload> | null;
+        };
+        findFirstOrThrow: {
+          args: Prisma.CategoryFindFirstOrThrowArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryPayload>;
+        };
+        findMany: {
+          args: Prisma.CategoryFindManyArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryPayload>[];
+        };
+        create: {
+          args: Prisma.CategoryCreateArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryPayload>;
+        };
+        createMany: {
+          args: Prisma.CategoryCreateManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        createManyAndReturn: {
+          args: Prisma.CategoryCreateManyAndReturnArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryPayload>[];
+        };
+        delete: {
+          args: Prisma.CategoryDeleteArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryPayload>;
+        };
+        update: {
+          args: Prisma.CategoryUpdateArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryPayload>;
+        };
+        deleteMany: {
+          args: Prisma.CategoryDeleteManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        updateMany: {
+          args: Prisma.CategoryUpdateManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        updateManyAndReturn: {
+          args: Prisma.CategoryUpdateManyAndReturnArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryPayload>[];
+        };
+        upsert: {
+          args: Prisma.CategoryUpsertArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryPayload>;
+        };
+        aggregate: {
+          args: Prisma.CategoryAggregateArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCategory>;
+        };
+        groupBy: {
+          args: Prisma.CategoryGroupByArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.CategoryGroupByOutputType>[];
+        };
+        count: {
+          args: Prisma.CategoryCountArgs<ExtArgs>;
+          result:
+            | runtime.Types.Utils.Optional<Prisma.CategoryCountAggregateOutputType>
+            | number;
+        };
+      };
+    };
+    Tag: {
+      payload: Prisma.$TagPayload<ExtArgs>;
+      fields: Prisma.TagFieldRefs;
+      operations: {
+        findUnique: {
+          args: Prisma.TagFindUniqueArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload> | null;
+        };
+        findUniqueOrThrow: {
+          args: Prisma.TagFindUniqueOrThrowArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>;
+        };
+        findFirst: {
+          args: Prisma.TagFindFirstArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload> | null;
+        };
+        findFirstOrThrow: {
+          args: Prisma.TagFindFirstOrThrowArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>;
+        };
+        findMany: {
+          args: Prisma.TagFindManyArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>[];
+        };
+        create: {
+          args: Prisma.TagCreateArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>;
+        };
+        createMany: {
+          args: Prisma.TagCreateManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        createManyAndReturn: {
+          args: Prisma.TagCreateManyAndReturnArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>[];
+        };
+        delete: {
+          args: Prisma.TagDeleteArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>;
+        };
+        update: {
+          args: Prisma.TagUpdateArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>;
+        };
+        deleteMany: {
+          args: Prisma.TagDeleteManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        updateMany: {
+          args: Prisma.TagUpdateManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        updateManyAndReturn: {
+          args: Prisma.TagUpdateManyAndReturnArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>[];
+        };
+        upsert: {
+          args: Prisma.TagUpsertArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>;
+        };
+        aggregate: {
+          args: Prisma.TagAggregateArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTag>;
+        };
+        groupBy: {
+          args: Prisma.TagGroupByArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.TagGroupByOutputType>[];
+        };
+        count: {
+          args: Prisma.TagCountArgs<ExtArgs>;
+          result:
+            | runtime.Types.Utils.Optional<Prisma.TagCountAggregateOutputType>
+            | number;
+        };
+      };
+    };
+    RecipeCategory: {
+      payload: Prisma.$RecipeCategoryPayload<ExtArgs>;
+      fields: Prisma.RecipeCategoryFieldRefs;
+      operations: {
+        findUnique: {
+          args: Prisma.RecipeCategoryFindUniqueArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecipeCategoryPayload> | null;
+        };
+        findUniqueOrThrow: {
+          args: Prisma.RecipeCategoryFindUniqueOrThrowArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecipeCategoryPayload>;
+        };
+        findFirst: {
+          args: Prisma.RecipeCategoryFindFirstArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecipeCategoryPayload> | null;
+        };
+        findFirstOrThrow: {
+          args: Prisma.RecipeCategoryFindFirstOrThrowArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecipeCategoryPayload>;
+        };
+        findMany: {
+          args: Prisma.RecipeCategoryFindManyArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecipeCategoryPayload>[];
+        };
+        create: {
+          args: Prisma.RecipeCategoryCreateArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecipeCategoryPayload>;
+        };
+        createMany: {
+          args: Prisma.RecipeCategoryCreateManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        createManyAndReturn: {
+          args: Prisma.RecipeCategoryCreateManyAndReturnArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecipeCategoryPayload>[];
+        };
+        delete: {
+          args: Prisma.RecipeCategoryDeleteArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecipeCategoryPayload>;
+        };
+        update: {
+          args: Prisma.RecipeCategoryUpdateArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecipeCategoryPayload>;
+        };
+        deleteMany: {
+          args: Prisma.RecipeCategoryDeleteManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        updateMany: {
+          args: Prisma.RecipeCategoryUpdateManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        updateManyAndReturn: {
+          args: Prisma.RecipeCategoryUpdateManyAndReturnArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecipeCategoryPayload>[];
+        };
+        upsert: {
+          args: Prisma.RecipeCategoryUpsertArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecipeCategoryPayload>;
+        };
+        aggregate: {
+          args: Prisma.RecipeCategoryAggregateArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRecipeCategory>;
+        };
+        groupBy: {
+          args: Prisma.RecipeCategoryGroupByArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.RecipeCategoryGroupByOutputType>[];
+        };
+        count: {
+          args: Prisma.RecipeCategoryCountArgs<ExtArgs>;
+          result:
+            | runtime.Types.Utils.Optional<Prisma.RecipeCategoryCountAggregateOutputType>
+            | number;
+        };
+      };
+    };
+    RecipeTag: {
+      payload: Prisma.$RecipeTagPayload<ExtArgs>;
+      fields: Prisma.RecipeTagFieldRefs;
+      operations: {
+        findUnique: {
+          args: Prisma.RecipeTagFindUniqueArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecipeTagPayload> | null;
+        };
+        findUniqueOrThrow: {
+          args: Prisma.RecipeTagFindUniqueOrThrowArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecipeTagPayload>;
+        };
+        findFirst: {
+          args: Prisma.RecipeTagFindFirstArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecipeTagPayload> | null;
+        };
+        findFirstOrThrow: {
+          args: Prisma.RecipeTagFindFirstOrThrowArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecipeTagPayload>;
+        };
+        findMany: {
+          args: Prisma.RecipeTagFindManyArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecipeTagPayload>[];
+        };
+        create: {
+          args: Prisma.RecipeTagCreateArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecipeTagPayload>;
+        };
+        createMany: {
+          args: Prisma.RecipeTagCreateManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        createManyAndReturn: {
+          args: Prisma.RecipeTagCreateManyAndReturnArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecipeTagPayload>[];
+        };
+        delete: {
+          args: Prisma.RecipeTagDeleteArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecipeTagPayload>;
+        };
+        update: {
+          args: Prisma.RecipeTagUpdateArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecipeTagPayload>;
+        };
+        deleteMany: {
+          args: Prisma.RecipeTagDeleteManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        updateMany: {
+          args: Prisma.RecipeTagUpdateManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        updateManyAndReturn: {
+          args: Prisma.RecipeTagUpdateManyAndReturnArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecipeTagPayload>[];
+        };
+        upsert: {
+          args: Prisma.RecipeTagUpsertArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecipeTagPayload>;
+        };
+        aggregate: {
+          args: Prisma.RecipeTagAggregateArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRecipeTag>;
+        };
+        groupBy: {
+          args: Prisma.RecipeTagGroupByArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.RecipeTagGroupByOutputType>[];
+        };
+        count: {
+          args: Prisma.RecipeTagCountArgs<ExtArgs>;
+          result:
+            | runtime.Types.Utils.Optional<Prisma.RecipeTagCountAggregateOutputType>
+            | number;
+        };
+      };
+    };
   };
 } & {
   other: {
@@ -962,6 +1274,7 @@ export type TransactionIsolationLevel =
 export const RecipeScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  normalizedName: 'normalizedName',
   description: 'description',
   author: 'author',
   servings: 'servings',
@@ -1031,6 +1344,40 @@ export const RecipeIngredientScalarFieldEnum = {
 
 export type RecipeIngredientScalarFieldEnum =
   (typeof RecipeIngredientScalarFieldEnum)[keyof typeof RecipeIngredientScalarFieldEnum];
+
+export const CategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  normalizedName: 'normalizedName',
+} as const;
+
+export type CategoryScalarFieldEnum =
+  (typeof CategoryScalarFieldEnum)[keyof typeof CategoryScalarFieldEnum];
+
+export const TagScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  normalizedName: 'normalizedName',
+} as const;
+
+export type TagScalarFieldEnum =
+  (typeof TagScalarFieldEnum)[keyof typeof TagScalarFieldEnum];
+
+export const RecipeCategoryScalarFieldEnum = {
+  recipeId: 'recipeId',
+  categoryId: 'categoryId',
+} as const;
+
+export type RecipeCategoryScalarFieldEnum =
+  (typeof RecipeCategoryScalarFieldEnum)[keyof typeof RecipeCategoryScalarFieldEnum];
+
+export const RecipeTagScalarFieldEnum = {
+  recipeId: 'recipeId',
+  tagId: 'tagId',
+} as const;
+
+export type RecipeTagScalarFieldEnum =
+  (typeof RecipeTagScalarFieldEnum)[keyof typeof RecipeTagScalarFieldEnum];
 
 export const SortOrder = {
   asc: 'asc',
@@ -1324,6 +1671,10 @@ export type GlobalOmitConfig = {
   ingredientVariant?: Prisma.IngredientVariantOmit;
   unit?: Prisma.UnitOmit;
   recipeIngredient?: Prisma.RecipeIngredientOmit;
+  category?: Prisma.CategoryOmit;
+  tag?: Prisma.TagOmit;
+  recipeCategory?: Prisma.RecipeCategoryOmit;
+  recipeTag?: Prisma.RecipeTagOmit;
 };
 
 /* Types for Logging */
