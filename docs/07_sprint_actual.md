@@ -42,8 +42,9 @@ Las tres tareas completan B-006. Categorías, etiquetas, estado, orden y paginac
 
 ### Incluido
 
-- búsqueda de recetas por el texto y los campos que apruebe el Project Manager;
-- filtro por ingredientes con la semántica que se apruebe;
+- búsqueda textual sobre nombre, descripción, ingredientes, variantes, categorías y etiquetas, sin incluir pasos ni notas;
+- coincidencia sin distinción de mayúsculas ni acentos y con parciales razonables; todas las palabras deben aparecer en algún campo buscable;
+- filtro que distingue ingrediente base y variante y combina mediante AND todas las selecciones;
 - combinación con estado, categoría y etiqueta, conservando OR dentro de categoría o etiqueta y AND entre tipos diferentes;
 - resultados paginados, ordenados por relevancia cuando exista consulta textual y con un desempate determinista;
 - validación funcional y de rendimiento sobre PostgreSQL real con una biblioteca representativa;
@@ -52,7 +53,8 @@ Las tres tareas completan B-006. Categorías, etiquetas, estado, orden y paginac
 ### Fuera de alcance
 
 - importación asistida y cualquier trabajo de Fase 4 o posterior;
-- búsqueda en fuentes externas, sugerencias mediante IA o corrección semántica generativa;
+- búsqueda en pasos o notas, fuentes externas, sugerencias mediante IA o corrección semántica generativa;
+- stemming, sinónimos, tratamiento específico de singular/plural, errores tipográficos o búsqueda difusa;
 - nuevos metadatos, jerarquías o fusiones de ingredientes, categorías o etiquetas;
 - eliminación física de recetas;
 - rediseño visual general, autenticación, multiusuario, sincronización u offline.
@@ -67,7 +69,7 @@ No se presupone una migración concreta antes de aprobar el comportamiento y med
 - **Persistencia:** consultas reales sobre PostgreSQL, igualdad entre filtros y relaciones persistidas, desempates estables y plan de ejecución de los recorridos críticos.
 - **API:** validación de parámetros, respuesta paginada, combinaciones admitidas, consultas vacías, ausentes y errores.
 - **Web:** buscar, combinar criterios, cambiar de página, limpiar la consulta y recuperar el listado; estados vacío, carga y fallo.
-- **Rendimiento:** datos reproducibles con volumen y distribución aprobados; medición de consultas representativas contra un umbral acordado, registrando entorno y resultado.
+- **Rendimiento:** unas 10.000 recetas con relaciones realistas y generación reproducible; medir el p95 del backend y PostgreSQL, sin navegador ni red, y registrar entorno, dataset y resultado.
 - **Regresión:** mantener verdes formato, lint, tipado, pruebas unitarias, integración, e2e, builds y CI, incluidos los recorridos de Sprint 1 y Sprint 2.
 
 ### Criterios de aceptación
@@ -75,24 +77,24 @@ No se presupone una migración concreta antes de aprobar el comportamiento y med
 - El usuario puede localizar recetas por texto e ingredientes desde la biblioteca sin conocer sus identificadores.
 - Texto, ingredientes, estado, categorías y etiquetas se combinan conforme a reglas aprobadas y producen resultados reproducibles.
 - La búsqueda respeta el comportamiento vigente de recetas activas y archivadas y no modifica datos.
-- Los resultados se paginan y mantienen un orden estable; cuando procede, la relevancia sigue ejemplos aprobados.
+- Los resultados se paginan y ordenan por coincidencia exacta en nombre, parcial en nombre, ingrediente o variante, categoría o etiqueta y descripción; los empates usan nombre normalizado ascendente.
 - La API y OpenAPI describen completamente los parámetros y la respuesta sin filtrar detalles de Prisma.
 - La interfaz permite aplicar, combinar y limpiar los criterios y comunica ausencia de resultados y errores.
 - Las migraciones, si existen, se aplican sobre PostgreSQL vacío y sobre Sprint 2 sin pérdida de datos.
-- Los recorridos representativos cumplen el objetivo de rendimiento aprobado y la evidencia queda registrada.
+- El p95 de las consultas representativas sobre unas 10.000 recetas es igual o inferior a 300 ms, midiendo solo backend y PostgreSQL, y la evidencia reproducible queda registrada.
 - B-006 puede marcarse Finalizado y todas las validaciones obligatorias permanecen verdes.
 
-### Decisiones pendientes del Project Manager
+### Decisiones aprobadas para la implementación
 
-1. **Campos de texto:** concretar si la consulta abarca solo nombre o también descripción, autor, notas, pasos y nombres de ingredientes/variantes. Categorías y etiquetas ya son filtros explícitos.
-2. **Coincidencia:** definir tratamiento de acentos, palabras parciales, varias palabras, plurales y errores tipográficos, incluido el mínimo de caracteres y la consulta vacía.
-3. **Relevancia:** establecer prioridades entre campos y tipos de coincidencia, y el desempate; confirmar si sin texto se conserva el orden por nombre normalizado.
-4. **Ingredientes:** decidir si se filtra por ingrediente base, variante o ambos, y si seleccionar varios ingredientes exige cualquiera de ellos (OR) o todos (AND).
-5. **Rendimiento:** fijar tamaño y distribución de la biblioteca representativa, consultas críticas y tiempo de respuesta aceptable en el entorno de referencia.
+1. **Campos:** nombre, descripción, ingredientes, variantes, categorías y etiquetas; se excluyen pasos y notas.
+2. **Coincidencia:** insensible a mayúsculas y acentos, parcial razonable y AND entre palabras aunque aparezcan en campos distintos; sin singular/plural especial, stemming, sinónimos, errores tipográficos ni fuzzy search.
+3. **Relevancia:** exacta en nombre, parcial en nombre, ingrediente o variante, categoría o etiqueta y descripción; empate por nombre normalizado ascendente, sin scoring adicional innecesario.
+4. **Ingredientes:** el ingrediente base incluye cualquier variante; una variante exige esa variante; varias selecciones y los demás tipos de filtro se combinan mediante AND.
+5. **Rendimiento:** unas 10.000 recetas realistas y p95 menor o igual a 300 ms para backend y PostgreSQL, excluyendo navegador y red, con entorno y dataset reproducibles. Cualquier cambio del criterio requiere aprobación del Project Manager.
 
 ### Riesgos y coherencia documental
 
-- El roadmap menciona texto, ingredientes, categorías y etiquetas, pero no define los cinco puntos anteriores; TASK-030 debe resolverlos antes de implementar.
+- Los requisitos aprobados completan TASK-030 y permiten implementar y verificar TASK-031 y TASK-032.
 - B-006 figura En desarrollo porque Sprint 2 entregó sus filtros básicos; se cerrará únicamente tras completar la búsqueda de esta fase.
-- Añadir tolerancia tipográfica o lingüística puede requerir capacidades específicas de PostgreSQL y condicionar migraciones y despliegue.
-- La medición de TASK-032 no será concluyente sin un conjunto de datos y umbral previamente acordados.
+- La búsqueda insensible a acentos y los parciales pueden requerir capacidades e índices específicos de PostgreSQL; deben justificarse y mantenerse reproducibles.
+- El benchmark puede variar por hardware y caché; la evidencia debe identificar el entorno y el procedimiento sin convertir el umbral en un contrato permanente del producto.
