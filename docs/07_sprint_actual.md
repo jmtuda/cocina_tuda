@@ -1,8 +1,8 @@
 # Cocina Tuda — Sprint actual
 
-**Versión:** 3.1
+**Versión:** 3.2
 
-**Estado:** Activo
+**Estado:** Finalizado
 
 **Responsable:** Project Manager
 
@@ -12,17 +12,21 @@
 
 Convertir el corte vertical de Sprint 1 en una biblioteca navegable y mantenible: listar recetas, consultar y editar cualquiera de ellas, clasificarlas mediante categorías y etiquetas, y reducir el listado mediante filtros básicos.
 
-Sprint 1 está finalizado. El Project Manager ha aprobado esta propuesta y las decisiones funcionales de Sprint 2.
+Sprint 1 y Sprint 2 están finalizados. La Fase 3 no está planificada ni activa.
 
 ### Alcance validado
 
-| Orden | Tarea    | Resultado verificable                                                    | Depende de |
-| ----- | -------- | ------------------------------------------------------------------------ | ---------- |
-| 1     | TASK-020 | Categorías y etiquetas persistentes, gestionables y asociables a recetas | Sprint 1   |
-| 2     | TASK-021 | Listado navegable y flujos completos de detalle y edición                | Sprint 1   |
-| 3     | TASK-022 | Filtros básicos sobre el listado conforme a las decisiones aprobadas     | 020, 021   |
+| Orden | Tarea    | Resultado verificable                                                    | Estado     | Depende de |
+| ----- | -------- | ------------------------------------------------------------------------ | ---------- | ---------- |
+| 1     | TASK-020 | Categorías y etiquetas persistentes, gestionables y asociables a recetas | Finalizada | Sprint 1   |
+| 2     | TASK-021 | Listado navegable y flujos completos de detalle y edición                | Finalizada | Sprint 1   |
+| 3     | TASK-022 | Filtros básicos sobre el listado conforme a las decisiones aprobadas     | Finalizada | 020, 021   |
 
 `TASK-020` cubre B-005. `TASK-021` completa la experiencia de B-001 y B-002 ya entregada en Sprint 1. `TASK-022` cubre solo la parte de filtros de B-006; B-006 no puede marcarse Finalizado hasta incorporar la búsqueda prevista en Fase 3.
+
+### Resultado del cierre
+
+La migración se validó sobre PostgreSQL 17 tanto desde una base vacía como sobre datos de Sprint 1. Se comprobaron listado y paginación, filtros OR/AND, archivo y reactivación, renombrado reflejado y rechazo de eliminación en uso. Las validaciones locales y de CI finalizaron correctamente antes de integrar la implementación.
 
 ### Punto de partida real
 
