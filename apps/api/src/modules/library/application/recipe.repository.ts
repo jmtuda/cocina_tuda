@@ -6,6 +6,9 @@ export type RecipeListQuery = {
   statuses: Array<'ACTIVE' | 'ARCHIVED'>;
   categoryIds: string[];
   tagIds: string[];
+  text: string;
+  ingredientIds: string[];
+  variantIds: string[];
 };
 
 export const RECIPE_REPOSITORY = Symbol('RECIPE_REPOSITORY');

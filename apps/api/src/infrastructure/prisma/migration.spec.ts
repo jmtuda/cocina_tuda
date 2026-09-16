@@ -20,6 +20,15 @@ const sprintTwoMigration = readFileSync(
   ),
   'utf8',
 );
+const sprintThreeMigration = readFileSync(
+  fileURLToPath(
+    new URL(
+      '../../../prisma/migrations/20260916180000_sprint_3_search/migration.sql',
+      import.meta.url,
+    ),
+  ),
+  'utf8',
+);
 
 describe('Sprint 1 migration contract', () => {
   it('stores optional quantities as exact decimals', () => {
@@ -54,5 +63,27 @@ describe('Sprint 2 migration contract', () => {
   it('adds normalized recipe ordering without rewriting Sprint 1 migration', () => {
     expect(sprintTwoMigration).toContain('"normalized_name"');
     expect(sprintTwoMigration).toContain('recipes_normalized_name_id_idx');
+  });
+});
+
+describe('Sprint 3 migration contract', () => {
+  it('provides accent-insensitive indexed partial search', () => {
+    expect(sprintThreeMigration).toContain(
+      'CREATE EXTENSION IF NOT EXISTS "unaccent"',
+    );
+    expect(sprintThreeMigration).toContain(
+      'CREATE EXTENSION IF NOT EXISTS "pg_trgm"',
+    );
+    expect(sprintThreeMigration).toContain('FUNCTION search_normalize');
+    expect(sprintThreeMigration).toContain('gin_trgm_ops');
+  });
+
+  it('indexes base ingredient and variant filters', () => {
+    expect(sprintThreeMigration).toContain(
+      'recipe_ingredients_ingredient_recipe_idx',
+    );
+    expect(sprintThreeMigration).toContain(
+      'recipe_ingredients_variant_recipe_idx',
+    );
   });
 });

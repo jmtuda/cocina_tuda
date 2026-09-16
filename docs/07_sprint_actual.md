@@ -2,7 +2,7 @@
 
 **Versión:** 4.0
 
-**Estado:** Propuesto
+**Estado:** Activo — implementación lista para revisión
 
 **Responsable:** Project Manager
 
@@ -12,15 +12,15 @@
 
 Completar B-006 para que el usuario localice recetas por texto e ingredientes, combinando esos criterios con los filtros de estado, categoría y etiqueta ya disponibles, con un comportamiento de relevancia explícito y rendimiento validado sobre una biblioteca representativa.
 
-Sprint 1 y Sprint 2 están finalizados. Sprint 3 no está activo y no se ha implementado funcionalidad de Fase 3.
+Sprint 1 y Sprint 2 están finalizados. Sprint 3 está activo; su implementación está completa en una rama y pendiente de revisión e integración.
 
 ### Alcance propuesto
 
-| Orden | Tarea    | Resultado verificable                                                              | Estado    | Depende de |
-| ----- | -------- | ---------------------------------------------------------------------------------- | --------- | ---------- |
-| 1     | TASK-030 | Reglas aprobadas de consulta, coincidencia, combinación, relevancia y casos límite | Propuesta | Sprint 2   |
-| 2     | TASK-031 | Búsqueda por texto e ingredientes integrada con filtros y paginación existentes    | Propuesta | 030        |
-| 3     | TASK-032 | Rendimiento medido y aceptado con una biblioteca representativa                    | Propuesta | 031        |
+| Orden | Tarea    | Resultado verificable                                                              | Estado      | Depende de |
+| ----- | -------- | ---------------------------------------------------------------------------------- | ----------- | ---------- |
+| 1     | TASK-030 | Reglas aprobadas de consulta, coincidencia, combinación, relevancia y casos límite | En revisión | Sprint 2   |
+| 2     | TASK-031 | Búsqueda por texto e ingredientes integrada con filtros y paginación existentes    | En revisión | 030        |
+| 3     | TASK-032 | Rendimiento medido y aceptado con una biblioteca representativa                    | En revisión | 031        |
 
 Las tres tareas completan B-006. Categorías, etiquetas, estado, orden y paginación ya entregados se reutilizan; no se reimplementan.
 
@@ -98,3 +98,14 @@ No se presupone una migración concreta antes de aprobar el comportamiento y med
 - B-006 figura En desarrollo porque Sprint 2 entregó sus filtros básicos; se cerrará únicamente tras completar la búsqueda de esta fase.
 - La búsqueda insensible a acentos y los parciales pueden requerir capacidades e índices específicos de PostgreSQL; deben justificarse y mantenerse reproducibles.
 - El benchmark puede variar por hardware y caché; la evidencia debe identificar el entorno y el procedimiento sin convertir el umbral en un contrato permanente del producto.
+
+### Evidencia de TASK-032
+
+Benchmark reproducible ejecutado el 16 de septiembre de 2026 sobre PostgreSQL 17 en Docker Desktop, desde Node.js 24.7.0. El dataset contiene 10.000 recetas, 5 ingredientes, 2 categorías y 3 etiquetas por receta, con 18 consultas de calentamiento y 120 consultas medidas que alternan texto y filtros combinados.
+
+- p50: 89,06 ms;
+- p95: 218,29 ms;
+- máximo: 219,93 ms;
+- criterio aprobado: p95 menor o igual a 300 ms.
+
+La medición abarca el repositorio de aplicación y PostgreSQL; excluye HTTP, red y renderizado. Se reproduce con `DATABASE_URL=... pnpm --filter @cocina-tuda/api benchmark:search` sobre una base destinada a pruebas, cuyo contenido se reemplaza al generar el dataset.

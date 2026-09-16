@@ -86,4 +86,20 @@ export class ListRecipesDto {
   @IsOptional()
   @IsString()
   tag?: string;
+  @ApiPropertyOptional({ description: 'Text to search' })
+  @IsOptional()
+  @IsString()
+  q?: string;
+  @ApiPropertyOptional({
+    description: 'Base ingredient UUIDs separated by comma',
+  })
+  @IsOptional()
+  @IsString()
+  ingredient?: string;
+  @ApiPropertyOptional({
+    description: 'Ingredient variant UUIDs separated by comma',
+  })
+  @IsOptional()
+  @IsString()
+  variant?: string;
 }
