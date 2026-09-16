@@ -1,88 +1,100 @@
 # Cocina Tuda — Sprint actual
 
-**Versión:** 3.2
+**Versión:** 4.0
 
-**Estado:** Finalizado
+**Estado:** Propuesto
 
 **Responsable:** Project Manager
 
-## Sprint 2 — Clasificación y biblioteca utilizable
+## Sprint 3 — Búsqueda
 
 ### Objetivo
 
-Convertir el corte vertical de Sprint 1 en una biblioteca navegable y mantenible: listar recetas, consultar y editar cualquiera de ellas, clasificarlas mediante categorías y etiquetas, y reducir el listado mediante filtros básicos.
+Completar B-006 para que el usuario localice recetas por texto e ingredientes, combinando esos criterios con los filtros de estado, categoría y etiqueta ya disponibles, con un comportamiento de relevancia explícito y rendimiento validado sobre una biblioteca representativa.
 
-Sprint 1 y Sprint 2 están finalizados. La Fase 3 no está planificada ni activa.
+Sprint 1 y Sprint 2 están finalizados. Sprint 3 no está activo y no se ha implementado funcionalidad de Fase 3.
 
-### Alcance validado
+### Alcance propuesto
 
-| Orden | Tarea    | Resultado verificable                                                    | Estado     | Depende de |
-| ----- | -------- | ------------------------------------------------------------------------ | ---------- | ---------- |
-| 1     | TASK-020 | Categorías y etiquetas persistentes, gestionables y asociables a recetas | Finalizada | Sprint 1   |
-| 2     | TASK-021 | Listado navegable y flujos completos de detalle y edición                | Finalizada | Sprint 1   |
-| 3     | TASK-022 | Filtros básicos sobre el listado conforme a las decisiones aprobadas     | Finalizada | 020, 021   |
+| Orden | Tarea    | Resultado verificable                                                              | Estado    | Depende de |
+| ----- | -------- | ---------------------------------------------------------------------------------- | --------- | ---------- |
+| 1     | TASK-030 | Reglas aprobadas de consulta, coincidencia, combinación, relevancia y casos límite | Propuesta | Sprint 2   |
+| 2     | TASK-031 | Búsqueda por texto e ingredientes integrada con filtros y paginación existentes    | Propuesta | 030        |
+| 3     | TASK-032 | Rendimiento medido y aceptado con una biblioteca representativa                    | Propuesta | 031        |
 
-`TASK-020` cubre B-005. `TASK-021` completa la experiencia de B-001 y B-002 ya entregada en Sprint 1. `TASK-022` cubre solo la parte de filtros de B-006; B-006 no puede marcarse Finalizado hasta incorporar la búsqueda prevista en Fase 3.
+Las tres tareas completan B-006. Categorías, etiquetas, estado, orden y paginación ya entregados se reutilizan; no se reimplementan.
 
-### Resultado del cierre
+### Dependencias y orden
 
-La migración se validó sobre PostgreSQL 17 tanto desde una base vacía como sobre datos de Sprint 1. Se comprobaron listado y paginación, filtros OR/AND, archivo y reactivación, renombrado reflejado y rechazo de eliminación en uso. Las validaciones locales y de CI finalizaron correctamente antes de integrar la implementación.
-
-### Punto de partida real
-
-- La API permite crear, recuperar por ID, editar y archivar una receta, pero no listar recetas.
-- La web permite crear y modificar la receta cuyo ID conserva durante la sesión; no permite navegar por recetas persistidas ni abrir otra receta.
-- El esquema ya contempla recetas, pasos, ingredientes, variantes y unidades. No existen tablas ni código de categorías y etiquetas.
-- PostgreSQL, Prisma, API `/api/v1`, OpenAPI, validación, repositorios transaccionales y pruebas constituyen la base disponible.
+1. Aprobar las decisiones funcionales de TASK-030 y convertirlas en ejemplos verificables.
+2. Diseñar los contratos de consulta sin acoplar aplicación ni API a Prisma.
+3. Implementar TASK-031 de persistencia a interfaz, conservando la semántica vigente de archivo, filtros y paginación.
+4. Preparar el conjunto representativo, medir los recorridos acordados y ajustar solo los índices o consultas justificados por TASK-032.
+5. Ejecutar regresión completa sobre las capacidades de Sprint 1 y Sprint 2.
 
 ### Cambios previstos
 
-- **Dominio:** materializar categoría y etiqueta como catálogos planos con nombre normalizado único; proteger que una receta no repita una misma relación de clasificación.
-- **Aplicación:** añadir operaciones de gestión de clasificaciones, asociación atómica al agregado receta, reactivación, listado paginado y consulta filtrada mediante contratos de repositorio.
-- **Persistencia:** incorporar `categories`, `tags`, `recipe_categories` y `recipe_tags`, con claves foráneas, unicidad normalizada y pares receta-clasificación únicos; añadir solo los índices exigidos por las consultas aprobadas.
-- **API:** ampliar `/api/v1` con contratos para categorías, etiquetas y listado filtrado; mantener DTO públicos independientes de Prisma y documentar el resultado en OpenAPI.
-- **Interfaz:** presentar una biblioteca navegable y paginada, acceso a detalle/edición, archivo/reactivación, asignación de categorías y etiquetas y controles de filtro; no incorporar búsqueda textual.
+- **Dominio:** no se prevén entidades ni reglas nuevas; la búsqueda consulta la biblioteca y los catálogos sin modificar datos funcionales.
+- **Aplicación:** incorporar un contrato de búsqueda paginada y su composición con estado, categorías, etiquetas e ingredientes, manteniendo separada la política de relevancia.
+- **Persistencia:** implementar consultas PostgreSQL reproducibles y añadir únicamente los índices o capacidades de búsqueda que resulten necesarios tras aprobar TASK-030 y medir TASK-032. Cualquier migración será aditiva y se validará desde una base vacía y sobre el esquema de Sprint 2.
+- **API:** ampliar el contrato de consulta bajo `/api/v1`, documentar parámetros, validaciones, paginación, orden/relevancia y respuesta en OpenAPI, sin exponer modelos Prisma.
+- **Interfaz:** añadir entrada de búsqueda y selección por ingredientes al listado existente, conservar los filtros de estado, categoría y etiqueta y representar carga, ausencia de resultados, errores y paginación.
 
-### Migraciones
+### Incluido
 
-Se creará una nueva migración posterior a la de Sprint 1; la migración ya integrada no se reescribe. Debe poder aplicarse tanto sobre una base vacía mediante toda la cadena como sobre una base con datos de Sprint 1, sin alterar recetas existentes. Las relaciones muchos-a-muchos evitarán pares duplicados, no usarán eliminación en cascada de clasificaciones y permitirán renombrarlas sin reescribir las relaciones.
-
-### Estrategia de pruebas
-
-- **Dominio:** normalización y unicidad de categorías y etiquetas; ausencia de relaciones duplicadas.
-- **Aplicación:** gestión y asignación de clasificaciones, listado, combinación de filtros y tratamiento de recetas archivadas conforme a las decisiones aprobadas.
-- **Integración:** cadena completa de migraciones sobre PostgreSQL vacío y migración sobre datos de Sprint 1; restricciones únicas y referenciales; consultas filtradas.
-- **API:** contratos, validación, conflictos, ausentes y semántica de filtros.
-- **Web:** recorrido de abrir la biblioteca, entrar en una receta persistida, editarla, clasificarla y filtrar el listado.
-- **Regresión:** conservar las garantías y recorridos de Sprint 1 y mantener verdes formato, lint, tipado, pruebas, e2e y builds.
-
-### Criterios de aceptación
-
-- La web muestra las recetas persistidas y permite abrir cualquiera de ellas sin conocer su ID.
-- El listado se ordena por nombre normalizado ascendente, se pagina por página y tamaño y oculta por defecto las recetas archivadas.
-- Existe una consulta explícita de archivadas; estas pueden consultarse, editarse y reactivarse, pero nunca eliminarse físicamente.
-- El detalle recupera la receta completa y la edición conserva pasos, ingredientes y clasificaciones sin relaciones duplicadas.
-- Se pueden gestionar y reutilizar categorías y etiquetas con unicidad por nombre normalizado y sin fusiones automáticas.
-- Una receta puede asociarse con varias categorías y etiquetas planas, y cada relación es única.
-- Categorías y etiquetas pueden crearse y renombrarse; solo pueden eliminarse sin asociaciones y el intento contrario se rechaza explícitamente.
-- Los filtros de estado, categoría y etiqueta reducen el listado: OR dentro del mismo tipo y AND entre tipos diferentes.
-- La nueva migración se aplica reproduciblemente sobre PostgreSQL y preserva los datos creados con Sprint 1.
-- API y OpenAPI reflejan los contratos del sprint sin exponer modelos Prisma.
-- Todas las comprobaciones de CI pasan y no existen defectos críticos conocidos.
-
-### Decisiones aprobadas para la implementación
-
-1. **Archivo:** el listado normal contiene solo activas; las archivadas tienen consulta explícita y pueden consultarse, editarse y reactivarse. Archivar no congela ni elimina.
-2. **Filtros:** solo estado, categoría y etiqueta. Varias selecciones del mismo tipo usan OR; tipos diferentes se combinan con AND.
-3. **Orden y paginación:** nombre normalizado ascendente y paginación simple por página/tamaño, con valores predeterminado y máximo decididos técnicamente.
-4. **Ciclo de vida:** categorías y etiquetas se crean y renombran. Solo se eliminan sin asociaciones; no hay cascada ni fusión.
-5. **Diferencia funcional:** la categoría pertenece a un catálogo controlado; la etiqueta es flexible y puede crecer libremente. Ambas son planas, reutilizables y múltiples por receta, sin metadatos adicionales.
+- búsqueda textual sobre nombre, descripción, ingredientes, variantes, categorías y etiquetas, sin incluir pasos ni notas;
+- coincidencia sin distinción de mayúsculas ni acentos y con parciales razonables; todas las palabras deben aparecer en algún campo buscable;
+- filtro que distingue ingrediente base y variante y combina mediante AND todas las selecciones;
+- combinación con estado, categoría y etiqueta, conservando OR dentro de categoría o etiqueta y AND entre tipos diferentes;
+- resultados paginados, ordenados por relevancia cuando exista consulta textual y con un desempate determinista;
+- validación funcional y de rendimiento sobre PostgreSQL real con una biblioteca representativa;
+- actualización de contratos, OpenAPI, pruebas y documentación estrictamente afectados.
 
 ### Fuera de alcance
 
-- búsqueda textual, relevancia y filtros combinados de Fase 3;
-- jerarquías de categorías o etiquetas;
-- importación, planificación y compras;
-- autenticación, multiusuario, sincronización u offline;
-- categorías o etiquetas sugeridas por IA;
-- diseño visual definitivo y despliegue.
+- importación asistida y cualquier trabajo de Fase 4 o posterior;
+- búsqueda en pasos o notas, fuentes externas, sugerencias mediante IA o corrección semántica generativa;
+- stemming, sinónimos, tratamiento específico de singular/plural, errores tipográficos o búsqueda difusa;
+- nuevos metadatos, jerarquías o fusiones de ingredientes, categorías o etiquetas;
+- eliminación física de recetas;
+- rediseño visual general, autenticación, multiusuario, sincronización u offline.
+
+### Migraciones
+
+No se presupone una migración concreta antes de aprobar el comportamiento y medir la solución. Si la implementación necesita índices, extensiones o estructuras auxiliares de PostgreSQL, se incorporarán mediante una migración nueva, nunca reescribiendo las existentes, y se justificará su compatibilidad con los entornos documentados.
+
+### Estrategia de pruebas
+
+- **Aplicación:** ejemplos de coincidencia, relevancia, combinación de filtros, paginación y casos límite acordados en TASK-030.
+- **Persistencia:** consultas reales sobre PostgreSQL, igualdad entre filtros y relaciones persistidas, desempates estables y plan de ejecución de los recorridos críticos.
+- **API:** validación de parámetros, respuesta paginada, combinaciones admitidas, consultas vacías, ausentes y errores.
+- **Web:** buscar, combinar criterios, cambiar de página, limpiar la consulta y recuperar el listado; estados vacío, carga y fallo.
+- **Rendimiento:** unas 10.000 recetas con relaciones realistas y generación reproducible; medir el p95 del backend y PostgreSQL, sin navegador ni red, y registrar entorno, dataset y resultado.
+- **Regresión:** mantener verdes formato, lint, tipado, pruebas unitarias, integración, e2e, builds y CI, incluidos los recorridos de Sprint 1 y Sprint 2.
+
+### Criterios de aceptación
+
+- El usuario puede localizar recetas por texto e ingredientes desde la biblioteca sin conocer sus identificadores.
+- Texto, ingredientes, estado, categorías y etiquetas se combinan conforme a reglas aprobadas y producen resultados reproducibles.
+- La búsqueda respeta el comportamiento vigente de recetas activas y archivadas y no modifica datos.
+- Los resultados se paginan y ordenan por coincidencia exacta en nombre, parcial en nombre, ingrediente o variante, categoría o etiqueta y descripción; los empates usan nombre normalizado ascendente.
+- La API y OpenAPI describen completamente los parámetros y la respuesta sin filtrar detalles de Prisma.
+- La interfaz permite aplicar, combinar y limpiar los criterios y comunica ausencia de resultados y errores.
+- Las migraciones, si existen, se aplican sobre PostgreSQL vacío y sobre Sprint 2 sin pérdida de datos.
+- El p95 de las consultas representativas sobre unas 10.000 recetas es igual o inferior a 300 ms, midiendo solo backend y PostgreSQL, y la evidencia reproducible queda registrada.
+- B-006 puede marcarse Finalizado y todas las validaciones obligatorias permanecen verdes.
+
+### Decisiones aprobadas para la implementación
+
+1. **Campos:** nombre, descripción, ingredientes, variantes, categorías y etiquetas; se excluyen pasos y notas.
+2. **Coincidencia:** insensible a mayúsculas y acentos, parcial razonable y AND entre palabras aunque aparezcan en campos distintos; sin singular/plural especial, stemming, sinónimos, errores tipográficos ni fuzzy search.
+3. **Relevancia:** exacta en nombre, parcial en nombre, ingrediente o variante, categoría o etiqueta y descripción; empate por nombre normalizado ascendente, sin scoring adicional innecesario.
+4. **Ingredientes:** el ingrediente base incluye cualquier variante; una variante exige esa variante; varias selecciones y los demás tipos de filtro se combinan mediante AND.
+5. **Rendimiento:** unas 10.000 recetas realistas y p95 menor o igual a 300 ms para backend y PostgreSQL, excluyendo navegador y red, con entorno y dataset reproducibles. Cualquier cambio del criterio requiere aprobación del Project Manager.
+
+### Riesgos y coherencia documental
+
+- Los requisitos aprobados completan TASK-030 y permiten implementar y verificar TASK-031 y TASK-032.
+- B-006 figura En desarrollo porque Sprint 2 entregó sus filtros básicos; se cerrará únicamente tras completar la búsqueda de esta fase.
+- La búsqueda insensible a acentos y los parciales pueden requerir capacidades e índices específicos de PostgreSQL; deben justificarse y mantenerse reproducibles.
+- El benchmark puede variar por hardware y caché; la evidencia debe identificar el entorno y el procedimiento sin convertir el umbral en un contrato permanente del producto.
