@@ -1,8 +1,8 @@
 # Cocina Tuda — Sprint actual
 
-**Versión:** 4.0
+**Versión:** 4.1
 
-**Estado:** Activo — implementación lista para revisión
+**Estado:** Finalizado
 
 **Responsable:** Project Manager
 
@@ -12,15 +12,15 @@
 
 Completar B-006 para que el usuario localice recetas por texto e ingredientes, combinando esos criterios con los filtros de estado, categoría y etiqueta ya disponibles, con un comportamiento de relevancia explícito y rendimiento validado sobre una biblioteca representativa.
 
-Sprint 1 y Sprint 2 están finalizados. Sprint 3 está activo; su implementación está completa en una rama y pendiente de revisión e integración.
+Sprint 1, Sprint 2 y Sprint 3 están finalizados. La Fase 4 no está planificada ni activa.
 
-### Alcance propuesto
+### Alcance finalizado
 
-| Orden | Tarea    | Resultado verificable                                                              | Estado      | Depende de |
-| ----- | -------- | ---------------------------------------------------------------------------------- | ----------- | ---------- |
-| 1     | TASK-030 | Reglas aprobadas de consulta, coincidencia, combinación, relevancia y casos límite | En revisión | Sprint 2   |
-| 2     | TASK-031 | Búsqueda por texto e ingredientes integrada con filtros y paginación existentes    | En revisión | 030        |
-| 3     | TASK-032 | Rendimiento medido y aceptado con una biblioteca representativa                    | En revisión | 031        |
+| Orden | Tarea    | Resultado verificable                                                              | Estado     | Depende de |
+| ----- | -------- | ---------------------------------------------------------------------------------- | ---------- | ---------- |
+| 1     | TASK-030 | Reglas aprobadas de consulta, coincidencia, combinación, relevancia y casos límite | Finalizada | Sprint 2   |
+| 2     | TASK-031 | Búsqueda por texto e ingredientes integrada con filtros y paginación existentes    | Finalizada | 030        |
+| 3     | TASK-032 | Rendimiento medido y aceptado con una biblioteca representativa                    | Finalizada | 031        |
 
 Las tres tareas completan B-006. Categorías, etiquetas, estado, orden y paginación ya entregados se reutilizan; no se reimplementan.
 
@@ -61,7 +61,7 @@ Las tres tareas completan B-006. Categorías, etiquetas, estado, orden y paginac
 
 ### Migraciones
 
-No se presupone una migración concreta antes de aprobar el comportamiento y medir la solución. Si la implementación necesita índices, extensiones o estructuras auxiliares de PostgreSQL, se incorporarán mediante una migración nueva, nunca reescribiendo las existentes, y se justificará su compatibilidad con los entornos documentados.
+La migración aditiva de Sprint 3 incorpora `unaccent`, `pg_trgm`, la función `search_normalize` e índices para búsqueda parcial y filtros por ingrediente y variante. Las migraciones anteriores no se reescribieron y la cadena completa se validó desde una base vacía.
 
 ### Estrategia de pruebas
 
@@ -95,7 +95,7 @@ No se presupone una migración concreta antes de aprobar el comportamiento y med
 ### Riesgos y coherencia documental
 
 - Los requisitos aprobados completan TASK-030 y permiten implementar y verificar TASK-031 y TASK-032.
-- B-006 figura En desarrollo porque Sprint 2 entregó sus filtros básicos; se cerrará únicamente tras completar la búsqueda de esta fase.
+- B-006 queda Finalizado al completar los filtros básicos de Sprint 2 y la búsqueda de Sprint 3.
 - La búsqueda insensible a acentos y los parciales pueden requerir capacidades e índices específicos de PostgreSQL; deben justificarse y mantenerse reproducibles.
 - El benchmark puede variar por hardware y caché; la evidencia debe identificar el entorno y el procedimiento sin convertir el umbral en un contrato permanente del producto.
 

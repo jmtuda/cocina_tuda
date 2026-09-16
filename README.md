@@ -2,7 +2,7 @@
 
 Cocina Tuda es una plataforma personal para convertir recetas procedentes de distintas fuentes en conocimiento culinario estructurado, consultable y reutilizable.
 
-La documentación normativa se encuentra en [`docs/`](docs/README.md). Los dos primeros sprints han construido una biblioteca clasificable y navegable.
+La documentación normativa se encuentra en [`docs/`](docs/README.md). Los tres primeros sprints han construido una biblioteca clasificable, navegable y buscable.
 
 ## Estado actual
 
@@ -12,7 +12,7 @@ La documentación normativa se encuentra en [`docs/`](docs/README.md). Los dos p
 - Base técnica: Sprint 0B finalizado.
 - Sprint 1: finalizado.
 - Sprint 2: finalizado.
-- Sprint 3: activo, implementación de búsqueda lista para revisión.
+- Sprint 3: finalizado.
 - Funcionalidades: catálogos, clasificación, listado filtrable, búsqueda y mantenimiento de recetas disponibles.
 
 Los cambios de alcance o arquitectura deberán actualizar la documentación correspondiente antes de implementarse.
