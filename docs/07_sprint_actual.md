@@ -1,113 +1,84 @@
 # Cocina Tuda — Sprint actual
 
-**Versión:** 2.3
+**Versión:** 3.1
 
-**Estado:** Finalizado
+**Estado:** Activo
 
 **Responsable:** Project Manager
 
-## Sprint 1 — Biblioteca mínima
+## Sprint 2 — Clasificación y biblioteca utilizable
 
 ### Objetivo
 
-Entregar el primer corte vertical: una receta puede crearse, consultarse, editarse y archivarse mediante web y API, con pasos e ingredientes vinculados a catálogos persistentes.
+Convertir el corte vertical de Sprint 1 en una biblioteca navegable y mantenible: listar recetas, consultar y editar cualquiera de ellas, clasificarlas mediante categorías y etiquetas, y reducir el listado mediante filtros básicos.
 
-Sprint 0A, Sprint 0B y Sprint 1 están finalizados. La Fase 2 no está planificada ni activa.
+Sprint 1 está finalizado. El Project Manager ha aprobado esta propuesta y las decisiones funcionales de Sprint 2.
 
 ### Alcance validado
 
-El alcance procede de la Fase 1 de `05_roadmap.md`:
+| Orden | Tarea    | Resultado verificable                                                    | Depende de |
+| ----- | -------- | ------------------------------------------------------------------------ | ---------- |
+| 1     | TASK-020 | Categorías y etiquetas persistentes, gestionables y asociables a recetas | Sprint 1   |
+| 2     | TASK-021 | Listado navegable y flujos completos de detalle y edición                | Sprint 1   |
+| 3     | TASK-022 | Filtros básicos sobre el listado conforme a las decisiones aprobadas     | 020, 021   |
 
-| Orden | Tarea    | Resultado verificable                                                          | Estado     | Depende de |
-| ----- | -------- | ------------------------------------------------------------------------------ | ---------- | ---------- |
-| 1     | TASK-010 | Dominio mínimo de receta y paso, con sus invariantes probadas                  | Finalizada | —          |
-| 2     | TASK-011 | Dominio de ingredientes, variantes y unidades, con normalización definida      | Finalizada | —          |
-| 3     | TASK-012 | Ingredientes de receta y validación de variante, cantidad y unidad             | Finalizada | 010, 011   |
-| 4     | TASK-013 | Esquema Prisma, PostgreSQL, repositorios y migraciones reproducibles           | Finalizada | 010–012    |
-| 5     | TASK-014 | Casos de uso y API REST `/api/v1` para el corte completo                       | Finalizada | 010–013    |
-| 6     | TASK-015 | Interfaz mínima de creación, consulta, edición y archivo, y recorrido completo | Finalizada | 014        |
+`TASK-020` cubre B-005. `TASK-021` completa la experiencia de B-001 y B-002 ya entregada en Sprint 1. `TASK-022` cubre solo la parte de filtros de B-006; B-006 no puede marcarse Finalizado hasta incorporar la búsqueda prevista en Fase 3.
 
-`TASK-020` pertenece a la Fase 2 y comprende categorías y etiquetas. `TASK-021` y `TASK-022` también pertenecen a la Fase 2; `TASK-023` no existe en el roadmap vigente. Por tanto, ninguna clasificación entra en este sprint.
+### Punto de partida real
 
-### Resultado del cierre
+- La API permite crear, recuperar por ID, editar y archivar una receta, pero no listar recetas.
+- La web permite crear y modificar la receta cuyo ID conserva durante la sesión; no permite navegar por recetas persistidas ni abrir otra receta.
+- El esquema ya contempla recetas, pasos, ingredientes, variantes y unidades. No existen tablas ni código de categorías y etiquetas.
+- PostgreSQL, Prisma, API `/api/v1`, OpenAPI, validación, repositorios transaccionales y pruebas constituyen la base disponible.
 
-La migración se aplicó desde cero sobre PostgreSQL 17 aislado. Se verificaron el esquema, la precisión decimal, las restricciones de unicidad y pertenencia de variante, y el recorrido creación → persistencia → reinicio → lectura. Formato, lint, tipado, pruebas, e2e y builds finalizaron correctamente antes de integrar la implementación.
+### Cambios previstos
 
-### Correspondencia entre dominio y persistencia
+- **Dominio:** materializar categoría y etiqueta como catálogos planos con nombre normalizado único; proteger que una receta no repita una misma relación de clasificación.
+- **Aplicación:** añadir operaciones de gestión de clasificaciones, asociación atómica al agregado receta, reactivación, listado paginado y consulta filtrada mediante contratos de repositorio.
+- **Persistencia:** incorporar `categories`, `tags`, `recipe_categories` y `recipe_tags`, con claves foráneas, unicidad normalizada y pares receta-clasificación únicos; añadir solo los índices exigidos por las consultas aprobadas.
+- **API:** ampliar `/api/v1` con contratos para categorías, etiquetas y listado filtrado; mantener DTO públicos independientes de Prisma y documentar el resultado en OpenAPI.
+- **Interfaz:** presentar una biblioteca navegable y paginada, acceso a detalle/edición, archivo/reactivación, asignación de categorías y etiquetas y controles de filtro; no incorporar búsqueda textual.
 
-| Dominio                 | Persistencia                                                              | Integridad principal                                            |
-| ----------------------- | ------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| Receta                  | `recipes`                                                                 | estado válido; archivo lógico; fechas coherentes                |
-| Paso                    | `recipe_steps`                                                            | FK a receta y posición única por receta                         |
-| Ingrediente             | `ingredients`                                                             | nombre normalizado único                                        |
-| Variante de ingrediente | `ingredient_variants`                                                     | FK a ingrediente y nombre normalizado único dentro de él        |
-| Unidad                  | `units`                                                                   | nombre normalizado único                                        |
-| Ingrediente de receta   | `recipe_ingredients`                                                      | FK a receta, ingrediente, unidad opcional y variante compatible |
-| Receta como agregado    | repositorio de receta que carga y guarda pasos y usos de ingredientes     | las escrituras del agregado son atómicas                        |
-| Catálogo como módulo    | repositorios según los casos de uso de ingredientes, variantes y unidades | no se expone Prisma fuera de infraestructura                    |
+### Migraciones
 
-Los modelos Prisma no se usarán como entidades ni DTO públicos. `library` consumirá operaciones públicas de `catalog`; no accederá a sus implementaciones internas.
-
-### Reglas que debe proteger la implementación
-
-- Una receta se archiva; no se elimina físicamente.
-- La posición de cada paso es única dentro de su receta.
-- La posición de cada ingrediente de receta debe conservar un orden estable.
-- Ingredientes y unidades tienen un nombre normalizado único; una variante lo tiene dentro de su ingrediente.
-- Una variante seleccionada pertenece al ingrediente seleccionado.
-- Cantidad, unidad, opcionalidad y observaciones pertenecen al ingrediente de receta, nunca al catálogo.
-- La unidad, cuando existe, referencia el catálogo; no se admite texto libre.
-- Una receta puede contener varios usos del mismo ingrediente y variante, incluso líneas idénticas; cada línea representa un uso culinario independiente.
-- Los cambios que afecten conjuntamente a receta, pasos e ingredientes de receta son atómicos.
-- El dominio no depende de NestJS, Prisma, PostgreSQL ni HTTP.
-
-### Estrategia de implementación y migraciones
-
-1. Cerrar las decisiones bloqueantes y reflejarlas en los documentos normativos afectados.
-2. Implementar y probar el dominio de `library` y `catalog` sin framework ni base de datos.
-3. Incorporar PostgreSQL y Prisma únicamente en `apps/api`; decidir PostgreSQL local frente a Docker por necesidad operativa.
-4. Crear una migración inicial única para las tablas de este sprint: `recipes`, `recipe_steps`, `ingredients`, `ingredient_variants`, `units` y `recipe_ingredients`. No incluir tablas de fases posteriores.
-5. Expresar en base de datos todas las restricciones posibles. La compatibilidad ingrediente-variante debe quedar protegida también en la base de datos, no solo mediante validación de aplicación.
-6. Verificar aplicar la migración sobre una base vacía y ejecutar el corte contra PostgreSQL aislado antes de exponer la API.
-7. Añadir casos de uso y adaptadores REST; generar OpenAPI desde la implementación.
-8. Añadir la interfaz mínima y un único recorrido de navegador para el flujo completo.
-
-Mientras no exista una versión publicada, una corrección de la migración inicial se realiza sustituyéndola antes de integrar. Tras su integración, toda evolución usa una migración nueva y reproducible.
+Se creará una nueva migración posterior a la de Sprint 1; la migración ya integrada no se reescribe. Debe poder aplicarse tanto sobre una base vacía mediante toda la cadena como sobre una base con datos de Sprint 1, sin alterar recetas existentes. Las relaciones muchos-a-muchos evitarán pares duplicados, no usarán eliminación en cascada de clasificaciones y permitirán renombrarlas sin reescribir las relaciones.
 
 ### Estrategia de pruebas
 
-- **Dominio:** estados de receta, archivo, orden de pasos, normalización y unicidad, pertenencia de variantes, unidad catalogada y reglas del ingrediente de receta.
-- **Aplicación:** creación, consulta, edición y archivo; coordinación atómica del agregado; traducción de errores esperados.
-- **Integración:** repositorios Prisma, migración desde base vacía, restricciones únicas y referenciales, y rechazo de una variante de otro ingrediente.
-- **API:** contratos y códigos para caminos principales, entradas inválidas, ausentes, conflictos y receta archivada.
-- **Web:** recorrido crítico de crear, consultar, editar y archivar una receta con pasos e ingredientes; las validaciones exhaustivas permanecen en niveles inferiores.
-- **CI:** formato, lint, tipado, pruebas y build deben seguir pasando desde la raíz.
+- **Dominio:** normalización y unicidad de categorías y etiquetas; ausencia de relaciones duplicadas.
+- **Aplicación:** gestión y asignación de clasificaciones, listado, combinación de filtros y tratamiento de recetas archivadas conforme a las decisiones aprobadas.
+- **Integración:** cadena completa de migraciones sobre PostgreSQL vacío y migración sobre datos de Sprint 1; restricciones únicas y referenciales; consultas filtradas.
+- **API:** contratos, validación, conflictos, ausentes y semántica de filtros.
+- **Web:** recorrido de abrir la biblioteca, entrar en una receta persistida, editarla, clasificarla y filtrar el listado.
+- **Regresión:** conservar las garantías y recorridos de Sprint 1 y mantener verdes formato, lint, tipado, pruebas, e2e y builds.
 
-### Criterios de aceptación del sprint
+### Criterios de aceptación
 
-- Desde la web se puede crear una receta persistente con pasos e ingredientes de receta que referencian ingredientes, variantes y unidades válidos.
-- La receta se puede recuperar tras reiniciar la aplicación, editar sin duplicar relaciones y archivar sin eliminar sus datos.
-- El catálogo permite crear y reutilizar ingredientes, variantes y unidades respetando su unicidad normalizada.
-- API y web representan y validan cantidades conforme a la decisión aprobada.
-- Ninguna escritura puede persistir una variante asociada a otro ingrediente ni posiciones de paso duplicadas.
-- La migración se aplica reproduciblemente sobre PostgreSQL vacío y sus restricciones tienen pruebas de integración.
-- La API se publica bajo `/api/v1`, no expone modelos Prisma y genera un contrato OpenAPI coherente.
-- Las dependencias respetan los límites `library`/`catalog` y dominio/aplicación/infraestructura/presentación.
+- La web muestra las recetas persistidas y permite abrir cualquiera de ellas sin conocer su ID.
+- El listado se ordena por nombre normalizado ascendente, se pagina por página y tamaño y oculta por defecto las recetas archivadas.
+- Existe una consulta explícita de archivadas; estas pueden consultarse, editarse y reactivarse, pero nunca eliminarse físicamente.
+- El detalle recupera la receta completa y la edición conserva pasos, ingredientes y clasificaciones sin relaciones duplicadas.
+- Se pueden gestionar y reutilizar categorías y etiquetas con unicidad por nombre normalizado y sin fusiones automáticas.
+- Una receta puede asociarse con varias categorías y etiquetas planas, y cada relación es única.
+- Categorías y etiquetas pueden crearse y renombrarse; solo pueden eliminarse sin asociaciones y el intento contrario se rechaza explícitamente.
+- Los filtros de estado, categoría y etiqueta reducen el listado: OR dentro del mismo tipo y AND entre tipos diferentes.
+- La nueva migración se aplica reproduciblemente sobre PostgreSQL y preserva los datos creados con Sprint 1.
+- API y OpenAPI reflejan los contratos del sprint sin exponer modelos Prisma.
 - Todas las comprobaciones de CI pasan y no existen defectos críticos conocidos.
 
 ### Decisiones aprobadas para la implementación
 
-1. **Cantidades:** `IngredienteReceta` contiene un valor numérico decimal opcional, separado de `Unidad`. No es una entidad independiente, no se representa mediante `float` y su ausencia expresa que no existe una cantidad exacta.
-2. **Colisiones normalizadas:** la normalización detecta y previene duplicados. Una colisión se rechaza o requiere resolución explícita; nunca fusiona entidades automáticamente. Se aplica unicidad normalizada donde el nombre identifica funcionalmente el elemento.
-3. **Ingredientes repetidos en una receta:** se permiten múltiples usos con el mismo ingrediente y variante. No existe una restricción de unicidad por receta, ingrediente y variante ni se impiden por ahora líneas idénticas.
-
-No bloquean este sprint el comportamiento de una receta archivada ya planificada ni la consolidación de unidades en compras, porque planificación y compras pertenecen a fases posteriores. Identificadores, algoritmo exacto de normalización y mecanismo de integridad ingrediente-variante son decisiones técnicas que Arquitectura puede proponer una vez aprobado el comportamiento funcional.
+1. **Archivo:** el listado normal contiene solo activas; las archivadas tienen consulta explícita y pueden consultarse, editarse y reactivarse. Archivar no congela ni elimina.
+2. **Filtros:** solo estado, categoría y etiqueta. Varias selecciones del mismo tipo usan OR; tipos diferentes se combinan con AND.
+3. **Orden y paginación:** nombre normalizado ascendente y paginación simple por página/tamaño, con valores predeterminado y máximo decididos técnicamente.
+4. **Ciclo de vida:** categorías y etiquetas se crean y renombran. Solo se eliminan sin asociaciones; no hay cascada ni fusión.
+5. **Diferencia funcional:** la categoría pertenece a un catálogo controlado; la etiqueta es flexible y puede crecer libremente. Ambas son planas, reutilizables y múltiples por receta, sin metadatos adicionales.
 
 ### Fuera de alcance
 
-- categorías, etiquetas, listado completo y filtros de la Fase 2;
-- búsqueda;
-- importación;
-- planificación y compras;
+- búsqueda textual, relevancia y filtros combinados de Fase 3;
+- jerarquías de categorías o etiquetas;
+- importación, planificación y compras;
 - autenticación, multiusuario, sincronización u offline;
-- diseño final de interfaz y despliegue.
+- categorías o etiquetas sugeridas por IA;
+- diseño visual definitivo y despliegue.
