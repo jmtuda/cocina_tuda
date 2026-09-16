@@ -29,6 +29,8 @@ export class RecipeController {
       [
         ...(query.category?.split(',').filter(Boolean) ?? []),
         ...(query.tag?.split(',').filter(Boolean) ?? []),
+        ...(query.ingredient?.split(',').filter(Boolean) ?? []),
+        ...(query.variant?.split(',').filter(Boolean) ?? []),
       ].some((id) => !isUUID(id, '4'))
     ) {
       throw new BadRequestException('Filtros de listado no válidos');
@@ -39,6 +41,9 @@ export class RecipeController {
       statuses,
       categoryIds: query.category?.split(',').filter(Boolean) ?? [],
       tagIds: query.tag?.split(',').filter(Boolean) ?? [],
+      text: query.q?.trim() ?? '',
+      ingredientIds: query.ingredient?.split(',').filter(Boolean) ?? [],
+      variantIds: query.variant?.split(',').filter(Boolean) ?? [],
     });
   }
 

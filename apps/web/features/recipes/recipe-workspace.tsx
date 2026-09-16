@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 const apiUrl =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
 type Named = { id: string; name: string };
+type Ingredient = Named & { variants: Named[] };
 type Unit = Named & { abbreviation: string };
 type Summary = Named & {
   status: "ACTIVE" | "ARCHIVED";
@@ -14,7 +15,7 @@ const selected = (event: React.ChangeEvent<HTMLSelectElement>) =>
   Array.from(event.target.selectedOptions, (option) => option.value);
 
 export function RecipeWorkspace() {
-  const [ingredients, setIngredients] = useState<Named[]>([]);
+  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [units, setUnits] = useState<Unit[]>([]);
   const [categories, setCategories] = useState<Named[]>([]);
   const [tags, setTags] = useState<Named[]>([]);
@@ -33,6 +34,9 @@ export function RecipeWorkspace() {
   const [statusFilter, setStatusFilter] = useState("ACTIVE");
   const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const [tagFilter, setTagFilter] = useState<string[]>([]);
+  const [searchText, setSearchText] = useState("");
+  const [ingredientFilter, setIngredientFilter] = useState<string[]>([]);
+  const [variantFilter, setVariantFilter] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [message, setMessage] = useState(
@@ -57,11 +61,11 @@ export function RecipeWorkspace() {
       throw new Error("No se pudieron cargar los catálogos");
     const [nextIngredients, nextUnits, nextCategories, nextTags] =
       await Promise.all(responses.map((response) => response.json()));
-    setIngredients(nextIngredients as Named[]);
+    setIngredients(nextIngredients as Ingredient[]);
     setUnits(nextUnits as Unit[]);
     setCategories(nextCategories as Named[]);
     setTags(nextTags as Named[]);
-    setIngredientId((nextIngredients as Named[])[0]?.id ?? "");
+    setIngredientId((nextIngredients as Ingredient[])[0]?.id ?? "");
     setUnitId((nextUnits as Unit[])[0]?.id ?? "");
     setMessage("Catálogos actualizados.");
   }
@@ -107,6 +111,10 @@ export function RecipeWorkspace() {
     });
     if (categoryFilter.length) params.set("category", categoryFilter.join(","));
     if (tagFilter.length) params.set("tag", tagFilter.join(","));
+    if (searchText.trim()) params.set("q", searchText.trim());
+    if (ingredientFilter.length)
+      params.set("ingredient", ingredientFilter.join(","));
+    if (variantFilter.length) params.set("variant", variantFilter.join(","));
     const response = await fetch(`${apiUrl}/recipes?${params}`);
     if (!response.ok) throw new Error("No se pudo cargar la biblioteca");
     const result = (await response.json()) as {
@@ -214,6 +222,14 @@ export function RecipeWorkspace() {
         </div>
         <div className="row">
           <label>
+            Buscar
+            <input
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              placeholder="Nombre, descripción o clasificación"
+            />
+          </label>
+          <label>
             Estado
             <select
               value={statusFilter}
@@ -252,8 +268,39 @@ export function RecipeWorkspace() {
               ))}
             </select>
           </label>
+          <label>
+            Ingredientes (todos)
+            <select
+              multiple
+              value={ingredientFilter}
+              onChange={(e) => setIngredientFilter(selected(e))}
+            >
+              {ingredients.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Variantes (todas)
+            <select
+              multiple
+              value={variantFilter}
+              onChange={(e) => setVariantFilter(selected(e))}
+            >
+              {ingredients.flatMap((ingredient) =>
+                ingredient.variants.map((variant) => (
+                  <option key={variant.id} value={variant.id}>
+                    {ingredient.name}: {variant.name}
+                  </option>
+                )),
+              )}
+            </select>
+          </label>
         </div>
         <div className="library-list">
+          {recipes.length === 0 && <p>No hay recetas para estos criterios.</p>}
           {recipes.map((recipe) => (
             <button
               className="recipe-card"

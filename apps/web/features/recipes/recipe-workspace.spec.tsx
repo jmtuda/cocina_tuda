@@ -1,16 +1,23 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { RecipeWorkspace } from "./recipe-workspace";
 
 describe("RecipeWorkspace", () => {
-  afterEach(() => vi.restoreAllMocks());
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
 
   it("creates a recipe using catalog references and an exact decimal", async () => {
     const fetchMock = vi
       .fn<typeof fetch>()
       .mockResolvedValueOnce(
-        new Response(JSON.stringify([{ id: "ingredient-id", name: "Harina" }])),
+        new Response(
+          JSON.stringify([
+            { id: "ingredient-id", name: "Harina", variants: [] },
+          ]),
+        ),
       )
       .mockResolvedValueOnce(
         new Response(
@@ -46,6 +53,52 @@ describe("RecipeWorkspace", () => {
     });
     expect(
       await screen.findByText(/Receta creada y persistida/),
+    ).toBeInTheDocument();
+  });
+
+  it("combines text, base ingredient and variant filters", async () => {
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify([
+            {
+              id: "ingredient-id",
+              name: "Tomate",
+              variants: [{ id: "variant-id", name: "Chérry" }],
+            },
+          ]),
+        ),
+      )
+      .mockResolvedValueOnce(new Response(JSON.stringify([])))
+      .mockResolvedValueOnce(new Response(JSON.stringify([])))
+      .mockResolvedValueOnce(new Response(JSON.stringify([])))
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ items: [], totalPages: 0 })),
+      );
+    vi.stubGlobal("fetch", fetchMock);
+    const user = userEvent.setup();
+    render(<RecipeWorkspace />);
+
+    await user.click(screen.getByRole("button", { name: "Actualizar" }));
+    await user.type(screen.getByLabelText("Buscar"), "tomate rápido");
+    await user.selectOptions(
+      screen.getByLabelText("Ingredientes (todos)"),
+      "ingredient-id",
+    );
+    await user.selectOptions(
+      screen.getByLabelText("Variantes (todas)"),
+      "variant-id",
+    );
+    await user.click(screen.getByRole("button", { name: "Aplicar filtros" }));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(5));
+    const url = new URL(String(fetchMock.mock.calls[4]?.[0]));
+    expect(url.searchParams.get("q")).toBe("tomate rápido");
+    expect(url.searchParams.get("ingredient")).toBe("ingredient-id");
+    expect(url.searchParams.get("variant")).toBe("variant-id");
+    expect(
+      await screen.findByText("No hay recetas para estos criterios."),
     ).toBeInTheDocument();
   });
 });
