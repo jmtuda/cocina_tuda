@@ -1,8 +1,8 @@
 # Cocina Tuda — Sprint actual
 
-**Versión:** 3.0
+**Versión:** 3.1
 
-**Estado:** Propuesto
+**Estado:** Activo
 
 **Responsable:** Project Manager
 
@@ -12,7 +12,7 @@
 
 Convertir el corte vertical de Sprint 1 en una biblioteca navegable y mantenible: listar recetas, consultar y editar cualquiera de ellas, clasificarlas mediante categorías y etiquetas, y reducir el listado mediante filtros básicos.
 
-Sprint 1 está finalizado. Esta propuesta corresponde exclusivamente a la Fase 2 vigente y no autoriza implementación hasta que el Project Manager resuelva las decisiones abiertas y apruebe el sprint.
+Sprint 1 está finalizado. El Project Manager ha aprobado esta propuesta y las decisiones funcionales de Sprint 2.
 
 ### Alcance validado
 
@@ -34,14 +34,14 @@ Sprint 1 está finalizado. Esta propuesta corresponde exclusivamente a la Fase 2
 ### Cambios previstos
 
 - **Dominio:** materializar categoría y etiqueta como catálogos planos con nombre normalizado único; proteger que una receta no repita una misma relación de clasificación.
-- **Aplicación:** añadir operaciones de gestión de clasificaciones, asociación atómica al agregado receta, listado y consulta filtrada mediante contratos de repositorio.
+- **Aplicación:** añadir operaciones de gestión de clasificaciones, asociación atómica al agregado receta, reactivación, listado paginado y consulta filtrada mediante contratos de repositorio.
 - **Persistencia:** incorporar `categories`, `tags`, `recipe_categories` y `recipe_tags`, con claves foráneas, unicidad normalizada y pares receta-clasificación únicos; añadir solo los índices exigidos por las consultas aprobadas.
 - **API:** ampliar `/api/v1` con contratos para categorías, etiquetas y listado filtrado; mantener DTO públicos independientes de Prisma y documentar el resultado en OpenAPI.
-- **Interfaz:** presentar una biblioteca navegable, acceso a detalle/edición, asignación de categorías y etiquetas y controles de filtro; no incorporar búsqueda textual.
+- **Interfaz:** presentar una biblioteca navegable y paginada, acceso a detalle/edición, archivo/reactivación, asignación de categorías y etiquetas y controles de filtro; no incorporar búsqueda textual.
 
 ### Migraciones
 
-Se creará una nueva migración posterior a la de Sprint 1; la migración ya integrada no se reescribe. Debe poder aplicarse tanto sobre una base vacía mediante toda la cadena como sobre una base con datos de Sprint 1, sin alterar recetas existentes. Las relaciones muchos-a-muchos evitarán pares duplicados y preservarán la integridad referencial conforme a la política de eliminación que apruebe el Project Manager.
+Se creará una nueva migración posterior a la de Sprint 1; la migración ya integrada no se reescribe. Debe poder aplicarse tanto sobre una base vacía mediante toda la cadena como sobre una base con datos de Sprint 1, sin alterar recetas existentes. Las relaciones muchos-a-muchos evitarán pares duplicados, no usarán eliminación en cascada de clasificaciones y permitirán renombrarlas sin reescribir las relaciones.
 
 ### Estrategia de pruebas
 
@@ -55,21 +55,24 @@ Se creará una nueva migración posterior a la de Sprint 1; la migración ya int
 ### Criterios de aceptación
 
 - La web muestra las recetas persistidas y permite abrir cualquiera de ellas sin conocer su ID.
+- El listado se ordena por nombre normalizado ascendente, se pagina por página y tamaño y oculta por defecto las recetas archivadas.
+- Existe una consulta explícita de archivadas; estas pueden consultarse, editarse y reactivarse, pero nunca eliminarse físicamente.
 - El detalle recupera la receta completa y la edición conserva pasos, ingredientes y clasificaciones sin relaciones duplicadas.
 - Se pueden gestionar y reutilizar categorías y etiquetas con unicidad por nombre normalizado y sin fusiones automáticas.
 - Una receta puede asociarse con varias categorías y etiquetas planas, y cada relación es única.
-- Los filtros aprobados reducen el listado con semántica consistente entre API y web y sin incorporar búsqueda textual.
+- Categorías y etiquetas pueden crearse y renombrarse; solo pueden eliminarse sin asociaciones y el intento contrario se rechaza explícitamente.
+- Los filtros de estado, categoría y etiqueta reducen el listado: OR dentro del mismo tipo y AND entre tipos diferentes.
 - La nueva migración se aplica reproduciblemente sobre PostgreSQL y preserva los datos creados con Sprint 1.
 - API y OpenAPI reflejan los contratos del sprint sin exponer modelos Prisma.
 - Todas las comprobaciones de CI pasan y no existen defectos críticos conocidos.
 
-### Decisiones requeridas antes de activar el sprint
+### Decisiones aprobadas para la implementación
 
-1. **Visibilidad de recetas archivadas:** decidir si se ocultan por defecto, si existe un filtro para mostrarlas y si una receta archivada puede editarse o debe restaurarse primero.
-2. **Filtros básicos:** confirmar si Sprint 2 filtra por categoría, etiqueta y estado de archivo; definir si seleccionar varios valores del mismo tipo exige cumplir cualquiera o todos, y cómo se combinan categorías con etiquetas.
-3. **Orden y volumen del listado:** definir el orden inicial observable y si el primer listado necesita paginación o puede cargar el conjunto completo durante el MVP.
-4. **Gestión de categorías y etiquetas:** decidir si en este sprint se crean y renombran solamente o también se eliminan; si se permite eliminar, definir qué ocurre cuando la clasificación está asociada a recetas. Nunca se fusionarán automáticamente nombres normalizados equivalentes.
-5. **Diferencia funcional:** confirmar si categorías y etiquetas requieren comportamientos distintos más allá de ser dos catálogos planos, uno estructurado y otro flexible.
+1. **Archivo:** el listado normal contiene solo activas; las archivadas tienen consulta explícita y pueden consultarse, editarse y reactivarse. Archivar no congela ni elimina.
+2. **Filtros:** solo estado, categoría y etiqueta. Varias selecciones del mismo tipo usan OR; tipos diferentes se combinan con AND.
+3. **Orden y paginación:** nombre normalizado ascendente y paginación simple por página/tamaño, con valores predeterminado y máximo decididos técnicamente.
+4. **Ciclo de vida:** categorías y etiquetas se crean y renombran. Solo se eliminan sin asociaciones; no hay cascada ni fusión.
+5. **Diferencia funcional:** la categoría pertenece a un catálogo controlado; la etiqueta es flexible y puede crecer libremente. Ambas son planas, reutilizables y múltiples por receta, sin metadatos adicionales.
 
 ### Fuera de alcance
 
