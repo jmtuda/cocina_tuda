@@ -17,7 +17,14 @@ describe("RecipeWorkspace", () => {
           JSON.stringify([{ id: "unit-id", name: "Gramo", abbreviation: "g" }]),
         ),
       )
-      .mockResolvedValueOnce(new Response(JSON.stringify({ id: "recipe-id" })));
+      .mockResolvedValueOnce(new Response(JSON.stringify([])))
+      .mockResolvedValueOnce(new Response(JSON.stringify([])))
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ id: "recipe-id", status: "ACTIVE" })),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ items: [], totalPages: 1 })),
+      );
     vi.stubGlobal("fetch", fetchMock);
     const user = userEvent.setup();
     render(<RecipeWorkspace />);
@@ -29,8 +36,8 @@ describe("RecipeWorkspace", () => {
     await user.type(screen.getByLabelText("Cantidad exacta"), "125.5");
     await user.click(screen.getByRole("button", { name: "Crear receta" }));
 
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
-    const request = fetchMock.mock.calls[2]?.[1];
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(6));
+    const request = fetchMock.mock.calls[4]?.[1];
     expect(JSON.parse(String(request?.body))).toMatchObject({
       name: "Pan casero",
       ingredients: [

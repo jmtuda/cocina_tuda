@@ -8,6 +8,7 @@ import { RecipeDraft, type RecipeInput } from '../domain/recipe.js';
 import {
   RECIPE_REPOSITORY,
   type RecipeRepository,
+  type RecipeListQuery,
 } from './recipe.repository.js';
 
 @Injectable()
@@ -36,6 +37,16 @@ export class RecipeService {
     const recipe = await this.repository.archive(id);
     if (!recipe) throw new NotFoundException('Receta no encontrada');
     return recipe;
+  }
+
+  async restore(id: string) {
+    const recipe = await this.repository.restore(id);
+    if (!recipe) throw new NotFoundException('Receta no encontrada');
+    return recipe;
+  }
+
+  list(query: RecipeListQuery) {
+    return this.repository.list(query);
   }
 
   private validate(input: RecipeInput): RecipeInput {

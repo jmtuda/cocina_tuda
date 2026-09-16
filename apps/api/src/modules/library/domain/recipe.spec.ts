@@ -51,4 +51,25 @@ describe('RecipeDraft', () => {
         }),
     ).toThrow('up to 3 decimals');
   });
+
+  it('rejects duplicate category and tag relations', () => {
+    expect(
+      () =>
+        new RecipeDraft({
+          name: 'Tarta',
+          steps: [],
+          ingredients: [],
+          categoryIds: ['a', 'a'],
+        }),
+    ).toThrow('Categories must be unique');
+    expect(
+      () =>
+        new RecipeDraft({
+          name: 'Tarta',
+          steps: [],
+          ingredients: [],
+          tagIds: ['a', 'a'],
+        }),
+    ).toThrow('Tags must be unique');
+  });
 });

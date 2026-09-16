@@ -60,6 +60,10 @@ export const ModelName = {
   IngredientVariant: 'IngredientVariant',
   Unit: 'Unit',
   RecipeIngredient: 'RecipeIngredient',
+  Category: 'Category',
+  Tag: 'Tag',
+  RecipeCategory: 'RecipeCategory',
+  RecipeTag: 'RecipeTag',
 } as const;
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName];
@@ -81,6 +85,7 @@ export type TransactionIsolationLevel =
 export const RecipeScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  normalizedName: 'normalizedName',
   description: 'description',
   author: 'author',
   servings: 'servings',
@@ -150,6 +155,40 @@ export const RecipeIngredientScalarFieldEnum = {
 
 export type RecipeIngredientScalarFieldEnum =
   (typeof RecipeIngredientScalarFieldEnum)[keyof typeof RecipeIngredientScalarFieldEnum];
+
+export const CategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  normalizedName: 'normalizedName',
+} as const;
+
+export type CategoryScalarFieldEnum =
+  (typeof CategoryScalarFieldEnum)[keyof typeof CategoryScalarFieldEnum];
+
+export const TagScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  normalizedName: 'normalizedName',
+} as const;
+
+export type TagScalarFieldEnum =
+  (typeof TagScalarFieldEnum)[keyof typeof TagScalarFieldEnum];
+
+export const RecipeCategoryScalarFieldEnum = {
+  recipeId: 'recipeId',
+  categoryId: 'categoryId',
+} as const;
+
+export type RecipeCategoryScalarFieldEnum =
+  (typeof RecipeCategoryScalarFieldEnum)[keyof typeof RecipeCategoryScalarFieldEnum];
+
+export const RecipeTagScalarFieldEnum = {
+  recipeId: 'recipeId',
+  tagId: 'tagId',
+} as const;
+
+export type RecipeTagScalarFieldEnum =
+  (typeof RecipeTagScalarFieldEnum)[keyof typeof RecipeTagScalarFieldEnum];
 
 export const SortOrder = {
   asc: 'asc',

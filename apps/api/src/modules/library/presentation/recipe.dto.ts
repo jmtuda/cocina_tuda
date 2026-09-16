@@ -11,6 +11,7 @@ import {
   Matches,
   Min,
   ValidateNested,
+  ArrayUnique,
 } from 'class-validator';
 
 export class RecipeStepDto {
@@ -48,4 +49,41 @@ export class SaveRecipeDto {
   @ValidateNested({ each: true })
   @Type(() => RecipeIngredientDto)
   ingredients!: RecipeIngredientDto[];
+  @ApiPropertyOptional({ type: [String] })
+  @IsOptional()
+  @IsArray()
+  @IsUUID('4', { each: true })
+  @ArrayUnique()
+  categoryIds?: string[];
+  @ApiPropertyOptional({ type: [String] })
+  @IsOptional()
+  @IsArray()
+  @IsUUID('4', { each: true })
+  @ArrayUnique()
+  tagIds?: string[];
+}
+
+export class ListRecipesDto {
+  @ApiPropertyOptional({ default: 1 })
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  page = 1;
+  @ApiPropertyOptional({ default: 20, maximum: 100 })
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  pageSize = 20;
+  @ApiPropertyOptional({ description: 'ACTIVE,ARCHIVED' })
+  @IsOptional()
+  @IsString()
+  status?: string;
+  @ApiPropertyOptional({ description: 'UUIDs separated by comma' })
+  @IsOptional()
+  @IsString()
+  category?: string;
+  @ApiPropertyOptional({ description: 'UUIDs separated by comma' })
+  @IsOptional()
+  @IsString()
+  tag?: string;
 }

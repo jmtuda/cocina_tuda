@@ -15,6 +15,7 @@ enum RecipeStatus {
 model Recipe {
   id          String             @id @default(uuid()) @db.Uuid
   name        String
+  normalizedName String          @map("normalized_name")
   description String?
   author      String?
   servings    Int?
@@ -26,7 +27,10 @@ model Recipe {
   archivedAt  DateTime?          @map("archived_at")
   steps       RecipeStep[]
   ingredients RecipeIngredient[]
+  categories  RecipeCategory[]
+  tags        RecipeTag[]
 
+  @@index([normalizedName, id])
   @@map("recipes")
 }
 
@@ -94,4 +98,44 @@ model RecipeIngredient {
   @@unique([recipeId, position])
   @@index([variantId, ingredientId])
   @@map("recipe_ingredients")
+}
+
+model Category {
+  id             String           @id @default(uuid()) @db.Uuid
+  name           String
+  normalizedName String           @unique @map("normalized_name")
+  recipes        RecipeCategory[]
+
+  @@map("categories")
+}
+
+model Tag {
+  id             String      @id @default(uuid()) @db.Uuid
+  name           String
+  normalizedName String      @unique @map("normalized_name")
+  recipes        RecipeTag[]
+
+  @@map("tags")
+}
+
+model RecipeCategory {
+  recipeId   String   @map("recipe_id") @db.Uuid
+  categoryId String   @map("category_id") @db.Uuid
+  recipe     Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  @@id([recipeId, categoryId])
+  @@index([categoryId])
+  @@map("recipe_categories")
+}
+
+model RecipeTag {
+  recipeId String @map("recipe_id") @db.Uuid
+  tagId    String @map("tag_id") @db.Uuid
+  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  tag      Tag    @relation(fields: [tagId], references: [id], onDelete: Restrict)
+
+  @@id([recipeId, tagId])
+  @@index([tagId])
+  @@map("recipe_tags")
 }

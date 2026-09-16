@@ -13,4 +13,8 @@ export type * from './models/Ingredient.js';
 export type * from './models/IngredientVariant.js';
 export type * from './models/Unit.js';
 export type * from './models/RecipeIngredient.js';
+export type * from './models/Category.js';
+export type * from './models/Tag.js';
+export type * from './models/RecipeCategory.js';
+export type * from './models/RecipeTag.js';
 export type * from './commonInputTypes.js';

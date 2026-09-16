@@ -76,3 +76,23 @@ export type Unit = Prisma.UnitModel;
  *
  */
 export type RecipeIngredient = Prisma.RecipeIngredientModel;
+/**
+ * Model Category
+ *
+ */
+export type Category = Prisma.CategoryModel;
+/**
+ * Model Tag
+ *
+ */
+export type Tag = Prisma.TagModel;
+/**
+ * Model RecipeCategory
+ *
+ */
+export type RecipeCategory = Prisma.RecipeCategoryModel;
+/**
+ * Model RecipeTag
+ *
+ */
+export type RecipeTag = Prisma.RecipeTagModel;

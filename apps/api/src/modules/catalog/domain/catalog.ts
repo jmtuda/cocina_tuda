@@ -6,12 +6,17 @@ export class CatalogName {
     const trimmed = value.trim();
     if (!trimmed) throw new Error('Catalog name is required');
     this.value = trimmed;
-    this.normalized = trimmed
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLocaleLowerCase('es')
-      .replace(/\s+/g, ' ');
+    this.normalized = normalizeName(trimmed);
   }
+}
+
+export function normalizeName(value: string) {
+  return value
+    .trim()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLocaleLowerCase('es')
+    .replace(/\s+/g, ' ');
 }
 
 export type Ingredient = {
