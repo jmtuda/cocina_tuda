@@ -1,6 +1,6 @@
 # Cocina Tuda — Backlog de producto
 
-**Versión:** 2.4
+**Versión:** 2.5
 **Estado:** Aprobado
 **Responsable:** Project Manager
 
@@ -14,10 +14,10 @@ Estados: pendiente, en análisis, preparado, en desarrollo, en pruebas y finaliz
 
 | ID    | Capacidad                                   | Estado     |
 | ----- | ------------------------------------------- | ---------- |
-| B-001 | Crear, consultar, editar y archivar recetas | En pruebas |
-| B-002 | Gestionar pasos e ingredientes de receta    | En pruebas |
-| B-003 | Gestionar ingredientes y variantes          | En pruebas |
-| B-004 | Gestionar unidades                          | En pruebas |
+| B-001 | Crear, consultar, editar y archivar recetas | Finalizado |
+| B-002 | Gestionar pasos e ingredientes de receta    | Finalizado |
+| B-003 | Gestionar ingredientes y variantes          | Finalizado |
+| B-004 | Gestionar unidades                          | Finalizado |
 | B-005 | Gestionar categorías y etiquetas            | Finalizado |
 | B-006 | Buscar y filtrar recetas                    | Finalizado |
 | B-007 | Importar desde texto, imagen o documento    | Pendiente  |
