@@ -1,8 +1,8 @@
 # Cocina Tuda — Sprint actual
 
-**Versión:** 6.1
+**Versión:** 6.2
 
-**Estado:** Activo
+**Estado:** En revisión
 
 **Responsable:** Project Manager
 
@@ -16,12 +16,12 @@ La IA interpreta y propone; nunca es fuente de verdad ni persiste por sí sola. 
 
 ### Alcance propuesto
 
-| Orden | Tarea    | Resultado verificable                                                                    | Estado        | Depende de                |
-| ----- | -------- | ---------------------------------------------------------------------------------------- | ------------- | ------------------------- |
-| 1     | TASK-040 | Contratos de fuente, extracción, interpretación y propuesta independientes del proveedor | En desarrollo | Sprint 3 y estabilización |
-| 2     | TASK-041 | Texto pegado convertido en una propuesta estructurada y validada                         | En desarrollo | 040                       |
-| 3     | TASK-042 | Imágenes y los formatos documentales aprobados incorporados al mismo flujo               | En desarrollo | 040–041                   |
-| 4     | TASK-043 | Revisión, corrección, resolución de catálogos y confirmación humana antes de persistir   | En desarrollo | 041–042                   |
+| Orden | Tarea    | Resultado verificable                                                                    | Estado      | Depende de                |
+| ----- | -------- | ---------------------------------------------------------------------------------------- | ----------- | ------------------------- |
+| 1     | TASK-040 | Contratos de fuente, extracción, interpretación y propuesta independientes del proveedor | En revisión | Sprint 3 y estabilización |
+| 2     | TASK-041 | Texto pegado convertido en una propuesta estructurada y validada                         | En revisión | 040                       |
+| 3     | TASK-042 | Imágenes y los formatos documentales aprobados incorporados al mismo flujo               | En revisión | 040–041                   |
+| 4     | TASK-043 | Revisión, corrección, resolución de catálogos y confirmación humana antes de persistir   | En revisión | 041–042                   |
 
 TASK-040–TASK-043 son el alcance real de Fase 4 según el roadmap vigente. Completan B-007 y B-008; no incluyen planificación, compras ni recomendaciones mediante IA.
 

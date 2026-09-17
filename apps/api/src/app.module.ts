@@ -5,9 +5,16 @@ import { PrismaModule } from './infrastructure/prisma/prisma.module.js';
 import { CatalogModule } from './modules/catalog/catalog.module.js';
 import { LibraryModule } from './modules/library/library.module.js';
 import { SearchModule } from './modules/search/search.module.js';
+import { ImportModule } from './modules/import/import.module.js';
 
 @Module({
-  imports: [PrismaModule, CatalogModule, LibraryModule, SearchModule],
+  imports: [
+    PrismaModule,
+    CatalogModule,
+    LibraryModule,
+    SearchModule,
+    ImportModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

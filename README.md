@@ -13,7 +13,8 @@ La documentación normativa se encuentra en [`docs/`](docs/README.md). Los tres 
 - Sprint 1: finalizado.
 - Sprint 2: finalizado.
 - Sprint 3: finalizado.
-- Funcionalidades: catálogos, clasificación, listado filtrable, búsqueda y mantenimiento de recetas disponibles.
+- Sprint 4: en revisión.
+- Funcionalidades: catálogos, clasificación, listado filtrable, búsqueda, mantenimiento de recetas e importación asistida disponibles.
 
 Los cambios de alcance o arquitectura deberán actualizar la documentación correspondiente antes de implementarse.
 
@@ -22,6 +23,7 @@ Los cambios de alcance o arquitectura deberán actualizar la documentación corr
 - Node.js 24 LTS o posterior compatible.
 - pnpm 11.19.0, gestionado mediante Corepack.
 - PostgreSQL accesible mediante `DATABASE_URL`.
+- Una clave `OPENAI_API_KEY` para interpretar importaciones mediante el proveedor externo.
 
 ## Instalación
 
@@ -29,8 +31,13 @@ Los cambios de alcance o arquitectura deberán actualizar la documentación corr
 corepack enable
 pnpm install
 export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/cocina_tuda"
+export OPENAI_API_KEY="..."
+# Opcional; el valor predeterminado es gpt-5.4-mini.
+export OPENAI_IMPORT_MODEL="gpt-5.4-mini"
 pnpm --filter @cocina-tuda/api db:migrate
 ```
+
+El contenido de cada fuente importada se envía a OpenAI solo después del consentimiento explícito del usuario. La API solicita que la respuesta no se almacene en el proveedor y Cocina Tuda no conserva permanentemente la fuente original.
 
 ## Desarrollo
 
