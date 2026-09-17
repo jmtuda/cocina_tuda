@@ -7,14 +7,14 @@ export class PrismaCatalogRepository implements CatalogRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   createIngredient(name: string, normalizedName: string) {
-    return this.prisma.ingredient.create({
+    return this.prisma.getDb().ingredient.create({
       data: { name, normalizedName },
       select: { id: true, name: true, normalizedName: true },
     });
   }
 
   createVariant(ingredientId: string, name: string, normalizedName: string) {
-    return this.prisma.ingredientVariant.create({
+    return this.prisma.getDb().ingredientVariant.create({
       data: { ingredientId, name, normalizedName },
       select: {
         id: true,
@@ -26,7 +26,7 @@ export class PrismaCatalogRepository implements CatalogRepository {
   }
 
   createUnit(name: string, abbreviation: string, normalizedName: string) {
-    return this.prisma.unit.create({
+    return this.prisma.getDb().unit.create({
       data: { name, abbreviation, normalizedName },
       select: {
         id: true,
@@ -38,7 +38,7 @@ export class PrismaCatalogRepository implements CatalogRepository {
   }
 
   listIngredients() {
-    return this.prisma.ingredient.findMany({
+    return this.prisma.getDb().ingredient.findMany({
       orderBy: { normalizedName: 'asc' },
       select: {
         id: true,
@@ -58,7 +58,7 @@ export class PrismaCatalogRepository implements CatalogRepository {
   }
 
   listUnits() {
-    return this.prisma.unit.findMany({
+    return this.prisma.getDb().unit.findMany({
       orderBy: { normalizedName: 'asc' },
       select: {
         id: true,

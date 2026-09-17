@@ -5,6 +5,7 @@ import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { AppModule } from '../src/app.module.js';
 import { PrismaService } from '../src/infrastructure/prisma/prisma.service.js';
+import { RECIPE_INTERPRETER } from '../src/modules/import/application/recipe-interpreter.js';
 
 type RecipeBody = {
   id: string;
@@ -54,7 +55,24 @@ postgres('product flow on PostgreSQL', () => {
     process.env['DATABASE_URL'] = databaseUrl;
     const moduleFixture = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideProvider(RECIPE_INTERPRETER)
+      .useValue({
+        interpret: () =>
+          Promise.resolve({
+            name: 'Propuesta sin persistir',
+            description: null,
+            author: null,
+            servings: null,
+            difficulty: null,
+            notes: null,
+            steps: ['Revisar'],
+            ingredients: [],
+            categories: [],
+            tags: [],
+          }),
+      })
+      .compile();
     app = moduleFixture.createNestApplication();
     app.setGlobalPrefix('api/v1');
     app.useGlobalPipes(
@@ -74,6 +92,27 @@ postgres('product flow on PostgreSQL', () => {
   });
 
   afterAll(async () => app?.close());
+
+  it('requires consent and creates a proposal without definitive persistence', async () => {
+    await request(server)
+      .post('/api/v1/imports/proposals')
+      .send({
+        consent: false,
+        source: { kind: 'text', text: 'Una receta' },
+      })
+      .expect(400);
+    const result = await request(server)
+      .post('/api/v1/imports/proposals')
+      .send({
+        consent: true,
+        source: { kind: 'text', text: 'Una receta' },
+      })
+      .expect(201);
+    expect(bodyAs<{ proposal: { name: string } }>(result).proposal.name).toBe(
+      'Propuesta sin persistir',
+    );
+    expect(await app.get(PrismaService).recipe.count()).toBe(0);
+  });
 
   it('creates catalogs and a complete recipe', async () => {
     ingredientId = idOf(
@@ -245,5 +284,62 @@ postgres('product flow on PostgreSQL', () => {
       total: 1,
       totalPages: 1,
     });
+  });
+
+  it('atomically confirms approved catalog creations with a new imported recipe', async () => {
+    const confirmed = await request(server)
+      .post('/api/v1/imports/confirmations')
+      .send({
+        name: 'Receta importada',
+        description: 'Revisada por el usuario',
+        steps: ['Preparar', 'Servir'],
+        ingredients: [
+          {
+            ingredient: { createName: 'Patata' },
+            variant: { createName: 'Nueva' },
+            unit: {
+              createName: 'Kilogramo',
+              createAbbreviation: 'kg',
+            },
+            quantity: '1.250',
+            optional: false,
+          },
+        ],
+        categories: [{ createName: 'Casera' }],
+        tags: [{ createName: 'Importada' }],
+      })
+      .expect(201);
+    const body = bodyAs<RecipeBody>(confirmed);
+    expect(body).toMatchObject({ name: 'Receta importada' });
+    expect(body.ingredients[0]).toMatchObject({ quantity: '1.25' });
+    expect(body.categories).toHaveLength(1);
+    expect(body.tags).toHaveLength(1);
+  });
+
+  it('rolls back catalog creations when imported recipe persistence fails', async () => {
+    await request(server)
+      .post('/api/v1/imports/confirmations')
+      .send({
+        name: 'Debe fallar',
+        steps: [],
+        ingredients: [
+          {
+            ingredient: { createName: 'Ingrediente rollback' },
+            optional: false,
+          },
+        ],
+        categories: [{ existingId: '00000000-0000-4000-8000-000000000000' }],
+        tags: [],
+      })
+      .expect(400);
+    const prisma = app.get(PrismaService);
+    expect(
+      await prisma.ingredient.count({
+        where: { normalizedName: 'ingrediente rollback' },
+      }),
+    ).toBe(0);
+    expect(
+      await prisma.recipe.count({ where: { normalizedName: 'debe fallar' } }),
+    ).toBe(0);
   });
 });

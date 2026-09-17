@@ -12,18 +12,18 @@ Estados: pendiente, en análisis, preparado, en desarrollo, en pruebas y finaliz
 
 ## 2. MVP — imprescindible
 
-| ID    | Capacidad                                   | Estado        |
-| ----- | ------------------------------------------- | ------------- |
-| B-001 | Crear, consultar, editar y archivar recetas | Finalizado    |
-| B-002 | Gestionar pasos e ingredientes de receta    | Finalizado    |
-| B-003 | Gestionar ingredientes y variantes          | Finalizado    |
-| B-004 | Gestionar unidades                          | Finalizado    |
-| B-005 | Gestionar categorías y etiquetas            | Finalizado    |
-| B-006 | Buscar y filtrar recetas                    | Finalizado    |
-| B-007 | Importar desde texto, imagen o documento    | En desarrollo |
-| B-008 | Revisar y confirmar una importación         | En desarrollo |
-| B-009 | Planificar comidas                          | Pendiente     |
-| B-010 | Generar y editar listas de compra           | Pendiente     |
+| ID    | Capacidad                                   | Estado     |
+| ----- | ------------------------------------------- | ---------- |
+| B-001 | Crear, consultar, editar y archivar recetas | Finalizado |
+| B-002 | Gestionar pasos e ingredientes de receta    | Finalizado |
+| B-003 | Gestionar ingredientes y variantes          | Finalizado |
+| B-004 | Gestionar unidades                          | Finalizado |
+| B-005 | Gestionar categorías y etiquetas            | Finalizado |
+| B-006 | Buscar y filtrar recetas                    | Finalizado |
+| B-007 | Importar desde texto, imagen o documento    | En pruebas |
+| B-008 | Revisar y confirmar una importación         | En pruebas |
+| B-009 | Planificar comidas                          | Pendiente  |
+| B-010 | Generar y editar listas de compra           | Pendiente  |
 
 ## 3. Posterior al MVP
 
