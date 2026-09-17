@@ -10,7 +10,7 @@
 
 ### Objetivo
 
-Completar B-007 y B-008 para convertir una fuente admitida en una propuesta de receta estructurada, revisable y corregible, que solo pueda crear o modificar datos definitivos después de una confirmación explícita del usuario.
+Completar B-007 y B-008 para convertir una fuente admitida en una propuesta de receta nueva, estructurada, revisable y corregible, que solo pueda crear datos definitivos después de una confirmación explícita del usuario.
 
 La IA interpreta y propone; nunca es fuente de verdad ni persiste por sí sola. Las fuentes originales son transitorias y no se incorporan a la biblioteca.
 
@@ -42,9 +42,9 @@ TASK-040–TASK-043 son el alcance real de Fase 4 según el roadmap vigente. Com
 4. **Resolución contra catálogos.** La propuesta compara candidatos con ingredientes, variantes, unidades, categorías y etiquetas existentes y marca coincidencias, novedades y ambigüedades.
 5. **Revisión y corrección.** El usuario puede editar todos los campos, elegir relaciones existentes, aceptar propuestas de alta o descartar información. Cancelar no persiste nada.
 6. **Confirmación.** Una acción inequívoca envía la versión revisada. El servidor vuelve a validarla y solo entonces coordina las operaciones públicas de catálogo y biblioteca.
-7. **Persistencia definitiva.** Se aplican las altas de catálogo expresamente confirmadas y la creación o actualización aprobada de la receta. La fuente original y la propuesta temporal se descartan.
+7. **Persistencia definitiva.** Se aplican atómicamente las altas de catálogo expresamente confirmadas, sus relaciones y la creación de la receta. La fuente original y la propuesta temporal se descartan.
 
-La propuesta será un flujo sin almacenamiento permanente de borradores: el backend devuelve la estructura temporal y la web mantiene la revisión hasta confirmar o cancelar. Si durante la implementación aparece una necesidad demostrada de reanudar borradores, requerirá una decisión posterior y una propuesta de persistencia separada.
+El backend no almacena fuentes ni borradores. La web puede mantener temporalmente la propuesta en almacenamiento local para tolerar una recarga accidental, pero debe eliminarla al confirmar o descartar. No es una receta definitiva ni un subsistema de persistencia; cualquier necesidad de sincronizar o reanudar borradores en servidor queda fuera de alcance.
 
 ## Modelo temporal de propuesta
 
@@ -73,7 +73,7 @@ Reglas de la propuesta:
 - **Elección requerida:** nombres con varias interpretaciones, variantes sin base inequívoca, unidades dudosas y cualquier colisión se presentan para selección o corrección.
 - **Validación final:** se reutilizan normalización, unicidad e integridad del catálogo; una colisión concurrente se devuelve a revisión y nunca provoca una fusión automática.
 
-La confirmación debe evitar estados parciales: se validará la propuesta completa antes de escribir y la coordinación de altas y receta se tratará como una única operación funcional. El diseño técnico del límite transaccional deberá respetar los contratos públicos de `catalog` y `library`; `import` no accederá a sus repositorios ni tablas internas.
+La confirmación debe evitar estados parciales: se validará la propuesta completa antes de escribir y altas, relaciones y receta se persistirán en una única transacción. El diseño técnico del límite transaccional deberá respetar los contratos públicos de `catalog` y `library`; `import` no accederá a sus repositorios ni tablas internas.
 
 ## Arquitectura propuesta
 
@@ -89,25 +89,21 @@ Se admite un reintento manual y, técnicamente, como máximo un reintento autom�
 
 ### Persistencia y migraciones
 
-No se prevén tablas ni migraciones para fuentes o borradores: tanto la fuente como la propuesta son transitorias. La persistencia definitiva reutiliza las capacidades de catálogo y biblioteca después de confirmar. Cualquier necesidad de guardar sesiones de importación debe elevarse antes de cambiar el esquema.
+No se prevén tablas ni migraciones para fuentes o borradores: tanto la fuente como la propuesta son transitorias. La persistencia definitiva reutiliza las capacidades de catálogo y biblioteca después de confirmar. La solución local para tolerar recargas no cambia el esquema.
 
 ## Fuentes
 
-### Incluidas sin decisión adicional
+### Incluidas
 
-- texto pegado, exigido expresamente por TASK-041;
-- imágenes, exigidas por TASK-042, con formatos concretos pendientes de aprobación.
-
-### Pendientes de concretar para TASK-042
-
-- qué formatos de imagen se admiten;
-- si “documentos” incluye PDF, Word o ambos;
-- si los PDF escaneados se tratan como imágenes además de los PDF con texto.
+- texto pegado;
+- imágenes JPEG, PNG y WebP;
+- PDF con texto extraíble y PDF visual o escaneado;
+- Word `.docx`.
 
 ### Excluidas salvo aprobación expresa
 
 - páginas web mediante URL, libros completos, correo, mensajería o conectores externos;
-- audio, vídeo, hojas de cálculo y formatos no aprobados;
+- `.doc` antiguo, HEIC, audio, vídeo, hojas de cálculo y formatos no aprobados;
 - descarga automática o rastreo de fuentes remotas;
 - almacenamiento permanente de originales.
 
@@ -115,7 +111,7 @@ Aunque la visión menciona fuentes posibles más amplias, el roadmap de Fase 4 s
 
 ## Seguridad y privacidad
 
-- La pantalla informará antes del procesamiento de que el contenido de la fuente puede enviarse al proveedor configurado.
+- Antes del primer envío de cada importación, la pantalla informará de que el contenido se enviará a un proveedor externo y exigirá una acción explícita. Ese consentimiento cubre los reintentos técnicos de la misma importación, no se guarda como preferencia global y una nueva importación vuelve a solicitarlo.
 - Solo se envía el contenido necesario para interpretar la receta; no se adjuntan biblioteca, historial, secretos ni otros datos del usuario.
 - Credenciales y proveedor se configuran fuera del repositorio y nunca se devuelven al cliente ni se registran.
 - Fuentes, texto extraído y respuestas del proveedor no se incluyen en logs de aplicación salvo metadatos técnicos no sensibles.
@@ -129,7 +125,7 @@ La política concreta del proveedor sobre retención y uso de datos deberá docu
 - **Dominio:** propuestas parciales, cantidades decimales, campos ausentes, ambigüedades, variante incompatible y estados de resolución.
 - **Aplicación:** extractores e intérpretes falsos y deterministas; respuesta completa, parcial, inválida, error transitorio, cancelación y reintento permitido.
 - **Catálogos:** coincidencia normalizada única, nuevo elemento pendiente, colisión, variante bajo ingrediente incorrecto y unidad ambigua.
-- **Confirmación:** ninguna escritura antes de confirmar; creación o actualización solo con referencias resueltas; rechazo sin efectos parciales.
+- **Confirmación:** ninguna escritura antes de confirmar; creación solo con ingredientes base resueltos; altas y receta atómicas; rechazo sin efectos parciales.
 - **Integración:** fixtures sintéticos de cada formato aprobado y adaptadores simulados; sin llamadas reales obligatorias a IA.
 - **API:** tipo/tamaño inválido, contrato de propuesta, errores seguros y protección frente al doble envío accidental; la confirmación nunca se reintenta automáticamente.
 - **Web:** revisar y corregir campos, resolver relaciones, cancelar, confirmar y comprobar la receta definitiva.
@@ -143,7 +139,7 @@ Las llamadas reales al proveedor se limitan a una comprobación manual o integra
 - El usuario puede revisar y corregir todos los campos soportados antes de confirmar.
 - Coincidencias, altas propuestas y ambigüedades del catálogo son visibles y corregibles.
 - Cancelar, fallar o recibir una respuesta inválida deja biblioteca y catálogos sin cambios.
-- La confirmación vuelve a validar y persiste una única vez la receta y solo las altas expresamente aceptadas.
+- La confirmación se bloquea mientras exista un ingrediente base sin resolver, vuelve a validar y persiste atómicamente una única receta nueva y solo las altas expresamente aceptadas.
 - La receta confirmada cumple las mismas invariantes y contratos que una receta creada manualmente.
 - Ningún original ni borrador queda almacenado permanentemente.
 - Proveedor, modelo y SDK pueden sustituirse sin cambiar dominio ni casos de uso.
@@ -155,6 +151,7 @@ Las llamadas reales al proveedor se limitan a una comprobación manual o integra
 - búsqueda nueva o cambios de relevancia;
 - recomendaciones, generación creativa o agentes autónomos;
 - importación masiva, procesos en segundo plano o reanudación de borradores;
+- actualización, merge o detección avanzada de duplicados de recetas;
 - almacenamiento o biblioteca de documentos originales;
 - URLs y conectores externos no aprobados;
 - fusión automática de catálogos o resolución difusa de duplicados;
@@ -172,13 +169,14 @@ Una vez aprobado el alcance, el equipo técnico podrá elegir:
 - diseño del límite transaccional y protección frente al doble envío, respetando los módulos públicos;
 - distribución visual mínima del flujo de revisión.
 
-## Decisiones funcionales requeridas al Project Manager
+## Decisiones funcionales aprobadas
 
-1. **Destino de importación:** ¿Sprint 4 crea únicamente recetas nuevas o también permite elegir una receta existente para actualizarla? La arquitectura funcional contempla ambas posibilidades; se recomienda empezar solo con creación para reducir el riesgo de sobrescritura.
-2. **Formatos de TASK-042:** confirmar formatos de imagen y documento. Propuesta inicial: JPEG, PNG y WebP; PDF con texto y PDF escaneado; dejar Word fuera hasta validar una necesidad real.
-3. **Resoluciones obligatorias:** decidir si la confirmación debe bloquearse hasta que todo uso de ingrediente tenga un ingrediente base resuelto. Se recomienda bloquearlo porque el dominio definitivo no admite ingredientes libres; los demás campos opcionales pueden quedar ausentes.
-4. **Altas de catálogo:** confirmar que una sola acción final puede aprobar explícitamente las altas propuestas de ingredientes, variantes, unidades, categorías y etiquetas junto con la receta. Se recomienda mostrar cada alta y permitir desmarcarla o sustituirla por una entidad existente.
-5. **Aviso al proveedor:** decidir si basta un aviso visible en cada envío o se exige una aceptación específica adicional antes de transmitir imágenes/documentos a un proveedor externo. Se recomienda confirmación específica en la propia acción de procesamiento, sin crear todavía preferencias persistentes.
+1. Sprint 4 solo crea recetas nuevas; no actualiza, fusiona ni resuelve duplicados avanzados.
+2. Se admiten texto, JPEG, PNG, WebP, PDF textual o escaneado y `.docx`.
+3. Una propuesta puede estar incompleta durante la revisión, pero no se confirma con ingredientes base sin resolver ni infringiendo invariantes del catálogo.
+4. Cada alta propuesta es visible, corregible y sustituible por una entidad existente; las aprobadas se confirman atómicamente con la receta.
+5. Cada importación exige consentimiento explícito antes del primer envío al proveedor externo; sus reintentos técnicos no repiten el consentimiento y no existe preferencia global.
+6. La web puede conservar un borrador local transitorio para tolerar recargas, sin almacenamiento documental ni persistencia de borradores en servidor.
 
 ## Riesgos relevantes
 
@@ -186,5 +184,5 @@ Una vez aprobado el alcance, el equipo técnico podrá elegir:
 - Nombres culinarios ambiguos pueden enlazar con el catálogo incorrecto; solo la coincidencia normalizada única se propone automáticamente y siempre es corregible.
 - Crear catálogo y receta requiere evitar confirmaciones duplicadas y estados parciales sin romper límites modulares.
 - Imágenes y documentos pueden contener datos personales o contenido innecesario; deben limitarse los datos enviados y verificarse la política del proveedor.
-- PDF escaneado y Word aumentan dependencias y casos límite; los formatos deben cerrarse antes de TASK-042.
-- El flujo transitorio se pierde al recargar la página; es una consecuencia consciente de no persistir borradores y debe aceptarse o revisarse antes de implementar.
+- PDF escaneado y `.docx` aumentan dependencias y casos límite; se aislarán detrás de extractores y fixtures específicos.
+- El almacenamiento local transitorio reduce pérdidas por recarga, pero no ofrece sincronización entre dispositivos ni recuperación tras borrar datos del navegador.
