@@ -1,16 +1,36 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+
 const apiUrl =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
 type Named = { id: string; name: string };
-type Ingredient = Named & { variants: Named[] };
+type Variant = Named & { ingredientId: string };
+type Ingredient = Named & { variants: Variant[] };
 type Unit = Named & { abbreviation: string };
+type StepDraft = { text: string };
+type IngredientDraft = {
+  ingredientId: string;
+  variantId: string;
+  quantity: string;
+  unitId: string;
+  optional: boolean;
+  observations: string;
+};
 type Summary = Named & {
   status: "ACTIVE" | "ARCHIVED";
-  categories: Array<{ category: Named }>;
-  tags: Array<{ tag: Named }>;
+  categories: Named[];
+  tags: Named[];
 };
+
+const emptyIngredient = (): IngredientDraft => ({
+  ingredientId: "",
+  variantId: "",
+  quantity: "",
+  unitId: "",
+  optional: false,
+  observations: "",
+});
 const selected = (event: React.ChangeEvent<HTMLSelectElement>) =>
   Array.from(event.target.selectedOptions, (option) => option.value);
 
@@ -25,10 +45,15 @@ export function RecipeWorkspace() {
     "ACTIVE",
   );
   const [name, setName] = useState("");
-  const [step, setStep] = useState("");
-  const [ingredientId, setIngredientId] = useState("");
-  const [unitId, setUnitId] = useState("");
-  const [quantity, setQuantity] = useState("");
+  const [description, setDescription] = useState("");
+  const [author, setAuthor] = useState("");
+  const [servings, setServings] = useState("");
+  const [difficulty, setDifficulty] = useState("");
+  const [notes, setNotes] = useState("");
+  const [steps, setSteps] = useState<StepDraft[]>([]);
+  const [recipeIngredients, setRecipeIngredients] = useState<IngredientDraft[]>(
+    [],
+  );
   const [categoryIds, setCategoryIds] = useState<string[]>([]);
   const [tagIds, setTagIds] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState("ACTIVE");
@@ -65,20 +90,22 @@ export function RecipeWorkspace() {
     setUnits(nextUnits as Unit[]);
     setCategories(nextCategories as Named[]);
     setTags(nextTags as Named[]);
-    setIngredientId((nextIngredients as Ingredient[])[0]?.id ?? "");
-    setUnitId((nextUnits as Unit[])[0]?.id ?? "");
     setMessage("Catálogos actualizados.");
   }
 
-  async function addItem(path: string, form: FormData) {
+  async function addItem(path: string, payload: object) {
     const response = await fetch(`${apiUrl}/${path}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(Object.fromEntries(form.entries())),
+      body: JSON.stringify(payload),
     });
     if (!response.ok)
       throw new Error((await response.json()).message ?? "No se pudo guardar");
     await refreshCatalogs();
+  }
+
+  async function addFormItem(path: string, form: FormData) {
+    await addItem(path, Object.fromEntries(form.entries()));
   }
 
   async function changeClassification(
@@ -86,14 +113,16 @@ export function RecipeWorkspace() {
     item: Named,
     remove = false,
   ) {
-    const name = remove ? undefined : window.prompt("Nuevo nombre", item.name);
-    if (!remove && !name) return;
+    const nextName = remove
+      ? undefined
+      : window.prompt("Nuevo nombre", item.name);
+    if (!remove && !nextName) return;
     const response = await fetch(
       `${apiUrl}/classifications/${kind}/${item.id}`,
       {
         method: remove ? "DELETE" : "PATCH",
         headers: { "Content-Type": "application/json" },
-        ...(name ? { body: JSON.stringify({ name }) } : {}),
+        ...(nextName ? { body: JSON.stringify({ name: nextName }) } : {}),
       },
     );
     if (!response.ok)
@@ -132,25 +161,45 @@ export function RecipeWorkspace() {
     const recipe = (await response.json()) as {
       id: string;
       name: string;
+      description: string | null;
+      author: string | null;
+      servings: number | null;
+      difficulty: string | null;
+      notes: string | null;
       status: "ACTIVE" | "ARCHIVED";
       steps: Array<{ text: string }>;
       ingredients: Array<{
         ingredientId: string;
-        unitId?: string;
-        quantity?: string | null;
+        variantId: string | null;
+        unitId: string | null;
+        quantity: string | null;
+        optional: boolean;
+        observations: string | null;
       }>;
-      categories: Array<{ categoryId: string }>;
-      tags: Array<{ tagId: string }>;
+      categories: Named[];
+      tags: Named[];
     };
     setRecipeId(recipe.id);
     setRecipeStatus(recipe.status);
     setName(recipe.name);
-    setStep(recipe.steps[0]?.text ?? "");
-    setIngredientId(recipe.ingredients[0]?.ingredientId ?? "");
-    setUnitId(recipe.ingredients[0]?.unitId ?? "");
-    setQuantity(recipe.ingredients[0]?.quantity ?? "");
-    setCategoryIds(recipe.categories.map((item) => item.categoryId));
-    setTagIds(recipe.tags.map((item) => item.tagId));
+    setDescription(recipe.description ?? "");
+    setAuthor(recipe.author ?? "");
+    setServings(recipe.servings?.toString() ?? "");
+    setDifficulty(recipe.difficulty ?? "");
+    setNotes(recipe.notes ?? "");
+    setSteps(recipe.steps.map(({ text }) => ({ text })));
+    setRecipeIngredients(
+      recipe.ingredients.map((item) => ({
+        ingredientId: item.ingredientId,
+        variantId: item.variantId ?? "",
+        quantity: item.quantity ?? "",
+        unitId: item.unitId ?? "",
+        optional: item.optional,
+        observations: item.observations ?? "",
+      })),
+    );
+    setCategoryIds(recipe.categories.map((item) => item.id));
+    setTagIds(recipe.tags.map((item) => item.id));
     setMessage("Receta cargada.");
   }
 
@@ -158,18 +207,21 @@ export function RecipeWorkspace() {
     event.preventDefault();
     const payload = {
       name,
-      steps: step ? [{ position: 0, text: step }] : [],
-      ingredients: ingredientId
-        ? [
-            {
-              position: 0,
-              ingredientId,
-              ...(unitId ? { unitId } : {}),
-              ...(quantity ? { quantity } : {}),
-              optional: false,
-            },
-          ]
-        : [],
+      description: description || null,
+      author: author || null,
+      servings: servings ? Number(servings) : null,
+      difficulty: difficulty || null,
+      notes: notes || null,
+      steps: steps.map((item, position) => ({ position, text: item.text })),
+      ingredients: recipeIngredients.map((item, position) => ({
+        position,
+        ingredientId: item.ingredientId,
+        ...(item.variantId ? { variantId: item.variantId } : {}),
+        ...(item.quantity ? { quantity: item.quantity } : {}),
+        ...(item.unitId ? { unitId: item.unitId } : {}),
+        optional: item.optional,
+        ...(item.observations ? { observations: item.observations } : {}),
+      })),
       categoryIds,
       tagIds,
     };
@@ -206,6 +258,20 @@ export function RecipeWorkspace() {
     await loadRecipes();
   }
 
+  const updateStep = (index: number, text: string) =>
+    setSteps((current) =>
+      current.map((item, itemIndex) => (itemIndex === index ? { text } : item)),
+    );
+  const updateRecipeIngredient = (
+    index: number,
+    update: Partial<IngredientDraft>,
+  ) =>
+    setRecipeIngredients((current) =>
+      current.map((item, itemIndex) =>
+        itemIndex === index ? { ...item, ...update } : item,
+      ),
+    );
+
   return (
     <main className="shell">
       <header>
@@ -213,6 +279,7 @@ export function RecipeWorkspace() {
         <h1>Biblioteca de recetas</h1>
         <p>Navega, clasifica y mantén tus recetas.</p>
       </header>
+
       <section className="panel recipe">
         <div className="panel-title">
           <h2>Biblioteca</h2>
@@ -226,7 +293,6 @@ export function RecipeWorkspace() {
             <input
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              placeholder="Nombre, descripción o clasificación"
             />
           </label>
           <label>
@@ -240,64 +306,35 @@ export function RecipeWorkspace() {
               <option value="ACTIVE,ARCHIVED">Todas</option>
             </select>
           </label>
-          <label>
-            Categorías
-            <select
-              multiple
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(selected(e))}
-            >
-              {categories.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Etiquetas
-            <select
-              multiple
-              value={tagFilter}
-              onChange={(e) => setTagFilter(selected(e))}
-            >
-              {tags.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Ingredientes (todos)
-            <select
-              multiple
-              value={ingredientFilter}
-              onChange={(e) => setIngredientFilter(selected(e))}
-            >
-              {ingredients.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Variantes (todas)
-            <select
-              multiple
-              value={variantFilter}
-              onChange={(e) => setVariantFilter(selected(e))}
-            >
-              {ingredients.flatMap((ingredient) =>
-                ingredient.variants.map((variant) => (
-                  <option key={variant.id} value={variant.id}>
-                    {ingredient.name}: {variant.name}
-                  </option>
-                )),
-              )}
-            </select>
-          </label>
+          <MultiSelect
+            label="Categorías"
+            value={categoryFilter}
+            items={categories}
+            onChange={setCategoryFilter}
+          />
+          <MultiSelect
+            label="Etiquetas"
+            value={tagFilter}
+            items={tags}
+            onChange={setTagFilter}
+          />
+          <MultiSelect
+            label="Ingredientes (todos)"
+            value={ingredientFilter}
+            items={ingredients}
+            onChange={setIngredientFilter}
+          />
+          <MultiSelect
+            label="Variantes (todas)"
+            value={variantFilter}
+            items={ingredients.flatMap((ingredient) =>
+              ingredient.variants.map((variant) => ({
+                ...variant,
+                name: `${ingredient.name}: ${variant.name}`,
+              })),
+            )}
+            onChange={setVariantFilter}
+          />
         </div>
         <div className="library-list">
           {recipes.length === 0 && <p>No hay recetas para estos criterios.</p>}
@@ -332,6 +369,7 @@ export function RecipeWorkspace() {
           </button>
         </div>
       </section>
+
       <section className="panel catalogs">
         <div>
           <h2>Catálogos</h2>
@@ -341,7 +379,59 @@ export function RecipeWorkspace() {
         </div>
         <form
           action={(form) =>
-            void safely(() => addItem("classifications/categories", form))
+            void safely(() => addFormItem("catalog/ingredients", form))
+          }
+        >
+          <label>
+            Nuevo ingrediente
+            <input name="name" required />
+          </label>
+          <button>Agregar</button>
+        </form>
+        <form
+          action={(form) =>
+            void safely(() => addFormItem("catalog/units", form))
+          }
+        >
+          <label>
+            Nueva unidad
+            <input name="name" required />
+          </label>
+          <label>
+            Abreviatura
+            <input name="abbreviation" required />
+          </label>
+          <button>Agregar</button>
+        </form>
+        <form
+          action={(form) => {
+            const ingredientId = String(form.get("ingredientId") ?? "");
+            form.delete("ingredientId");
+            return void safely(() =>
+              addFormItem(`catalog/ingredients/${ingredientId}/variants`, form),
+            );
+          }}
+        >
+          <label>
+            Ingrediente
+            <select name="ingredientId" required>
+              <option value="">Selecciona</option>
+              {ingredients.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Nueva variante
+            <input name="name" required />
+          </label>
+          <button>Agregar</button>
+        </form>
+        <form
+          action={(form) =>
+            void safely(() => addFormItem("classifications/categories", form))
           }
         >
           <label>
@@ -352,7 +442,7 @@ export function RecipeWorkspace() {
         </form>
         <form
           action={(form) =>
-            void safely(() => addItem("classifications/tags", form))
+            void safely(() => addFormItem("classifications/tags", form))
           }
         >
           <label>
@@ -362,54 +452,43 @@ export function RecipeWorkspace() {
           <button>Agregar</button>
         </form>
       </section>
+
       <section className="panel classification-lists">
         <div>
-          <h3>Categorías</h3>
-          {categories.map((item) => (
+          <h3>Ingredientes</h3>
+          {ingredients.map((item) => (
             <p key={item.id}>
-              {item.name}{" "}
-              <button
-                onClick={() =>
-                  void safely(() => changeClassification("categories", item))
-                }
-              >
-                Renombrar
-              </button>{" "}
-              <button
-                onClick={() =>
-                  void safely(() =>
-                    changeClassification("categories", item, true),
-                  )
-                }
-              >
-                Eliminar
-              </button>
+              {item.name}
+              {item.variants.length
+                ? `: ${item.variants.map((variant) => variant.name).join(", ")}`
+                : ""}
             </p>
           ))}
         </div>
         <div>
-          <h3>Etiquetas</h3>
-          {tags.map((item) => (
+          <h3>Unidades</h3>
+          {units.map((item) => (
             <p key={item.id}>
-              {item.name}{" "}
-              <button
-                onClick={() =>
-                  void safely(() => changeClassification("tags", item))
-                }
-              >
-                Renombrar
-              </button>{" "}
-              <button
-                onClick={() =>
-                  void safely(() => changeClassification("tags", item, true))
-                }
-              >
-                Eliminar
-              </button>
+              {item.name} ({item.abbreviation})
             </p>
           ))}
         </div>
+        <ClassificationList
+          title="Categorías"
+          kind="categories"
+          items={categories}
+          safely={safely}
+          change={changeClassification}
+        />
+        <ClassificationList
+          title="Etiquetas"
+          kind="tags"
+          items={tags}
+          safely={safely}
+          change={changeClassification}
+        />
       </section>
+
       <form
         className="panel recipe"
         onSubmit={(event) => void safely(() => saveRecipe(event))}
@@ -437,72 +516,211 @@ export function RecipeWorkspace() {
           />
         </label>
         <label>
-          Primer paso
-          <textarea value={step} onChange={(e) => setStep(e.target.value)} />
+          Descripción
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
         </label>
         <div className="row">
           <label>
-            Ingrediente
-            <select
-              value={ingredientId}
-              onChange={(e) => setIngredientId(e.target.value)}
-            >
-              <option value="">Sin ingrediente</option>
-              {ingredients.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
+            Autor
+            <input value={author} onChange={(e) => setAuthor(e.target.value)} />
           </label>
           <label>
-            Cantidad exacta
+            Raciones
             <input
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
+              type="number"
+              min="1"
+              value={servings}
+              onChange={(e) => setServings(e.target.value)}
             />
           </label>
           <label>
-            Unidad
-            <select value={unitId} onChange={(e) => setUnitId(e.target.value)}>
-              <option value="">Sin unidad</option>
-              {units.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.abbreviation}
-                </option>
-              ))}
-            </select>
+            Dificultad
+            <input
+              value={difficulty}
+              onChange={(e) => setDifficulty(e.target.value)}
+            />
           </label>
         </div>
+        <label>
+          Notas
+          <textarea value={notes} onChange={(e) => setNotes(e.target.value)} />
+        </label>
+
+        <section>
+          <div className="panel-title">
+            <h3>Pasos</h3>
+            <button
+              type="button"
+              onClick={() => setSteps((current) => [...current, { text: "" }])}
+            >
+              Añadir paso
+            </button>
+          </div>
+          {steps.map((item, index) => (
+            <div className="row" key={index}>
+              <label>
+                Paso {index + 1}
+                <textarea
+                  value={item.text}
+                  onChange={(e) => updateStep(index, e.target.value)}
+                  required
+                />
+              </label>
+              <button
+                type="button"
+                onClick={() =>
+                  setSteps((current) =>
+                    current.filter((_, itemIndex) => itemIndex !== index),
+                  )
+                }
+              >
+                Eliminar paso
+              </button>
+            </div>
+          ))}
+        </section>
+
+        <section>
+          <div className="panel-title">
+            <h3>Ingredientes de receta</h3>
+            <button
+              type="button"
+              onClick={() =>
+                setRecipeIngredients((current) => [
+                  ...current,
+                  emptyIngredient(),
+                ])
+              }
+            >
+              Añadir ingrediente
+            </button>
+          </div>
+          {recipeIngredients.map((item, index) => {
+            const variants =
+              ingredients.find(
+                (ingredient) => ingredient.id === item.ingredientId,
+              )?.variants ?? [];
+            return (
+              <div className="row" key={index}>
+                <label>
+                  Ingrediente {index + 1}
+                  <select
+                    value={item.ingredientId}
+                    onChange={(e) =>
+                      updateRecipeIngredient(index, {
+                        ingredientId: e.target.value,
+                        variantId: "",
+                      })
+                    }
+                    required
+                  >
+                    <option value="">Selecciona</option>
+                    {ingredients.map((ingredient) => (
+                      <option key={ingredient.id} value={ingredient.id}>
+                        {ingredient.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  Variante
+                  <select
+                    value={item.variantId}
+                    onChange={(e) =>
+                      updateRecipeIngredient(index, {
+                        variantId: e.target.value,
+                      })
+                    }
+                  >
+                    <option value="">Sin variante</option>
+                    {variants.map((variant) => (
+                      <option key={variant.id} value={variant.id}>
+                        {variant.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  Cantidad
+                  <input
+                    value={item.quantity}
+                    onChange={(e) =>
+                      updateRecipeIngredient(index, {
+                        quantity: e.target.value,
+                      })
+                    }
+                  />
+                </label>
+                <label>
+                  Unidad
+                  <select
+                    value={item.unitId}
+                    onChange={(e) =>
+                      updateRecipeIngredient(index, { unitId: e.target.value })
+                    }
+                  >
+                    <option value="">Sin unidad</option>
+                    {units.map((unit) => (
+                      <option key={unit.id} value={unit.id}>
+                        {unit.abbreviation}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  Opcional
+                  <input
+                    type="checkbox"
+                    checked={item.optional}
+                    onChange={(e) =>
+                      updateRecipeIngredient(index, {
+                        optional: e.target.checked,
+                      })
+                    }
+                  />
+                </label>
+                <label>
+                  Observaciones
+                  <input
+                    value={item.observations}
+                    onChange={(e) =>
+                      updateRecipeIngredient(index, {
+                        observations: e.target.value,
+                      })
+                    }
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setRecipeIngredients((current) =>
+                      current.filter((_, itemIndex) => itemIndex !== index),
+                    )
+                  }
+                >
+                  Eliminar ingrediente
+                </button>
+              </div>
+            );
+          })}
+        </section>
+
         <div className="row">
-          <label>
-            Categorías
-            <select
-              multiple
-              value={categoryIds}
-              onChange={(e) => setCategoryIds(selected(e))}
-            >
-              {categories.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Etiquetas
-            <select
-              multiple
-              value={tagIds}
-              onChange={(e) => setTagIds(selected(e))}
-            >
-              {tags.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
-          </label>
+          <MultiSelect
+            label="Categorías de receta"
+            value={categoryIds}
+            items={categories}
+            onChange={setCategoryIds}
+          />
+          <MultiSelect
+            label="Etiquetas de receta"
+            value={tagIds}
+            items={tags}
+            onChange={setTagIds}
+          />
         </div>
         <button className="primary">
           {recipeId ? "Guardar cambios" : "Crear receta"}
@@ -513,5 +731,69 @@ export function RecipeWorkspace() {
         {recipeId && ` ID: ${recipeId}`}
       </p>
     </main>
+  );
+}
+
+function MultiSelect({
+  label,
+  value,
+  items,
+  onChange,
+}: {
+  label: string;
+  value: string[];
+  items: Named[];
+  onChange(value: string[]): void;
+}) {
+  return (
+    <label>
+      {label}
+      <select
+        multiple
+        value={value}
+        onChange={(event) => onChange(selected(event))}
+      >
+        {items.map((item) => (
+          <option key={item.id} value={item.id}>
+            {item.name}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function ClassificationList({
+  title,
+  kind,
+  items,
+  safely,
+  change,
+}: {
+  title: string;
+  kind: "categories" | "tags";
+  items: Named[];
+  safely(action: () => Promise<void>): void;
+  change(
+    kind: "categories" | "tags",
+    item: Named,
+    remove?: boolean,
+  ): Promise<void>;
+}) {
+  return (
+    <div>
+      <h3>{title}</h3>
+      {items.map((item) => (
+        <p key={item.id}>
+          {item.name}{" "}
+          <button onClick={() => void safely(() => change(kind, item))}>
+            Renombrar
+          </button>{" "}
+          <button onClick={() => void safely(() => change(kind, item, true))}>
+            Eliminar
+          </button>
+        </p>
+      ))}
+    </div>
   );
 }

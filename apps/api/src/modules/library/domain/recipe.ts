@@ -11,11 +11,11 @@ export type RecipeIngredientInput = {
 
 export type RecipeInput = {
   name: string;
-  description?: string;
-  author?: string;
-  servings?: number;
-  difficulty?: string;
-  notes?: string;
+  description?: string | null;
+  author?: string | null;
+  servings?: number | null;
+  difficulty?: string | null;
+  notes?: string | null;
   steps: RecipeStepInput[];
   ingredients: RecipeIngredientInput[];
   categoryIds?: string[];

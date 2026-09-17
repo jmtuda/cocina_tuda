@@ -21,7 +21,7 @@
     "test:cov": "vitest run --coverage",
     "test:debug": "vitest --inspect-brk --no-file-parallelism",
     "test:e2e": "vitest run --config ./vitest.config.e2e.ts",
-    "test:postgres": "vitest run src/modules/library/infrastructure/prisma-recipe.repository.postgres.spec.ts",
+    "test:postgres": "vitest run src/modules/library/infrastructure/prisma-recipe.repository.postgres.spec.ts && vitest run --config ./vitest.config.e2e.ts test/product-flow.postgres.e2e-spec.ts",
     "benchmark:search": "pnpm build && node scripts/benchmark-search.mjs",
     "prisma:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy"

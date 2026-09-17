@@ -86,10 +86,10 @@ await client.end();
 
 const { PrismaService } =
   await import('../dist/infrastructure/prisma/prisma.service.js');
-const { PrismaRecipeRepository } =
-  await import('../dist/modules/library/infrastructure/prisma-recipe.repository.js');
+const { PrismaSearchRepository } =
+  await import('../dist/modules/search/infrastructure/prisma-search.repository.js');
 const prisma = new PrismaService();
-const repository = new PrismaRecipeRepository(prisma);
+const repository = new PrismaSearchRepository(prisma);
 const base = {
   page: 1,
   pageSize: 20,
@@ -115,12 +115,12 @@ const workloads = [
 ];
 
 for (let index = 0; index < 18; index += 1)
-  await repository.list(workloads[index % workloads.length]);
+  await repository.search(workloads[index % workloads.length]);
 
 const durations = [];
 for (let index = 0; index < 120; index += 1) {
   const start = performance.now();
-  await repository.list(workloads[index % workloads.length]);
+  await repository.search(workloads[index % workloads.length]);
   durations.push(performance.now() - start);
 }
 await prisma.$disconnect();
