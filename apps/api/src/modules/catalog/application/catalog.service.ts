@@ -1,4 +1,10 @@
-import { ConflictException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CatalogName } from '../domain/catalog.js';
 import {
   CATALOG_REPOSITORY,
@@ -32,16 +38,22 @@ export class CatalogService {
         name.normalized,
       );
     } catch (error) {
+      if (this.errorCode(error) === 'P2003') {
+        throw new NotFoundException('Ingrediente no encontrado');
+      }
       this.handleConflict(error, 'Ya existe esa variante para el ingrediente');
     }
   }
 
   async createUnit(rawName: string, abbreviation: string) {
     const name = new CatalogName(rawName);
+    const trimmedAbbreviation = abbreviation.trim();
+    if (!trimmedAbbreviation)
+      throw new BadRequestException('La abreviatura es obligatoria');
     try {
       return await this.repository.createUnit(
         name.value,
-        abbreviation.trim(),
+        trimmedAbbreviation,
         name.normalized,
       );
     } catch (error) {
@@ -58,10 +70,13 @@ export class CatalogService {
   }
 
   private handleConflict(error: unknown, message: string): never {
-    if (typeof error === 'object' && error !== null && 'code' in error) {
-      const code = (error as { code?: string }).code;
-      if (code === 'P2002') throw new ConflictException(message);
-    }
+    if (this.errorCode(error) === 'P2002') throw new ConflictException(message);
     throw error;
+  }
+
+  private errorCode(error: unknown) {
+    return typeof error === 'object' && error !== null && 'code' in error
+      ? (error as { code?: string }).code
+      : undefined;
   }
 }

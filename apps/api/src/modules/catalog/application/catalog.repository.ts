@@ -14,6 +14,8 @@ export interface CatalogRepository {
     abbreviation: string,
     normalizedName: string,
   ): Promise<Unit>;
-  listIngredients(): Promise<Ingredient[]>;
+  listIngredients(): Promise<
+    Array<Ingredient & { variants: IngredientVariant[] }>
+  >;
   listUnits(): Promise<Unit[]>;
 }

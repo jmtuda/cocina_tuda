@@ -1,14 +1,14 @@
 # Cocina Tuda — Modelo de datos
 
-**Versión:** 2.0  
+**Versión:** 2.1
 **Estado:** Aprobado
 **Responsable:** Arquitecto Técnico
 
 ## 1. Objetivo
 
-Define una traducción persistente inicial de `03_modelo_dominio.md`. Los nombres son conceptuales hasta crear y revisar el esquema Prisma.
+Describe la traducción persistente vigente de `03_modelo_dominio.md` y separa expresamente los conceptos aún no implementados.
 
-## 2. Tablas iniciales
+## 2. Esquema actual
 
 | Tabla                 | Datos principales                                                                                             |
 | --------------------- | ------------------------------------------------------------------------------------------------------------- |
@@ -22,11 +22,8 @@ Define una traducción persistente inicial de `03_modelo_dominio.md`. Los nombre
 | `recipe_categories`   | recipe_id, category_id                                                                                        |
 | `tags`                | id, name, normalized_name                                                                                     |
 | `recipe_tags`         | recipe_id, tag_id                                                                                             |
-| `planned_meals`       | id, recipe_id, planned_date, meal_label?, notes?, created_at, updated_at                                      |
-| `shopping_lists`      | id, name, source_start?, source_end?, created_at, updated_at                                                  |
-| `shopping_list_items` | id, shopping_list_id, ingredient_id, quantity?, unit_id?, notes?, checked, source                             |
 
-No se crean todavía tablas de usuarios, grupos de recetas, sincronización o documentos importados permanentes.
+No existen todavía tablas de importación, planificación, listas de compra, usuarios, grupos de recetas, sincronización ni documentos importados permanentes.
 
 ## 3. Relaciones y restricciones
 
@@ -37,14 +34,12 @@ No se crean todavía tablas de usuarios, grupos de recetas, sincronización o do
 - Categorías y etiquetas se relacionan muchos-a-muchos con recetas.
 - Las tablas intermedias evitan pares duplicados.
 - Cantidades nunca se almacenan en ingredientes o unidades.
-- Una comida planificada referencia una receta; no copia su contenido.
-- Un elemento de compra referencia un ingrediente y opcionalmente una unidad.
 
 ## 4. Identificadores y cantidades
 
-Se utilizarán identificadores estables generados por la aplicación o la base de datos. El formato concreto se decidirá antes de la primera migración.
+Se utilizan UUID v4 generados por la base de datos.
 
-Las cantidades son valores numéricos decimales opcionales del uso de ingrediente y se persisten con un tipo de precisión exacta, nunca con coma flotante binaria. La ausencia de cantidad es válida y se representa con `NULL`. La escala y precisión concretas son una decisión técnica de la primera migración.
+Las cantidades son valores numéricos decimales opcionales del uso de ingrediente y se persisten como `DECIMAL(12,3)`, nunca con coma flotante binaria. La ausencia de cantidad es válida y se representa con `NULL`.
 
 ## 5. Archivo y eliminación
 
@@ -54,9 +49,8 @@ Las recetas usan archivo lógico. Los catálogos referenciados no pueden elimina
 
 El esquema se modifica mediante migraciones reproducibles. Los índices adicionales se incorporan a partir de consultas reales y mediciones, además de claves y restricciones necesarias para integridad.
 
-## 7. Pendientes antes de implementar
+## 7. Conceptos futuros no implementados
 
-- identificadores;
-- integridad ingrediente-variante;
-- archivo de recetas ya planificadas;
-- consolidación de unidades en compras.
+- La planificación podrá incorporar `planned_meals`, referenciando una receta sin copiar su contenido. Antes deberá decidirse el comportamiento de una receta archivada que ya esté planificada.
+- Las listas de compra podrán incorporar `shopping_lists` y `shopping_list_items`; antes deberá definirse la consolidación entre cantidades y unidades.
+- La importación no tiene todavía persistencia propia ni cambia este esquema.

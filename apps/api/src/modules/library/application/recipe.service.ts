@@ -8,7 +8,6 @@ import { RecipeDraft, type RecipeInput } from '../domain/recipe.js';
 import {
   RECIPE_REPOSITORY,
   type RecipeRepository,
-  type RecipeListQuery,
 } from './recipe.repository.js';
 
 @Injectable()
@@ -17,8 +16,12 @@ export class RecipeService {
     @Inject(RECIPE_REPOSITORY) private readonly repository: RecipeRepository,
   ) {}
 
-  create(input: RecipeInput) {
-    return this.repository.create(this.validate(input));
+  async create(input: RecipeInput) {
+    try {
+      return await this.repository.create(this.validate(input));
+    } catch (error) {
+      this.handlePersistenceError(error);
+    }
   }
 
   async get(id: string) {
@@ -28,9 +31,14 @@ export class RecipeService {
   }
 
   async update(id: string, input: RecipeInput) {
-    const recipe = await this.repository.update(id, this.validate(input));
-    if (!recipe) throw new NotFoundException('Receta no encontrada');
-    return recipe;
+    try {
+      const recipe = await this.repository.update(id, this.validate(input));
+      if (!recipe) throw new NotFoundException('Receta no encontrada');
+      return recipe;
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      this.handlePersistenceError(error);
+    }
   }
 
   async archive(id: string) {
@@ -45,10 +53,6 @@ export class RecipeService {
     return recipe;
   }
 
-  list(query: RecipeListQuery) {
-    return this.repository.list(query);
-  }
-
   private validate(input: RecipeInput): RecipeInput {
     try {
       return new RecipeDraft(input).value;
@@ -57,5 +61,17 @@ export class RecipeService {
         error instanceof Error ? error.message : 'Receta no válida',
       );
     }
+  }
+
+  private handlePersistenceError(error: unknown): never {
+    const code =
+      typeof error === 'object' && error !== null && 'code' in error
+        ? (error as { code?: string }).code
+        : undefined;
+    if (code === 'P2003' || code === 'P2023') {
+      throw new BadRequestException('Referencia de catálogo no válida');
+    }
+    if (code === 'P2025') throw new NotFoundException('Receta no encontrada');
+    throw error;
   }
 }

@@ -1,6 +1,6 @@
 # Cocina Tuda — Estructura del repositorio
 
-**Versión:** 2.0  
+**Versión:** 2.1
 **Estado:** Aprobado
 **Responsable:** Arquitecto Técnico
 
@@ -8,16 +8,13 @@
 
 La estructura crece con el producto. Solo se crean carpetas con una responsabilidad y contenido reales.
 
-## 2. Estructura inicial prevista
+## 2. Estructura actual
 
 ```text
 cocina_tuda/
 ├── apps/
 │   ├── api/
 │   └── web/
-├── packages/
-│   ├── config/
-│   └── contracts/        # solo si api y web comparten contratos
 ├── docs/
 │   └── adr/
 ├── .github/
@@ -26,28 +23,27 @@ cocina_tuda/
 ├── pnpm-workspace.yaml
 ├── turbo.json
 ├── tsconfig.base.json
-├── .editorconfig
 ├── .gitignore
 └── README.md
 ```
 
-No se crearán inicialmente `scripts`, `.vscode`, `.husky`, `packages/shared`, `packages/ui` o aplicaciones futuras sin un uso concreto.
+No se crean paquetes compartidos ni aplicaciones futuras sin un uso concreto y más de un consumidor real.
 
 ## 3. API
 
 ```text
 apps/api/src/
+├── infrastructure/
+│   └── prisma/
 ├── modules/
 │   ├── library/
 │   ├── catalog/
-│   ├── search/
-│   ├── import/
-│   ├── planning/
-│   └── shopping/
+│   └── search/
+├── app.module.ts
 └── main.ts
 ```
 
-Cada módulo puede contener `domain`, `application`, `infrastructure` y `presentation` cuando las necesite. No existirá simultáneamente otro dominio duplicado en `packages/domain`.
+`library`, `catalog` y `search` son módulos físicos independientes. Cada uno contiene solo las capas `domain`, `application`, `infrastructure` y `presentation` que necesita y expone sus dependencias públicas mediante su módulo de composición. `search` es una proyección transversal de lectura y no posee datos.
 
 Prisma se ubicará dentro de `apps/api/prisma` mientras sea infraestructura exclusiva de la API.
 
@@ -56,20 +52,18 @@ Prisma se ubicará dentro de `apps/api/prisma` mientras sea infraestructura excl
 ```text
 apps/web/
 ├── app/
-├── features/
-├── components/
-├── lib/
-└── public/
+└── features/
+    └── recipes/
 ```
 
 Las funcionalidades viven en `features`. Los componentes compartidos no contienen acceso directo a datos ni reglas de negocio.
 
-## 5. Paquetes
+## 5. Paquetes futuros
 
 Un paquete se crea cuando tiene una responsabilidad estable y más de un consumidor real.
 
-- `config`: configuraciones comunes de TypeScript, lint o formato.
-- `contracts`: contratos públicos compartidos entre API y clientes, sin entidades del dominio.
+- `config`: configuraciones comunes de TypeScript, lint o formato, solo si aparece duplicación real.
+- `contracts`: contratos públicos compartidos entre API y clientes, sin entidades del dominio, solo cuando exista más de un consumidor.
 
 Se evita usar `shared`, `common`, `utils` o `helpers` como contenedores genéricos.
 
@@ -84,4 +78,4 @@ Se evita usar `shared`, `common`, `utils` o `helpers` como contenedores genéric
 - Ningún módulo importa infraestructura interna de otro.
 - El código solo se extrae a un paquete cuando compartirlo reduce una duplicación real.
 
-La estructura detallada se validará con el primer corte vertical antes de considerarla definitiva.
+Los módulos de importación, planificación o compra se materializarán únicamente cuando entren en alcance.

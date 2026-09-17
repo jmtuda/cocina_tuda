@@ -34,11 +34,27 @@ export class RecipeIngredientDto {
 
 export class SaveRecipeDto {
   @ApiProperty() @IsString() @IsNotEmpty() name!: string;
-  @ApiPropertyOptional() @IsOptional() @IsString() description?: string;
-  @ApiPropertyOptional() @IsOptional() @IsString() author?: string;
-  @ApiPropertyOptional() @IsOptional() @IsInt() @Min(1) servings?: number;
-  @ApiPropertyOptional() @IsOptional() @IsString() difficulty?: string;
-  @ApiPropertyOptional() @IsOptional() @IsString() notes?: string;
+  @ApiPropertyOptional({ nullable: true })
+  @IsOptional()
+  @IsString()
+  description?: string | null;
+  @ApiPropertyOptional({ nullable: true })
+  @IsOptional()
+  @IsString()
+  author?: string | null;
+  @ApiPropertyOptional({ nullable: true })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  servings?: number | null;
+  @ApiPropertyOptional({ nullable: true })
+  @IsOptional()
+  @IsString()
+  difficulty?: string | null;
+  @ApiPropertyOptional({ nullable: true })
+  @IsOptional()
+  @IsString()
+  notes?: string | null;
   @ApiProperty({ type: [RecipeStepDto] })
   @IsArray()
   @ValidateNested({ each: true })
@@ -61,45 +77,4 @@ export class SaveRecipeDto {
   @IsUUID('4', { each: true })
   @ArrayUnique()
   tagIds?: string[];
-}
-
-export class ListRecipesDto {
-  @ApiPropertyOptional({ default: 1 })
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  page = 1;
-  @ApiPropertyOptional({ default: 20, maximum: 100 })
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  pageSize = 20;
-  @ApiPropertyOptional({ description: 'ACTIVE,ARCHIVED' })
-  @IsOptional()
-  @IsString()
-  status?: string;
-  @ApiPropertyOptional({ description: 'UUIDs separated by comma' })
-  @IsOptional()
-  @IsString()
-  category?: string;
-  @ApiPropertyOptional({ description: 'UUIDs separated by comma' })
-  @IsOptional()
-  @IsString()
-  tag?: string;
-  @ApiPropertyOptional({ description: 'Text to search' })
-  @IsOptional()
-  @IsString()
-  q?: string;
-  @ApiPropertyOptional({
-    description: 'Base ingredient UUIDs separated by comma',
-  })
-  @IsOptional()
-  @IsString()
-  ingredient?: string;
-  @ApiPropertyOptional({
-    description: 'Ingredient variant UUIDs separated by comma',
-  })
-  @IsOptional()
-  @IsString()
-  variant?: string;
 }
