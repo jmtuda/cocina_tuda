@@ -1,8 +1,8 @@
 # Cocina Tuda — Sprint actual
 
-**Versión:** 5.0
+**Versión:** 5.1
 
-**Estado:** En pruebas
+**Estado:** Finalizado
 
 **Responsable:** Project Manager
 
@@ -12,17 +12,17 @@
 
 Corregir los hallazgos bloqueantes de la revisión integral de Sprints 1–3 sin ampliar el alcance funcional ni iniciar Fase 4.
 
-Sprint 1, Sprint 2 y Sprint 3 permanecen cerrados. La Fase 4 está bloqueada hasta la aprobación expresa del Project Manager.
+Sprint 1, Sprint 2 y Sprint 3 permanecen cerrados. La estabilización fue aprobada e integrada y el Project Manager ha levantado el bloqueo previo sobre Fase 4.
 
-### Alcance en validación
+### Alcance finalizado
 
 | Orden | Resultado verificable                                                                                        | Estado     |
 | ----- | ------------------------------------------------------------------------------------------------------------ | ---------- |
-| 1     | Edición web completa sin pérdida silenciosa de pasos, ingredientes, cantidades, clasificaciones ni metadatos | En pruebas |
-| 2     | Límites físicos y públicos de `library`, `catalog` y `search`                                                | En pruebas |
-| 3     | Gestión web mínima de ingredientes, variantes y unidades conforme a las operaciones existentes               | En pruebas |
-| 4     | DTO de respuesta, UUID y errores esperables coherentes; total correcto fuera de rango                        | En pruebas |
-| 5     | Regresión general y recorrido real sobre PostgreSQL                                                          | En pruebas |
+| 1     | Edición web completa sin pérdida silenciosa de pasos, ingredientes, cantidades, clasificaciones ni metadatos | Finalizado |
+| 2     | Límites físicos y públicos de `library`, `catalog` y `search`                                                | Finalizado |
+| 3     | Gestión web mínima de ingredientes, variantes y unidades conforme a las operaciones existentes               | Finalizado |
+| 4     | DTO de respuesta, UUID y errores esperables coherentes; total correcto fuera de rango                        | Finalizado |
+| 5     | Regresión general y recorrido real sobre PostgreSQL                                                          | Finalizado |
 
 No se crean códigos TASK nuevos: es una estabilización de capacidades ya entregadas.
 
@@ -46,4 +46,4 @@ No se crean códigos TASK nuevos: es una estabilización de capacidades ya entre
 - Los errores esperables no producen HTTP 500 y la paginación conserva el total real.
 - Migraciones y recorrido creación → edición → clasificación → archivo/reactivación → búsqueda pasan sobre PostgreSQL real.
 - Formato, lint, tipado, pruebas, E2E y builds permanecen verdes.
-- B-001–B-004 solo vuelven a `Finalizado` tras aprobar e integrar esta estabilización.
+- B-001–B-004 vuelven a `Finalizado` tras la aprobación e integración de esta estabilización.
