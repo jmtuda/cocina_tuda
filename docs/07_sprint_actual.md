@@ -1,6 +1,6 @@
 # Cocina Tuda — Sprint actual
 
-**Versión:** 6.2
+**Versión:** 6.3
 
 **Estado:** En revisión
 
@@ -85,6 +85,8 @@ La confirmación debe evitar estados parciales: se validará la propuesta comple
 
 El proveedor recibe contenido de la fuente y una instrucción de salida estructurada. Debe devolver un contrato versionado que la aplicación valide estrictamente antes de usarlo. Respuestas incompletas pueden producir propuestas parciales; JSON inválido, contenido incompatible o incumplimiento del contrato producen un error recuperable y no persisten nada.
 
+La configuración vigente utiliza Gemini mediante un adaptador de infraestructura y conserva OpenAI como adaptador alternativo. La selección se realiza en el servidor; dominio, aplicación y experiencia funcional dependen únicamente del contrato genérico de interpretación.
+
 Se admite un reintento manual y, técnicamente, como máximo un reintento automático para fallos transitorios claramente identificados. No se incorporan agentes, colas, trabajos distribuidos, caché ni un motor documental.
 
 ### Persistencia y migraciones
@@ -119,6 +121,8 @@ Aunque la visión menciona fuentes posibles más amplias, el roadmap de Fase 4 s
 - La fuente original se descarta al terminar la petición; cancelar o fallar tampoco la conserva.
 
 La política concreta del proveedor sobre retención y uso de datos deberá documentarse al seleccionar el adaptador. Si no puede cumplir estas condiciones, no será válido para esta fase.
+
+Para desarrollo y validación se utiliza la cuota gratuita de Gemini con fuentes no sensibles. Google indica que el contenido de este nivel puede utilizarse para mejorar sus productos; esta condición debe mostrarse y aceptarse mediante el consentimiento ya exigido antes de cada importación.
 
 ## Estrategia de pruebas
 
