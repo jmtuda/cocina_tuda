@@ -1,8 +1,8 @@
 # Cocina Tuda — Sprint actual
 
-**Versión:** 7.0
+**Versión:** 7.1
 
-**Estado:** Propuesto
+**Estado:** Activo
 
 **Responsable:** Project Manager
 
@@ -14,13 +14,13 @@ Completar B-009 para que el usuario pueda asociar cualquier número de recetas d
 
 La planificación referencia siempre la receta vigente. No crea versiones, no altera la biblioteca y no anticipa la lista de la compra.
 
-### Alcance propuesto
+### Alcance activo
 
-| Orden | Tarea    | Resultado verificable                                                      | Estado    | Depende de |
-| ----- | -------- | -------------------------------------------------------------------------- | --------- | ---------- |
-| 1     | TASK-050 | Reglas pendientes de planificación resueltas y contratos definidos         | Propuesta | Sprint 4   |
-| 2     | TASK-051 | Planificación y persistencia con referencias a la biblioteca implementadas | Propuesta | 050        |
-| 3     | TASK-052 | Experiencia de calendario para consultar y gestionar comidas               | Propuesta | 051        |
+| Orden | Tarea    | Resultado verificable                                                      | Estado        | Depende de |
+| ----- | -------- | -------------------------------------------------------------------------- | ------------- | ---------- |
+| 1     | TASK-050 | Reglas pendientes de planificación resueltas y contratos definidos         | En desarrollo | Sprint 4   |
+| 2     | TASK-051 | Planificación y persistencia con referencias a la biblioteca implementadas | En desarrollo | 050        |
+| 3     | TASK-052 | Experiencia de calendario para consultar y gestionar comidas               | En desarrollo | 051        |
 
 TASK-050–TASK-052 son el alcance real de Fase 5 según el roadmap vigente y completan B-009. B-010 y la generación de compras pertenecen a Fase 6.
 
