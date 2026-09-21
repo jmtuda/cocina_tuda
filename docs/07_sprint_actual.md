@@ -1,8 +1,8 @@
 # Cocina Tuda — Sprint actual
 
-**Versión:** 6.1
+**Versión:** 6.3
 
-**Estado:** Activo
+**Estado:** En revisión
 
 **Responsable:** Project Manager
 
@@ -16,12 +16,12 @@ La IA interpreta y propone; nunca es fuente de verdad ni persiste por sí sola. 
 
 ### Alcance propuesto
 
-| Orden | Tarea    | Resultado verificable                                                                    | Estado        | Depende de                |
-| ----- | -------- | ---------------------------------------------------------------------------------------- | ------------- | ------------------------- |
-| 1     | TASK-040 | Contratos de fuente, extracción, interpretación y propuesta independientes del proveedor | En desarrollo | Sprint 3 y estabilización |
-| 2     | TASK-041 | Texto pegado convertido en una propuesta estructurada y validada                         | En desarrollo | 040                       |
-| 3     | TASK-042 | Imágenes y los formatos documentales aprobados incorporados al mismo flujo               | En desarrollo | 040–041                   |
-| 4     | TASK-043 | Revisión, corrección, resolución de catálogos y confirmación humana antes de persistir   | En desarrollo | 041–042                   |
+| Orden | Tarea    | Resultado verificable                                                                    | Estado      | Depende de                |
+| ----- | -------- | ---------------------------------------------------------------------------------------- | ----------- | ------------------------- |
+| 1     | TASK-040 | Contratos de fuente, extracción, interpretación y propuesta independientes del proveedor | En revisión | Sprint 3 y estabilización |
+| 2     | TASK-041 | Texto pegado convertido en una propuesta estructurada y validada                         | En revisión | 040                       |
+| 3     | TASK-042 | Imágenes y los formatos documentales aprobados incorporados al mismo flujo               | En revisión | 040–041                   |
+| 4     | TASK-043 | Revisión, corrección, resolución de catálogos y confirmación humana antes de persistir   | En revisión | 041–042                   |
 
 TASK-040–TASK-043 son el alcance real de Fase 4 según el roadmap vigente. Completan B-007 y B-008; no incluyen planificación, compras ni recomendaciones mediante IA.
 
@@ -85,6 +85,8 @@ La confirmación debe evitar estados parciales: se validará la propuesta comple
 
 El proveedor recibe contenido de la fuente y una instrucción de salida estructurada. Debe devolver un contrato versionado que la aplicación valide estrictamente antes de usarlo. Respuestas incompletas pueden producir propuestas parciales; JSON inválido, contenido incompatible o incumplimiento del contrato producen un error recuperable y no persisten nada.
 
+La configuración vigente utiliza Gemini mediante un adaptador de infraestructura y conserva OpenAI como adaptador alternativo. La selección se realiza en el servidor; dominio, aplicación y experiencia funcional dependen únicamente del contrato genérico de interpretación.
+
 Se admite un reintento manual y, técnicamente, como máximo un reintento automático para fallos transitorios claramente identificados. No se incorporan agentes, colas, trabajos distribuidos, caché ni un motor documental.
 
 ### Persistencia y migraciones
@@ -119,6 +121,8 @@ Aunque la visión menciona fuentes posibles más amplias, el roadmap de Fase 4 s
 - La fuente original se descarta al terminar la petición; cancelar o fallar tampoco la conserva.
 
 La política concreta del proveedor sobre retención y uso de datos deberá documentarse al seleccionar el adaptador. Si no puede cumplir estas condiciones, no será válido para esta fase.
+
+Para desarrollo y validación se utiliza la cuota gratuita de Gemini con fuentes no sensibles. Google indica que el contenido de este nivel puede utilizarse para mejorar sus productos; esta condición debe mostrarse y aceptarse mediante el consentimiento ya exigido antes de cada importación.
 
 ## Estrategia de pruebas
 

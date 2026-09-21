@@ -90,8 +90,8 @@ export class PrismaRecipeRepository implements RecipeRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(input: RecipeInput) {
-    const recipe = await this.prisma.$transaction((transaction) =>
-      transaction.recipe.create({
+    const recipe = await this.prisma.run(() =>
+      this.prisma.getDb().recipe.create({
         data: this.data(input),
         include: recipeInclude,
       }),
@@ -100,7 +100,7 @@ export class PrismaRecipeRepository implements RecipeRepository {
   }
 
   async findById(id: string) {
-    const recipe = await this.prisma.recipe.findUnique({
+    const recipe = await this.prisma.getDb().recipe.findUnique({
       where: { id },
       include: recipeInclude,
     });
@@ -108,16 +108,24 @@ export class PrismaRecipeRepository implements RecipeRepository {
   }
 
   async update(id: string, input: RecipeInput) {
-    const exists = await this.prisma.recipe.findUnique({ where: { id } });
+    const exists = await this.prisma
+      .getDb()
+      .recipe.findUnique({ where: { id } });
     if (!exists) return null;
-    const recipe = await this.prisma.$transaction(async (transaction) => {
-      await transaction.recipeStep.deleteMany({ where: { recipeId: id } });
-      await transaction.recipeIngredient.deleteMany({
+    const recipe = await this.prisma.run(async () => {
+      await this.prisma
+        .getDb()
+        .recipeStep.deleteMany({ where: { recipeId: id } });
+      await this.prisma.getDb().recipeIngredient.deleteMany({
         where: { recipeId: id },
       });
-      await transaction.recipeCategory.deleteMany({ where: { recipeId: id } });
-      await transaction.recipeTag.deleteMany({ where: { recipeId: id } });
-      return transaction.recipe.update({
+      await this.prisma.getDb().recipeCategory.deleteMany({
+        where: { recipeId: id },
+      });
+      await this.prisma
+        .getDb()
+        .recipeTag.deleteMany({ where: { recipeId: id } });
+      return this.prisma.getDb().recipe.update({
         where: { id },
         data: this.data(input),
         include: recipeInclude,
@@ -135,9 +143,11 @@ export class PrismaRecipeRepository implements RecipeRepository {
   }
 
   private async changeStatus(id: string, status: 'ACTIVE' | 'ARCHIVED') {
-    const exists = await this.prisma.recipe.findUnique({ where: { id } });
+    const exists = await this.prisma
+      .getDb()
+      .recipe.findUnique({ where: { id } });
     if (!exists) return null;
-    const recipe = await this.prisma.recipe.update({
+    const recipe = await this.prisma.getDb().recipe.update({
       where: { id },
       data: {
         status,
