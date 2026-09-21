@@ -1,6 +1,6 @@
 # Cocina Tuda — Backlog de producto
 
-**Versión:** 2.6
+**Versión:** 2.7
 **Estado:** Aprobado
 **Responsable:** Project Manager
 
@@ -20,8 +20,8 @@ Estados: pendiente, en análisis, preparado, en desarrollo, en pruebas y finaliz
 | B-004 | Gestionar unidades                          | Finalizado |
 | B-005 | Gestionar categorías y etiquetas            | Finalizado |
 | B-006 | Buscar y filtrar recetas                    | Finalizado |
-| B-007 | Importar desde texto, imagen o documento    | En pruebas |
-| B-008 | Revisar y confirmar una importación         | En pruebas |
+| B-007 | Importar desde texto, imagen o documento    | Finalizado |
+| B-008 | Revisar y confirmar una importación         | Finalizado |
 | B-009 | Planificar comidas                          | Pendiente  |
 | B-010 | Generar y editar listas de compra           | Pendiente  |
 
