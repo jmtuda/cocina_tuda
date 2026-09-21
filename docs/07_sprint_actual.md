@@ -61,13 +61,15 @@ Reglas:
 - la denominación es texto libre, opcional y sin catálogo en esta fase;
 - una denominación presente no puede quedar vacía tras normalizar espacios;
 - el orden de presentación será determinista, sin incorporar ordenación manual en este sprint;
-- el comportamiento ante recetas archivadas se aplicará según la decisión del PM previa a la implementación.
+- se permiten varias planificaciones idénticas porque cada una tiene identidad propia;
+- archivar una receta conserva sus planificaciones, que continúan mostrando y permitiendo consultar la receta actual;
+- una receta archivada no está disponible normalmente para una planificación nueva y vuelve a estarlo al reactivarse.
 
 ## Cambios previstos por capa
 
 - **Dominio:** entidad `PlannedMeal`, fecha y denominación opcional con sus invariantes; ninguna regla de catálogo, búsqueda o importación pasa a este módulo.
 - **Aplicación:** casos de uso para crear, consultar por intervalo, actualizar y retirar asociaciones; validación de la receta mediante un contrato público de `library`.
-- **Persistencia:** repositorio de planificación y migración PostgreSQL para `planned_meals`, con clave foránea restrictiva a `recipes`, fecha `DATE` e índices por fecha y receta. No se prevé una restricción de unicidad entre fecha, receta y denominación mientras el PM no decida lo contrario.
+- **Persistencia:** repositorio de planificación y migración PostgreSQL para `planned_meals`, con clave foránea restrictiva a `recipes`, fecha `DATE` e índices por fecha y receta. No existirá restricción de unicidad entre fecha, receta y denominación.
 - **API:** contratos versionados para listar por intervalo y crear, actualizar o retirar comidas; validación de fechas, identificadores, límites de intervalo y errores coherentes con la API existente.
 - **Interfaz:** módulo `planning`, navegación temporal, días vacíos, alta/edición/retirada y selección de recetas usando capacidades públicas existentes.
 
@@ -82,11 +84,12 @@ No se incorporan tablas de calendario, franjas horarias, plantillas, recurrencia
 ## Estrategia de pruebas
 
 - **Dominio:** fecha válida, denominación ausente o normalizada e invariantes de la entidad.
-- **Aplicación:** crear, consultar intervalos, actualizar y retirar; varios elementos por día, días vacíos, receta inexistente y política aprobada para recetas archivadas.
+- **Aplicación:** crear, consultar intervalos, actualizar y retirar; varios elementos por día, duplicados exactos, días vacíos, receta inexistente, archivo posterior y reactivación de recetas.
 - **Persistencia/PostgreSQL:** migración desde una base vacía, clave foránea, tipo `DATE`, consultas inclusivas por intervalo, índices y recorrido escritura–lectura.
 - **API:** contratos y códigos de error, intervalos inválidos o excesivos, UUID inválido y operaciones sobre asociaciones inexistentes.
-- **Interfaz:** navegación entre fechas, estados vacío/error/carga, selección de receta, alta, edición, retirada y apertura de la receta referenciada.
+- **Interfaz:** semana inicial, navegación anterior/posterior y a una fecha concreta, estados vacío/error/carga, selección de receta, alta, edición, retirada y apertura de la receta referenciada.
 - **Integración:** creación de receta → planificación → edición de receta → lectura actualizada desde planificación; archivo/reactivación según la regla aprobada.
+- **Fechas:** conservar exactamente fechas como `2026-09-21` con zonas horarias representativas distintas, sin convertirlas a instantes.
 - **Regresión:** mantener verdes catálogo, biblioteca, búsqueda, importación, migraciones acumuladas, lint, tipado, pruebas y builds.
 
 ## Criterios de aceptación
@@ -95,7 +98,7 @@ No se incorporan tablas de calendario, franjas horarias, plantillas, recurrencia
 - Puede asociar varias recetas a una misma fecha, con o sin denominación, y gestionarlas posteriormente.
 - Planificar no crea copias ni modifica recetas, categorías, etiquetas o ingredientes.
 - Editar una receta se refleja al volver a consultarla desde planificación.
-- Las referencias inválidas y las operaciones no permitidas sobre recetas archivadas se rechazan de forma explícita conforme a la decisión aprobada.
+- Las referencias inválidas se rechazan; una receta archivada no se ofrece normalmente para crear o reemplazar una planificación, pero sus asociaciones existentes se conservan y permiten consultarla.
 - Retirar una comida no afecta a la receta y no deja relaciones huérfanas.
 - Fechas y cambios de día no sufren desplazamientos por zona horaria.
 - La migración completa funciona sobre PostgreSQL vacío y el recorrido aplicación–persistencia–lectura queda cubierto.
@@ -124,17 +127,19 @@ Una vez aprobadas las reglas funcionales, el equipo técnico podrá decidir:
 - presentación visual mínima del calendario y selector reutilizable de recetas;
 - límites de longitud y mensajes de validación de la denominación libre.
 
-## Decisiones funcionales pendientes del PM
+## Decisiones funcionales aprobadas
 
-1. **Recetas archivadas.** La documentación exige decidir su comportamiento. Propuesta: conservar y mostrar las asociaciones existentes con el estado archivado, permitir abrirlas y cambiar fecha o denominación, impedir seleccionar una receta archivada en nuevas asociaciones o como reemplazo, y recuperarla automáticamente como seleccionable al reactivarla.
-2. **Vista temporal inicial.** El roadmap exige una experiencia de calendario flexible, pero no fija la granularidad. Propuesta: vista semanal como predeterminada, navegación por semanas y acceso directo a cualquier fecha; no incluir vista mensual en Sprint 5.
-3. **Duplicados exactos.** Debe decidirse si la misma receta puede aparecer más de una vez en la misma fecha con igual denominación. Propuesta: permitirlo, porque cada asociación representa una comida independiente y el dominio admite cualquier número por día; no crear una unicidad que luego limite usos legítimos.
-4. **Retirada de una planificación.** Propuesta: eliminación definitiva de la asociación, con confirmación visible en la interfaz y sin historial o papelera; la receta referenciada no se altera.
+1. **Recetas archivadas.** Archivar una receta conserva intactas sus planificaciones y permite seguir consultando la receta desde ellas. La receta archivada no se ofrece normalmente para nuevas planificaciones; al reactivarla vuelve a estar disponible.
+2. **Vista temporal inicial.** La interfaz comienza en una semana, permite navegar a semanas anteriores y posteriores y alcanzar cualquier fecha. Los días vacíos y cualquier número de comidas por día son válidos. Esto no limita el dominio a semanas.
+3. **Duplicados exactos.** Se permiten varias planificaciones con la misma fecha, receta y denominación. No existe una unicidad equivalente y cada `PlannedMeal` tiene identidad propia.
+4. **Retirada.** Retirar una planificación elimina definitivamente solo esa asociación. No existen historial, papelera, archivado, borrado lógico ni auditoría funcional de `PlannedMeal`.
+5. **Referencia a receta.** La planificación referencia la receta y usa siempre su contenido y estado actuales; no guarda snapshots ni versiones.
+6. **Fecha.** Representa un día de calendario y se conserva como `YYYY-MM-DD`/`DATE` entre interfaz, API, aplicación y persistencia, sin conversiones de zona horaria.
+7. **Denominación.** Es texto libre y opcional; no forma un catálogo ni un tipo de comida obligatorio.
 
 ## Riesgos y contradicciones
 
-- La regla de recetas archivadas es el único bloqueo funcional explícito ya registrado en el modelo de dominio y debe resolverse antes de TASK-051.
 - Usar instantes en lugar de fechas de calendario produciría desplazamientos por zona horaria; el contrato deberá conservar semántica `DATE` de extremo a extremo.
 - El selector puede acoplar planificación a detalles internos de búsqueda o biblioteca; se limitará a contratos públicos y proyecciones estables.
 - Una futura lista de compra necesitará recorrer la planificación, pero no justifica anticipar agregación, snapshots ni estructuras de compras en este sprint.
-- No se detectan contradicciones entre roadmap, backlog y producto actual: Fase 5 corresponde a TASK-050–TASK-052 y B-009; Fase 6 permanece pendiente.
+- No se detectan decisiones funcionales pendientes ni contradicciones entre roadmap, backlog y producto actual: Fase 5 corresponde a TASK-050–TASK-052 y B-009; Fase 6 permanece pendiente.
