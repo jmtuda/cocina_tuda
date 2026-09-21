@@ -1,8 +1,8 @@
 # Cocina Tuda — Sprint actual
 
-**Versión:** 6.3
+**Versión:** 6.4
 
-**Estado:** En revisión
+**Estado:** Finalizado
 
 **Responsable:** Project Manager
 
@@ -14,14 +14,14 @@ Completar B-007 y B-008 para convertir una fuente admitida en una propuesta de r
 
 La IA interpreta y propone; nunca es fuente de verdad ni persiste por sí sola. Las fuentes originales son transitorias y no se incorporan a la biblioteca.
 
-### Alcance propuesto
+### Alcance finalizado
 
-| Orden | Tarea    | Resultado verificable                                                                    | Estado      | Depende de                |
-| ----- | -------- | ---------------------------------------------------------------------------------------- | ----------- | ------------------------- |
-| 1     | TASK-040 | Contratos de fuente, extracción, interpretación y propuesta independientes del proveedor | En revisión | Sprint 3 y estabilización |
-| 2     | TASK-041 | Texto pegado convertido en una propuesta estructurada y validada                         | En revisión | 040                       |
-| 3     | TASK-042 | Imágenes y los formatos documentales aprobados incorporados al mismo flujo               | En revisión | 040–041                   |
-| 4     | TASK-043 | Revisión, corrección, resolución de catálogos y confirmación humana antes de persistir   | En revisión | 041–042                   |
+| Orden | Tarea    | Resultado verificable                                                                    | Estado     | Depende de                |
+| ----- | -------- | ---------------------------------------------------------------------------------------- | ---------- | ------------------------- |
+| 1     | TASK-040 | Contratos de fuente, extracción, interpretación y propuesta independientes del proveedor | Finalizada | Sprint 3 y estabilización |
+| 2     | TASK-041 | Texto pegado convertido en una propuesta estructurada y validada                         | Finalizada | 040                       |
+| 3     | TASK-042 | Imágenes y los formatos documentales aprobados incorporados al mismo flujo               | Finalizada | 040–041                   |
+| 4     | TASK-043 | Revisión, corrección, resolución de catálogos y confirmación humana antes de persistir   | Finalizada | 041–042                   |
 
 TASK-040–TASK-043 son el alcance real de Fase 4 según el roadmap vigente. Completan B-007 y B-008; no incluyen planificación, compras ni recomendaciones mediante IA.
 
@@ -121,8 +121,6 @@ Aunque la visión menciona fuentes posibles más amplias, el roadmap de Fase 4 s
 - La fuente original se descarta al terminar la petición; cancelar o fallar tampoco la conserva.
 
 La política concreta del proveedor sobre retención y uso de datos deberá documentarse al seleccionar el adaptador. Si no puede cumplir estas condiciones, no será válido para esta fase.
-
-Para desarrollo y validación se utiliza la cuota gratuita de Gemini con fuentes no sensibles. Google indica que el contenido de este nivel puede utilizarse para mejorar sus productos; esta condición debe mostrarse y aceptarse mediante el consentimiento ya exigido antes de cada importación.
 
 ## Estrategia de pruebas
 
