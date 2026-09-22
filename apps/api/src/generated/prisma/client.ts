@@ -57,6 +57,26 @@ export type Recipe = Prisma.RecipeModel;
  */
 export type PlannedMeal = Prisma.PlannedMealModel;
 /**
+ * Model ShoppingList
+ *
+ */
+export type ShoppingList = Prisma.ShoppingListModel;
+/**
+ * Model ShoppingListSource
+ *
+ */
+export type ShoppingListSource = Prisma.ShoppingListSourceModel;
+/**
+ * Model ShoppingItem
+ *
+ */
+export type ShoppingItem = Prisma.ShoppingItemModel;
+/**
+ * Model ShoppingItemSource
+ *
+ */
+export type ShoppingItemSource = Prisma.ShoppingItemSourceModel;
+/**
  * Model RecipeStep
  *
  */

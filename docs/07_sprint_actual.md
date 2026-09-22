@@ -1,8 +1,8 @@
 # Cocina Tuda — Sprint actual
 
-**Versión:** 8.1
+**Versión:** 8.2
 
-**Estado:** Activo
+**Estado:** Activo — implementación lista para revisión
 
 **Responsable:** Project Manager
 
@@ -14,14 +14,14 @@ Completar B-010 para generar una lista de compra editable a partir de comidas pl
 
 `shopping` será propietario de listas y elementos de compra. Consumirá información pública de planificación, biblioteca y catálogo en el momento de generar, sin escribir en esos módulos ni convertirse en almacenamiento interno de `planning`.
 
-### Alcance activo
+### Alcance implementado
 
-| Orden | Tarea    | Resultado verificable                                                         | Estado        | Depende de |
-| ----- | -------- | ----------------------------------------------------------------------------- | ------------- | ---------- |
-| 1     | TASK-060 | Reglas de consolidación, cantidades, unidades y casos ambiguos aprobadas      | En desarrollo | Sprint 5   |
-| 2     | TASK-061 | Listas y elementos de compra implementados y persistentes                     | En desarrollo | 060        |
-| 3     | TASK-062 | Generación desde planificación mediante contratos públicos                    | En desarrollo | 060–061    |
-| 4     | TASK-063 | Edición, altas, retiradas y marcado manual de elementos disponibles en la web | En desarrollo | 061–062    |
+| Orden | Tarea    | Resultado verificable                                                         | Estado      | Depende de |
+| ----- | -------- | ----------------------------------------------------------------------------- | ----------- | ---------- |
+| 1     | TASK-060 | Reglas de consolidación, cantidades, unidades y casos ambiguos aprobadas      | En revisión | Sprint 5   |
+| 2     | TASK-061 | Listas y elementos de compra implementados y persistentes                     | En revisión | 060        |
+| 3     | TASK-062 | Generación desde planificación mediante contratos públicos                    | En revisión | 060–061    |
+| 4     | TASK-063 | Edición, altas, retiradas y marcado manual de elementos disponibles en la web | En revisión | 061–062    |
 
 TASK-060–TASK-063 son el alcance real de Fase 6 según el roadmap vigente y completan B-010. Con esta fase concluye el alcance funcional previsto para el MVP; no se incluyen capacidades posteriores.
 
@@ -34,7 +34,7 @@ TASK-060–TASK-063 son el alcance real de Fase 6 según el roadmap vigente y co
 5. Incorporar la experiencia de consulta, edición, alta, retirada y marcado manual.
 6. Validar migraciones y recorridos completos sobre PostgreSQL real, además de la regresión del producto.
 
-## Flujo funcional propuesto
+## Flujo funcional
 
 1. El usuario elige un intervalo, revisa sus comidas planificadas y puede excluir cualquiera antes de generar.
 2. Compras consulta comidas planificadas mediante el contrato público de `planning` y obtiene los usos de ingredientes actuales mediante el contrato público de `library`.
@@ -44,7 +44,7 @@ TASK-060–TASK-063 son el alcance real de Fase 6 según el roadmap vigente y co
 6. El usuario puede modificar sus elementos, añadir otros, retirarlos y marcar o desmarcar su compra sin alterar recetas ni planificación.
 7. La lista queda como instantánea independiente: los cambios posteriores de recetas o planificación no la recalculan y regenerar crea otra lista.
 
-## Modelo de dominio propuesto
+## Modelo de dominio
 
 ### Lista de compra
 
@@ -82,7 +82,7 @@ La aplicación puede utilizar una estructura transitoria sin identidad persisten
 
 La futura incorporación de inventario podría aportar otra fuente a Compras, pero Sprint 6 no creará el módulo, los contratos ni una infraestructura genérica de fuentes hasta que exista esa necesidad.
 
-## Cambios previstos por capa
+## Cambios por capa
 
 - **Dominio:** `ShoppingList`, `ShoppingItem` y reglas aprobadas de identidad, edición, marcado y consolidación.
 - **Aplicación:** crear y consultar listas; generar desde planificación; editar nombre y elementos; añadir, retirar y marcar; coordinar lectores públicos sin transacciones distribuidas entre módulos.
@@ -90,9 +90,9 @@ La futura incorporación de inventario podría aportar otra fuente a Compras, pe
 - **API:** endpoints versionados para listar, crear/generar, consultar y editar listas y elementos, con errores y DTO coherentes con la API vigente.
 - **Interfaz:** selección del origen planificado, resultado de generación, detalle de lista, edición de líneas, alta manual, retirada y marcado de comprado.
 
-### Migraciones previstas
+### Migraciones
 
-Como base se prevén:
+La migración de Compras incorpora:
 
 - `shopping_lists`: identificador, nombre, intervalo y fecha de generación nullable y marcas de tiempo;
 - `shopping_items`: identificador, lista, posición, referencia opcional de ingrediente y variante, nombre libre alternativo, cantidad decimal nullable, unidad nullable, observaciones, opcionalidad y estado de compra;

@@ -38,6 +38,15 @@ const sprintFiveMigration = readFileSync(
   ),
   'utf8',
 );
+const sprintSixMigration = readFileSync(
+  fileURLToPath(
+    new URL(
+      '../../../prisma/migrations/20260922100000_sprint_6_shopping/migration.sql',
+      import.meta.url,
+    ),
+  ),
+  'utf8',
+);
 
 describe('Sprint 1 migration contract', () => {
   it('stores optional quantities as exact decimals', () => {
@@ -108,5 +117,24 @@ describe('Sprint 5 migration contract', () => {
   it('allows exact duplicates and indexes range queries', () => {
     expect(sprintFiveMigration).not.toMatch(/UNIQUE[^;]+planned_date/i);
     expect(sprintFiveMigration).toContain('planned_meals_planned_date_id_idx');
+  });
+});
+
+describe('Sprint 6 migration contract', () => {
+  it('stores an independent shopping snapshot and exact quantities', () => {
+    expect(sprintSixMigration).toContain('CREATE TABLE "shopping_lists"');
+    expect(sprintSixMigration).toContain(
+      'CREATE TABLE "shopping_list_sources"',
+    );
+    expect(sprintSixMigration).toContain('"quantity" DECIMAL(12,3)');
+    expect(sprintSixMigration).not.toMatch(
+      /shopping_list_sources[^;]+REFERENCES "planned_meals"/i,
+    );
+  });
+
+  it('enforces catalog-or-manual items without whole-list soft deletion', () => {
+    expect(sprintSixMigration).toContain('shopping_items_identity_check');
+    expect(sprintSixMigration).not.toMatch(/shopping_lists[^;]+archived_at/i);
+    expect(sprintSixMigration).not.toMatch(/shopping_lists[^;]+deleted_at/i);
   });
 });
