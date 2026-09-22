@@ -245,6 +245,54 @@ select[multiple] {
 .recipe-detail {
   margin-top: 1rem;
 }
+.shopping-shell {
+  padding-top: 0;
+}
+.shopping-lists,
+.shopping-detail {
+  margin-top: 1rem;
+}
+.meal-selection {
+  display: grid;
+  gap: 0.45rem;
+}
+.meal-selection label,
+.purchase-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.meal-selection input,
+.purchase-check input {
+  width: auto;
+}
+.shopping-item {
+  display: grid;
+  grid-template-columns: auto 2fr 1fr 2fr auto;
+  align-items: end;
+  gap: 0.7rem;
+  border-top: 1px solid #e2d8c9;
+  padding: 0.8rem 0;
+}
+.shopping-item > small,
+.shopping-item > div {
+  grid-column: 2 / -1;
+}
+.shopping-item.purchased strong {
+  color: var(--ink-soft);
+  text-decoration: line-through;
+}
+.manual-item-form {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 2fr auto auto;
+  align-items: end;
+  gap: 0.7rem;
+  border-top: 1px solid #cfc3b1;
+  padding-top: 1rem;
+}
+.manual-item-form h3 {
+  grid-column: 1 / -1;
+}
 
 @media (max-width: 760px) {
   .shell {
@@ -256,8 +304,14 @@ select[multiple] {
     grid-template-columns: 1fr;
   }
   .week-grid,
-  .planning-form {
+  .planning-form,
+  .shopping-item,
+  .manual-item-form {
     grid-template-columns: 1fr;
+  }
+  .shopping-item > small,
+  .shopping-item > div {
+    grid-column: auto;
   }
   .catalogs > div,
   .catalogs form {

@@ -178,6 +178,7 @@ export type UnitWhereInput = {
   abbreviation?: Prisma.StringFilter<'Unit'> | string;
   normalizedName?: Prisma.StringFilter<'Unit'> | string;
   recipeUses?: Prisma.RecipeIngredientListRelationFilter;
+  shoppingItems?: Prisma.ShoppingItemListRelationFilter;
 };
 
 export type UnitOrderByWithRelationInput = {
@@ -186,6 +187,7 @@ export type UnitOrderByWithRelationInput = {
   abbreviation?: Prisma.SortOrder;
   normalizedName?: Prisma.SortOrder;
   recipeUses?: Prisma.RecipeIngredientOrderByRelationAggregateInput;
+  shoppingItems?: Prisma.ShoppingItemOrderByRelationAggregateInput;
 };
 
 export type UnitWhereUniqueInput = Prisma.AtLeast<
@@ -198,6 +200,7 @@ export type UnitWhereUniqueInput = Prisma.AtLeast<
     name?: Prisma.StringFilter<'Unit'> | string;
     abbreviation?: Prisma.StringFilter<'Unit'> | string;
     recipeUses?: Prisma.RecipeIngredientListRelationFilter;
+    shoppingItems?: Prisma.ShoppingItemListRelationFilter;
   },
   'id' | 'normalizedName'
 >;
@@ -232,6 +235,7 @@ export type UnitCreateInput = {
   abbreviation: string;
   normalizedName: string;
   recipeUses?: Prisma.RecipeIngredientCreateNestedManyWithoutUnitInput;
+  shoppingItems?: Prisma.ShoppingItemCreateNestedManyWithoutUnitInput;
 };
 
 export type UnitUncheckedCreateInput = {
@@ -240,6 +244,7 @@ export type UnitUncheckedCreateInput = {
   abbreviation: string;
   normalizedName: string;
   recipeUses?: Prisma.RecipeIngredientUncheckedCreateNestedManyWithoutUnitInput;
+  shoppingItems?: Prisma.ShoppingItemUncheckedCreateNestedManyWithoutUnitInput;
 };
 
 export type UnitUpdateInput = {
@@ -248,6 +253,7 @@ export type UnitUpdateInput = {
   abbreviation?: Prisma.StringFieldUpdateOperationsInput | string;
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string;
   recipeUses?: Prisma.RecipeIngredientUpdateManyWithoutUnitNestedInput;
+  shoppingItems?: Prisma.ShoppingItemUpdateManyWithoutUnitNestedInput;
 };
 
 export type UnitUncheckedUpdateInput = {
@@ -256,6 +262,7 @@ export type UnitUncheckedUpdateInput = {
   abbreviation?: Prisma.StringFieldUpdateOperationsInput | string;
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string;
   recipeUses?: Prisma.RecipeIngredientUncheckedUpdateManyWithoutUnitNestedInput;
+  shoppingItems?: Prisma.ShoppingItemUncheckedUpdateManyWithoutUnitNestedInput;
 };
 
 export type UnitCreateManyInput = {
@@ -279,6 +286,11 @@ export type UnitUncheckedUpdateManyInput = {
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string;
 };
 
+export type UnitNullableScalarRelationFilter = {
+  is?: Prisma.UnitWhereInput | null;
+  isNot?: Prisma.UnitWhereInput | null;
+};
+
 export type UnitCountOrderByAggregateInput = {
   id?: Prisma.SortOrder;
   name?: Prisma.SortOrder;
@@ -300,9 +312,32 @@ export type UnitMinOrderByAggregateInput = {
   normalizedName?: Prisma.SortOrder;
 };
 
-export type UnitNullableScalarRelationFilter = {
-  is?: Prisma.UnitWhereInput | null;
-  isNot?: Prisma.UnitWhereInput | null;
+export type UnitCreateNestedOneWithoutShoppingItemsInput = {
+  create?: Prisma.XOR<
+    Prisma.UnitCreateWithoutShoppingItemsInput,
+    Prisma.UnitUncheckedCreateWithoutShoppingItemsInput
+  >;
+  connectOrCreate?: Prisma.UnitCreateOrConnectWithoutShoppingItemsInput;
+  connect?: Prisma.UnitWhereUniqueInput;
+};
+
+export type UnitUpdateOneWithoutShoppingItemsNestedInput = {
+  create?: Prisma.XOR<
+    Prisma.UnitCreateWithoutShoppingItemsInput,
+    Prisma.UnitUncheckedCreateWithoutShoppingItemsInput
+  >;
+  connectOrCreate?: Prisma.UnitCreateOrConnectWithoutShoppingItemsInput;
+  upsert?: Prisma.UnitUpsertWithoutShoppingItemsInput;
+  disconnect?: Prisma.UnitWhereInput | boolean;
+  delete?: Prisma.UnitWhereInput | boolean;
+  connect?: Prisma.UnitWhereUniqueInput;
+  update?: Prisma.XOR<
+    Prisma.XOR<
+      Prisma.UnitUpdateToOneWithWhereWithoutShoppingItemsInput,
+      Prisma.UnitUpdateWithoutShoppingItemsInput
+    >,
+    Prisma.UnitUncheckedUpdateWithoutShoppingItemsInput
+  >;
 };
 
 export type UnitCreateNestedOneWithoutRecipeUsesInput = {
@@ -333,11 +368,72 @@ export type UnitUpdateOneWithoutRecipeUsesNestedInput = {
   >;
 };
 
+export type UnitCreateWithoutShoppingItemsInput = {
+  id?: string;
+  name: string;
+  abbreviation: string;
+  normalizedName: string;
+  recipeUses?: Prisma.RecipeIngredientCreateNestedManyWithoutUnitInput;
+};
+
+export type UnitUncheckedCreateWithoutShoppingItemsInput = {
+  id?: string;
+  name: string;
+  abbreviation: string;
+  normalizedName: string;
+  recipeUses?: Prisma.RecipeIngredientUncheckedCreateNestedManyWithoutUnitInput;
+};
+
+export type UnitCreateOrConnectWithoutShoppingItemsInput = {
+  where: Prisma.UnitWhereUniqueInput;
+  create: Prisma.XOR<
+    Prisma.UnitCreateWithoutShoppingItemsInput,
+    Prisma.UnitUncheckedCreateWithoutShoppingItemsInput
+  >;
+};
+
+export type UnitUpsertWithoutShoppingItemsInput = {
+  update: Prisma.XOR<
+    Prisma.UnitUpdateWithoutShoppingItemsInput,
+    Prisma.UnitUncheckedUpdateWithoutShoppingItemsInput
+  >;
+  create: Prisma.XOR<
+    Prisma.UnitCreateWithoutShoppingItemsInput,
+    Prisma.UnitUncheckedCreateWithoutShoppingItemsInput
+  >;
+  where?: Prisma.UnitWhereInput;
+};
+
+export type UnitUpdateToOneWithWhereWithoutShoppingItemsInput = {
+  where?: Prisma.UnitWhereInput;
+  data: Prisma.XOR<
+    Prisma.UnitUpdateWithoutShoppingItemsInput,
+    Prisma.UnitUncheckedUpdateWithoutShoppingItemsInput
+  >;
+};
+
+export type UnitUpdateWithoutShoppingItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string;
+  name?: Prisma.StringFieldUpdateOperationsInput | string;
+  abbreviation?: Prisma.StringFieldUpdateOperationsInput | string;
+  normalizedName?: Prisma.StringFieldUpdateOperationsInput | string;
+  recipeUses?: Prisma.RecipeIngredientUpdateManyWithoutUnitNestedInput;
+};
+
+export type UnitUncheckedUpdateWithoutShoppingItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string;
+  name?: Prisma.StringFieldUpdateOperationsInput | string;
+  abbreviation?: Prisma.StringFieldUpdateOperationsInput | string;
+  normalizedName?: Prisma.StringFieldUpdateOperationsInput | string;
+  recipeUses?: Prisma.RecipeIngredientUncheckedUpdateManyWithoutUnitNestedInput;
+};
+
 export type UnitCreateWithoutRecipeUsesInput = {
   id?: string;
   name: string;
   abbreviation: string;
   normalizedName: string;
+  shoppingItems?: Prisma.ShoppingItemCreateNestedManyWithoutUnitInput;
 };
 
 export type UnitUncheckedCreateWithoutRecipeUsesInput = {
@@ -345,6 +441,7 @@ export type UnitUncheckedCreateWithoutRecipeUsesInput = {
   name: string;
   abbreviation: string;
   normalizedName: string;
+  shoppingItems?: Prisma.ShoppingItemUncheckedCreateNestedManyWithoutUnitInput;
 };
 
 export type UnitCreateOrConnectWithoutRecipeUsesInput = {
@@ -380,6 +477,7 @@ export type UnitUpdateWithoutRecipeUsesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string;
   abbreviation?: Prisma.StringFieldUpdateOperationsInput | string;
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string;
+  shoppingItems?: Prisma.ShoppingItemUpdateManyWithoutUnitNestedInput;
 };
 
 export type UnitUncheckedUpdateWithoutRecipeUsesInput = {
@@ -387,6 +485,7 @@ export type UnitUncheckedUpdateWithoutRecipeUsesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string;
   abbreviation?: Prisma.StringFieldUpdateOperationsInput | string;
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string;
+  shoppingItems?: Prisma.ShoppingItemUncheckedUpdateManyWithoutUnitNestedInput;
 };
 
 /**
@@ -395,6 +494,7 @@ export type UnitUncheckedUpdateWithoutRecipeUsesInput = {
 
 export type UnitCountOutputType = {
   recipeUses: number;
+  shoppingItems: number;
 };
 
 export type UnitCountOutputTypeSelect<
@@ -402,6 +502,7 @@ export type UnitCountOutputTypeSelect<
     runtime.Types.Extensions.DefaultArgs,
 > = {
   recipeUses?: boolean | UnitCountOutputTypeCountRecipeUsesArgs;
+  shoppingItems?: boolean | UnitCountOutputTypeCountShoppingItemsArgs;
 };
 
 /**
@@ -427,6 +528,16 @@ export type UnitCountOutputTypeCountRecipeUsesArgs<
   where?: Prisma.RecipeIngredientWhereInput;
 };
 
+/**
+ * UnitCountOutputType without action
+ */
+export type UnitCountOutputTypeCountShoppingItemsArgs<
+  ExtArgs extends runtime.Types.Extensions.InternalArgs =
+    runtime.Types.Extensions.DefaultArgs,
+> = {
+  where?: Prisma.ShoppingItemWhereInput;
+};
+
 export type UnitSelect<
   ExtArgs extends runtime.Types.Extensions.InternalArgs =
     runtime.Types.Extensions.DefaultArgs,
@@ -437,6 +548,7 @@ export type UnitSelect<
     abbreviation?: boolean;
     normalizedName?: boolean;
     recipeUses?: boolean | Prisma.Unit$recipeUsesArgs<ExtArgs>;
+    shoppingItems?: boolean | Prisma.Unit$shoppingItemsArgs<ExtArgs>;
     _count?: boolean | Prisma.UnitCountOutputTypeDefaultArgs<ExtArgs>;
   },
   ExtArgs['result']['unit']
@@ -487,6 +599,7 @@ export type UnitInclude<
     runtime.Types.Extensions.DefaultArgs,
 > = {
   recipeUses?: boolean | Prisma.Unit$recipeUsesArgs<ExtArgs>;
+  shoppingItems?: boolean | Prisma.Unit$shoppingItemsArgs<ExtArgs>;
   _count?: boolean | Prisma.UnitCountOutputTypeDefaultArgs<ExtArgs>;
 };
 export type UnitIncludeCreateManyAndReturn<
@@ -505,6 +618,7 @@ export type $UnitPayload<
   name: 'Unit';
   objects: {
     recipeUses: Prisma.$RecipeIngredientPayload<ExtArgs>[];
+    shoppingItems: Prisma.$ShoppingItemPayload<ExtArgs>[];
   };
   scalars: runtime.Types.Extensions.GetPayloadResult<
     {
@@ -1073,6 +1187,17 @@ export interface Prisma__UnitClient<
       >
     | Null
   >;
+  shoppingItems<T extends Prisma.Unit$shoppingItemsArgs<ExtArgs> = {}>(
+    args?: Prisma.Subset<T, Prisma.Unit$shoppingItemsArgs<ExtArgs>>,
+  ): Prisma.PrismaPromise<
+    | runtime.Types.Result.GetResult<
+        Prisma.$ShoppingItemPayload<ExtArgs>,
+        T,
+        'findMany',
+        GlobalOmitOptions
+      >
+    | Null
+  >;
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1584,6 +1709,36 @@ export type Unit$recipeUsesArgs<
   distinct?:
     | Prisma.RecipeIngredientScalarFieldEnum
     | Prisma.RecipeIngredientScalarFieldEnum[];
+};
+
+/**
+ * Unit.shoppingItems
+ */
+export type Unit$shoppingItemsArgs<
+  ExtArgs extends runtime.Types.Extensions.InternalArgs =
+    runtime.Types.Extensions.DefaultArgs,
+> = {
+  /**
+   * Select specific fields to fetch from the ShoppingItem
+   */
+  select?: Prisma.ShoppingItemSelect<ExtArgs> | null;
+  /**
+   * Omit specific fields from the ShoppingItem
+   */
+  omit?: Prisma.ShoppingItemOmit<ExtArgs> | null;
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ShoppingItemInclude<ExtArgs> | null;
+  where?: Prisma.ShoppingItemWhereInput;
+  orderBy?:
+    | Prisma.ShoppingItemOrderByWithRelationInput
+    | Prisma.ShoppingItemOrderByWithRelationInput[];
+  cursor?: Prisma.ShoppingItemWhereUniqueInput;
+  take?: number;
+  skip?: number;
+  distinct?:
+    Prisma.ShoppingItemScalarFieldEnum | Prisma.ShoppingItemScalarFieldEnum[];
 };
 
 /**

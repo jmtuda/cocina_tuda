@@ -69,6 +69,43 @@ export class CatalogService {
     return this.repository.listUnits();
   }
 
+  async findShoppingCatalogReference(input: {
+    ingredientId: string;
+    variantId?: string | null;
+    unitId?: string | null;
+  }) {
+    const [ingredients, units] = await Promise.all([
+      this.repository.listIngredients(),
+      this.repository.listUnits(),
+    ]);
+    const ingredient = ingredients.find(
+      (item) => item.id === input.ingredientId,
+    );
+    if (!ingredient) return null;
+    const variant = input.variantId
+      ? ingredient.variants.find((item) => item.id === input.variantId)
+      : null;
+    if (input.variantId && !variant) return null;
+    const unit = input.unitId
+      ? units.find((item) => item.id === input.unitId)
+      : null;
+    if (input.unitId && !unit) return null;
+    return {
+      ingredientId: ingredient.id,
+      ingredientName: ingredient.name,
+      variantId: variant?.id ?? null,
+      variantName: variant?.name ?? null,
+      unitId: unit?.id ?? null,
+      unitName: unit?.name ?? null,
+      unitAbbreviation: unit?.abbreviation ?? null,
+    };
+  }
+
+  async findShoppingUnitReference(unitId: string) {
+    const units = await this.repository.listUnits();
+    return units.find((item) => item.id === unitId) ?? null;
+  }
+
   private handleConflict(error: unknown, message: string): never {
     if (this.errorCode(error) === 'P2002') throw new ConflictException(message);
     throw error;

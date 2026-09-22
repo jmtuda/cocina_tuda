@@ -193,6 +193,7 @@ export type IngredientVariantWhereInput = {
     Prisma.IngredientWhereInput
   >;
   recipeUses?: Prisma.RecipeIngredientListRelationFilter;
+  shoppingUses?: Prisma.ShoppingItemListRelationFilter;
 };
 
 export type IngredientVariantOrderByWithRelationInput = {
@@ -202,6 +203,7 @@ export type IngredientVariantOrderByWithRelationInput = {
   normalizedName?: Prisma.SortOrder;
   ingredient?: Prisma.IngredientOrderByWithRelationInput;
   recipeUses?: Prisma.RecipeIngredientOrderByRelationAggregateInput;
+  shoppingUses?: Prisma.ShoppingItemOrderByRelationAggregateInput;
 };
 
 export type IngredientVariantWhereUniqueInput = Prisma.AtLeast<
@@ -222,6 +224,7 @@ export type IngredientVariantWhereUniqueInput = Prisma.AtLeast<
       Prisma.IngredientWhereInput
     >;
     recipeUses?: Prisma.RecipeIngredientListRelationFilter;
+    shoppingUses?: Prisma.ShoppingItemListRelationFilter;
   },
   'id' | 'ingredientId_normalizedName' | 'id_ingredientId'
 >;
@@ -257,6 +260,7 @@ export type IngredientVariantCreateInput = {
   normalizedName: string;
   ingredient: Prisma.IngredientCreateNestedOneWithoutVariantsInput;
   recipeUses?: Prisma.RecipeIngredientCreateNestedManyWithoutVariantInput;
+  shoppingUses?: Prisma.ShoppingItemCreateNestedManyWithoutVariantInput;
 };
 
 export type IngredientVariantUncheckedCreateInput = {
@@ -265,6 +269,7 @@ export type IngredientVariantUncheckedCreateInput = {
   name: string;
   normalizedName: string;
   recipeUses?: Prisma.RecipeIngredientUncheckedCreateNestedManyWithoutVariantInput;
+  shoppingUses?: Prisma.ShoppingItemUncheckedCreateNestedManyWithoutVariantInput;
 };
 
 export type IngredientVariantUpdateInput = {
@@ -273,6 +278,7 @@ export type IngredientVariantUpdateInput = {
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string;
   ingredient?: Prisma.IngredientUpdateOneRequiredWithoutVariantsNestedInput;
   recipeUses?: Prisma.RecipeIngredientUpdateManyWithoutVariantNestedInput;
+  shoppingUses?: Prisma.ShoppingItemUpdateManyWithoutVariantNestedInput;
 };
 
 export type IngredientVariantUncheckedUpdateInput = {
@@ -281,6 +287,7 @@ export type IngredientVariantUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string;
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string;
   recipeUses?: Prisma.RecipeIngredientUncheckedUpdateManyWithoutVariantNestedInput;
+  shoppingUses?: Prisma.ShoppingItemUncheckedUpdateManyWithoutVariantNestedInput;
 };
 
 export type IngredientVariantCreateManyInput = {
@@ -301,6 +308,11 @@ export type IngredientVariantUncheckedUpdateManyInput = {
   ingredientId?: Prisma.StringFieldUpdateOperationsInput | string;
   name?: Prisma.StringFieldUpdateOperationsInput | string;
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string;
+};
+
+export type IngredientVariantNullableScalarRelationFilter = {
+  is?: Prisma.IngredientVariantWhereInput | null;
+  isNot?: Prisma.IngredientVariantWhereInput | null;
 };
 
 export type IngredientVariantListRelationFilter = {
@@ -344,9 +356,32 @@ export type IngredientVariantMinOrderByAggregateInput = {
   normalizedName?: Prisma.SortOrder;
 };
 
-export type IngredientVariantNullableScalarRelationFilter = {
-  is?: Prisma.IngredientVariantWhereInput | null;
-  isNot?: Prisma.IngredientVariantWhereInput | null;
+export type IngredientVariantCreateNestedOneWithoutShoppingUsesInput = {
+  create?: Prisma.XOR<
+    Prisma.IngredientVariantCreateWithoutShoppingUsesInput,
+    Prisma.IngredientVariantUncheckedCreateWithoutShoppingUsesInput
+  >;
+  connectOrCreate?: Prisma.IngredientVariantCreateOrConnectWithoutShoppingUsesInput;
+  connect?: Prisma.IngredientVariantWhereUniqueInput;
+};
+
+export type IngredientVariantUpdateOneWithoutShoppingUsesNestedInput = {
+  create?: Prisma.XOR<
+    Prisma.IngredientVariantCreateWithoutShoppingUsesInput,
+    Prisma.IngredientVariantUncheckedCreateWithoutShoppingUsesInput
+  >;
+  connectOrCreate?: Prisma.IngredientVariantCreateOrConnectWithoutShoppingUsesInput;
+  upsert?: Prisma.IngredientVariantUpsertWithoutShoppingUsesInput;
+  disconnect?: Prisma.IngredientVariantWhereInput | boolean;
+  delete?: Prisma.IngredientVariantWhereInput | boolean;
+  connect?: Prisma.IngredientVariantWhereUniqueInput;
+  update?: Prisma.XOR<
+    Prisma.XOR<
+      Prisma.IngredientVariantUpdateToOneWithWhereWithoutShoppingUsesInput,
+      Prisma.IngredientVariantUpdateWithoutShoppingUsesInput
+    >,
+    Prisma.IngredientVariantUncheckedUpdateWithoutShoppingUsesInput
+  >;
 };
 
 export type IngredientVariantCreateNestedManyWithoutIngredientInput = {
@@ -487,11 +522,72 @@ export type IngredientVariantUpdateOneWithoutRecipeUsesNestedInput = {
   >;
 };
 
+export type IngredientVariantCreateWithoutShoppingUsesInput = {
+  id?: string;
+  name: string;
+  normalizedName: string;
+  ingredient: Prisma.IngredientCreateNestedOneWithoutVariantsInput;
+  recipeUses?: Prisma.RecipeIngredientCreateNestedManyWithoutVariantInput;
+};
+
+export type IngredientVariantUncheckedCreateWithoutShoppingUsesInput = {
+  id?: string;
+  ingredientId: string;
+  name: string;
+  normalizedName: string;
+  recipeUses?: Prisma.RecipeIngredientUncheckedCreateNestedManyWithoutVariantInput;
+};
+
+export type IngredientVariantCreateOrConnectWithoutShoppingUsesInput = {
+  where: Prisma.IngredientVariantWhereUniqueInput;
+  create: Prisma.XOR<
+    Prisma.IngredientVariantCreateWithoutShoppingUsesInput,
+    Prisma.IngredientVariantUncheckedCreateWithoutShoppingUsesInput
+  >;
+};
+
+export type IngredientVariantUpsertWithoutShoppingUsesInput = {
+  update: Prisma.XOR<
+    Prisma.IngredientVariantUpdateWithoutShoppingUsesInput,
+    Prisma.IngredientVariantUncheckedUpdateWithoutShoppingUsesInput
+  >;
+  create: Prisma.XOR<
+    Prisma.IngredientVariantCreateWithoutShoppingUsesInput,
+    Prisma.IngredientVariantUncheckedCreateWithoutShoppingUsesInput
+  >;
+  where?: Prisma.IngredientVariantWhereInput;
+};
+
+export type IngredientVariantUpdateToOneWithWhereWithoutShoppingUsesInput = {
+  where?: Prisma.IngredientVariantWhereInput;
+  data: Prisma.XOR<
+    Prisma.IngredientVariantUpdateWithoutShoppingUsesInput,
+    Prisma.IngredientVariantUncheckedUpdateWithoutShoppingUsesInput
+  >;
+};
+
+export type IngredientVariantUpdateWithoutShoppingUsesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string;
+  name?: Prisma.StringFieldUpdateOperationsInput | string;
+  normalizedName?: Prisma.StringFieldUpdateOperationsInput | string;
+  ingredient?: Prisma.IngredientUpdateOneRequiredWithoutVariantsNestedInput;
+  recipeUses?: Prisma.RecipeIngredientUpdateManyWithoutVariantNestedInput;
+};
+
+export type IngredientVariantUncheckedUpdateWithoutShoppingUsesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string;
+  ingredientId?: Prisma.StringFieldUpdateOperationsInput | string;
+  name?: Prisma.StringFieldUpdateOperationsInput | string;
+  normalizedName?: Prisma.StringFieldUpdateOperationsInput | string;
+  recipeUses?: Prisma.RecipeIngredientUncheckedUpdateManyWithoutVariantNestedInput;
+};
+
 export type IngredientVariantCreateWithoutIngredientInput = {
   id?: string;
   name: string;
   normalizedName: string;
   recipeUses?: Prisma.RecipeIngredientCreateNestedManyWithoutVariantInput;
+  shoppingUses?: Prisma.ShoppingItemCreateNestedManyWithoutVariantInput;
 };
 
 export type IngredientVariantUncheckedCreateWithoutIngredientInput = {
@@ -499,6 +595,7 @@ export type IngredientVariantUncheckedCreateWithoutIngredientInput = {
   name: string;
   normalizedName: string;
   recipeUses?: Prisma.RecipeIngredientUncheckedCreateNestedManyWithoutVariantInput;
+  shoppingUses?: Prisma.ShoppingItemUncheckedCreateNestedManyWithoutVariantInput;
 };
 
 export type IngredientVariantCreateOrConnectWithoutIngredientInput = {
@@ -563,6 +660,7 @@ export type IngredientVariantCreateWithoutRecipeUsesInput = {
   name: string;
   normalizedName: string;
   ingredient: Prisma.IngredientCreateNestedOneWithoutVariantsInput;
+  shoppingUses?: Prisma.ShoppingItemCreateNestedManyWithoutVariantInput;
 };
 
 export type IngredientVariantUncheckedCreateWithoutRecipeUsesInput = {
@@ -570,6 +668,7 @@ export type IngredientVariantUncheckedCreateWithoutRecipeUsesInput = {
   ingredientId: string;
   name: string;
   normalizedName: string;
+  shoppingUses?: Prisma.ShoppingItemUncheckedCreateNestedManyWithoutVariantInput;
 };
 
 export type IngredientVariantCreateOrConnectWithoutRecipeUsesInput = {
@@ -605,6 +704,7 @@ export type IngredientVariantUpdateWithoutRecipeUsesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string;
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string;
   ingredient?: Prisma.IngredientUpdateOneRequiredWithoutVariantsNestedInput;
+  shoppingUses?: Prisma.ShoppingItemUpdateManyWithoutVariantNestedInput;
 };
 
 export type IngredientVariantUncheckedUpdateWithoutRecipeUsesInput = {
@@ -612,6 +712,7 @@ export type IngredientVariantUncheckedUpdateWithoutRecipeUsesInput = {
   ingredientId?: Prisma.StringFieldUpdateOperationsInput | string;
   name?: Prisma.StringFieldUpdateOperationsInput | string;
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string;
+  shoppingUses?: Prisma.ShoppingItemUncheckedUpdateManyWithoutVariantNestedInput;
 };
 
 export type IngredientVariantCreateManyIngredientInput = {
@@ -625,6 +726,7 @@ export type IngredientVariantUpdateWithoutIngredientInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string;
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string;
   recipeUses?: Prisma.RecipeIngredientUpdateManyWithoutVariantNestedInput;
+  shoppingUses?: Prisma.ShoppingItemUpdateManyWithoutVariantNestedInput;
 };
 
 export type IngredientVariantUncheckedUpdateWithoutIngredientInput = {
@@ -632,6 +734,7 @@ export type IngredientVariantUncheckedUpdateWithoutIngredientInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string;
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string;
   recipeUses?: Prisma.RecipeIngredientUncheckedUpdateManyWithoutVariantNestedInput;
+  shoppingUses?: Prisma.ShoppingItemUncheckedUpdateManyWithoutVariantNestedInput;
 };
 
 export type IngredientVariantUncheckedUpdateManyWithoutIngredientInput = {
@@ -646,6 +749,7 @@ export type IngredientVariantUncheckedUpdateManyWithoutIngredientInput = {
 
 export type IngredientVariantCountOutputType = {
   recipeUses: number;
+  shoppingUses: number;
 };
 
 export type IngredientVariantCountOutputTypeSelect<
@@ -653,6 +757,8 @@ export type IngredientVariantCountOutputTypeSelect<
     runtime.Types.Extensions.DefaultArgs,
 > = {
   recipeUses?: boolean | IngredientVariantCountOutputTypeCountRecipeUsesArgs;
+  shoppingUses?:
+    boolean | IngredientVariantCountOutputTypeCountShoppingUsesArgs;
 };
 
 /**
@@ -678,6 +784,16 @@ export type IngredientVariantCountOutputTypeCountRecipeUsesArgs<
   where?: Prisma.RecipeIngredientWhereInput;
 };
 
+/**
+ * IngredientVariantCountOutputType without action
+ */
+export type IngredientVariantCountOutputTypeCountShoppingUsesArgs<
+  ExtArgs extends runtime.Types.Extensions.InternalArgs =
+    runtime.Types.Extensions.DefaultArgs,
+> = {
+  where?: Prisma.ShoppingItemWhereInput;
+};
+
 export type IngredientVariantSelect<
   ExtArgs extends runtime.Types.Extensions.InternalArgs =
     runtime.Types.Extensions.DefaultArgs,
@@ -689,6 +805,7 @@ export type IngredientVariantSelect<
     normalizedName?: boolean;
     ingredient?: boolean | Prisma.IngredientDefaultArgs<ExtArgs>;
     recipeUses?: boolean | Prisma.IngredientVariant$recipeUsesArgs<ExtArgs>;
+    shoppingUses?: boolean | Prisma.IngredientVariant$shoppingUsesArgs<ExtArgs>;
     _count?:
       boolean | Prisma.IngredientVariantCountOutputTypeDefaultArgs<ExtArgs>;
   },
@@ -743,6 +860,7 @@ export type IngredientVariantInclude<
 > = {
   ingredient?: boolean | Prisma.IngredientDefaultArgs<ExtArgs>;
   recipeUses?: boolean | Prisma.IngredientVariant$recipeUsesArgs<ExtArgs>;
+  shoppingUses?: boolean | Prisma.IngredientVariant$shoppingUsesArgs<ExtArgs>;
   _count?:
     boolean | Prisma.IngredientVariantCountOutputTypeDefaultArgs<ExtArgs>;
 };
@@ -767,6 +885,7 @@ export type $IngredientVariantPayload<
   objects: {
     ingredient: Prisma.$IngredientPayload<ExtArgs>;
     recipeUses: Prisma.$RecipeIngredientPayload<ExtArgs>[];
+    shoppingUses: Prisma.$ShoppingItemPayload<ExtArgs>[];
   };
   scalars: runtime.Types.Extensions.GetPayloadResult<
     {
@@ -1371,6 +1490,19 @@ export interface Prisma__IngredientVariantClient<
       >
     | Null
   >;
+  shoppingUses<
+    T extends Prisma.IngredientVariant$shoppingUsesArgs<ExtArgs> = {},
+  >(
+    args?: Prisma.Subset<T, Prisma.IngredientVariant$shoppingUsesArgs<ExtArgs>>,
+  ): Prisma.PrismaPromise<
+    | runtime.Types.Result.GetResult<
+        Prisma.$ShoppingItemPayload<ExtArgs>,
+        T,
+        'findMany',
+        GlobalOmitOptions
+      >
+    | Null
+  >;
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1915,6 +2047,36 @@ export type IngredientVariant$recipeUsesArgs<
   distinct?:
     | Prisma.RecipeIngredientScalarFieldEnum
     | Prisma.RecipeIngredientScalarFieldEnum[];
+};
+
+/**
+ * IngredientVariant.shoppingUses
+ */
+export type IngredientVariant$shoppingUsesArgs<
+  ExtArgs extends runtime.Types.Extensions.InternalArgs =
+    runtime.Types.Extensions.DefaultArgs,
+> = {
+  /**
+   * Select specific fields to fetch from the ShoppingItem
+   */
+  select?: Prisma.ShoppingItemSelect<ExtArgs> | null;
+  /**
+   * Omit specific fields from the ShoppingItem
+   */
+  omit?: Prisma.ShoppingItemOmit<ExtArgs> | null;
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ShoppingItemInclude<ExtArgs> | null;
+  where?: Prisma.ShoppingItemWhereInput;
+  orderBy?:
+    | Prisma.ShoppingItemOrderByWithRelationInput
+    | Prisma.ShoppingItemOrderByWithRelationInput[];
+  cursor?: Prisma.ShoppingItemWhereUniqueInput;
+  take?: number;
+  skip?: number;
+  distinct?:
+    Prisma.ShoppingItemScalarFieldEnum | Prisma.ShoppingItemScalarFieldEnum[];
 };
 
 /**

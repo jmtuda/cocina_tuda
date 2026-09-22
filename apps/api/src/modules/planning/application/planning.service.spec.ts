@@ -67,6 +67,7 @@ describe('PlanningService', () => {
     const recipes: RecipeReferenceReader = {
       findRecipeReference: (id) =>
         Promise.resolve({ id, name: 'Tortilla', status: recipeStatus }),
+      findShoppingRecipeSnapshot: () => Promise.resolve(null),
     };
     service = new PlanningService(repository, recipes);
   });

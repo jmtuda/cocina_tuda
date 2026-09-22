@@ -56,6 +56,10 @@ export const AnyNull = runtime.AnyNull;
 export const ModelName = {
   Recipe: 'Recipe',
   PlannedMeal: 'PlannedMeal',
+  ShoppingList: 'ShoppingList',
+  ShoppingListSource: 'ShoppingListSource',
+  ShoppingItem: 'ShoppingItem',
+  ShoppingItemSource: 'ShoppingItemSource',
   RecipeStep: 'RecipeStep',
   Ingredient: 'Ingredient',
   IngredientVariant: 'IngredientVariant',
@@ -112,6 +116,57 @@ export const PlannedMealScalarFieldEnum = {
 
 export type PlannedMealScalarFieldEnum =
   (typeof PlannedMealScalarFieldEnum)[keyof typeof PlannedMealScalarFieldEnum];
+
+export const ShoppingListScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  sourceFrom: 'sourceFrom',
+  sourceTo: 'sourceTo',
+  generatedAt: 'generatedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+} as const;
+
+export type ShoppingListScalarFieldEnum =
+  (typeof ShoppingListScalarFieldEnum)[keyof typeof ShoppingListScalarFieldEnum];
+
+export const ShoppingListSourceScalarFieldEnum = {
+  id: 'id',
+  shoppingListId: 'shoppingListId',
+  plannedMealId: 'plannedMealId',
+  recipeId: 'recipeId',
+  recipeName: 'recipeName',
+  plannedDate: 'plannedDate',
+} as const;
+
+export type ShoppingListSourceScalarFieldEnum =
+  (typeof ShoppingListSourceScalarFieldEnum)[keyof typeof ShoppingListSourceScalarFieldEnum];
+
+export const ShoppingItemScalarFieldEnum = {
+  id: 'id',
+  shoppingListId: 'shoppingListId',
+  position: 'position',
+  ingredientId: 'ingredientId',
+  variantId: 'variantId',
+  manualName: 'manualName',
+  quantity: 'quantity',
+  unitId: 'unitId',
+  observations: 'observations',
+  optional: 'optional',
+  purchased: 'purchased',
+} as const;
+
+export type ShoppingItemScalarFieldEnum =
+  (typeof ShoppingItemScalarFieldEnum)[keyof typeof ShoppingItemScalarFieldEnum];
+
+export const ShoppingItemSourceScalarFieldEnum = {
+  shoppingItemId: 'shoppingItemId',
+  listSourceId: 'listSourceId',
+  recipeIngredientId: 'recipeIngredientId',
+} as const;
+
+export type ShoppingItemSourceScalarFieldEnum =
+  (typeof ShoppingItemSourceScalarFieldEnum)[keyof typeof ShoppingItemSourceScalarFieldEnum];
 
 export const RecipeStepScalarFieldEnum = {
   id: 'id',

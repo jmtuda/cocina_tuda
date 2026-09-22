@@ -1,6 +1,6 @@
 # Cocina Tuda — Modelo de dominio
 
-**Versión:** 2.2
+**Versión:** 2.3
 **Estado:** Aprobado
 **Responsable:** Project Manager
 
@@ -60,11 +60,11 @@ Si la receta se archiva, las planificaciones existentes se conservan y permiten 
 
 ### Lista de compra
 
-Agrupa elementos de compra, tiene nombre y fechas y puede indicar de qué intervalo o selección de planificación se generó.
+Agrupa elementos de compra, tiene nombre y fechas y conserva la procedencia de la selección planificada con la que se generó. Es una instantánea independiente: los cambios posteriores de recetas o planificación no la recalculan y una regeneración crea otra lista.
 
 ### Elemento de compra
 
-Uso de un ingrediente dentro de una lista. Contiene cantidad opcional, unidad opcional, observaciones y estado de compra. Puede crearse manualmente o generarse desde la planificación.
+Uso de un ingrediente dentro de una lista. Contiene cantidad opcional, unidad opcional, observaciones, opcionalidad y estado de compra. Puede crearse desde un ingrediente catalogado o como un elemento manual de nombre libre exclusivo de Compras.
 
 ## 3. Conceptos excluidos del MVP
 
@@ -80,7 +80,9 @@ Uso de un ingrediente dentro de una lista. Contiene cantidad opcional, unidad op
 - El importador nunca persiste una receta sin confirmación del usuario.
 - Las fuentes originales de importación son transitorias y no se almacenan permanentemente. La retención técnica o local imprescindible durante la revisión no las convierte en datos definitivos de la biblioteca.
 - La planificación referencia recetas existentes y no las modifica.
-- Los elementos generados de compra pueden editarse sin alterar recetas ni planificación.
+- Compras consume planificación, biblioteca y catálogo mediante contratos públicos y no escribe en ellos.
+- Los elementos generados de compra pueden editarse o retirarse sin alterar recetas, catálogo ni planificación.
+- Solo se consolidan contribuciones con el mismo ingrediente, variante, unidad, opcionalidad y presencia o ausencia de cantidad; unidades distintas y cantidades conocidas/desconocidas permanecen separadas.
 - Las reglas de negocio son independientes de interfaz y persistencia.
 
 ## 5. Decisiones pendientes

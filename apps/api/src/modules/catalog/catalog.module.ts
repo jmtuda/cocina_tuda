@@ -7,11 +7,13 @@ import { PrismaCatalogRepository } from './infrastructure/prisma-catalog.reposit
 import { PrismaClassificationRepository } from './infrastructure/prisma-classification.repository.js';
 import { CatalogController } from './presentation/catalog.controller.js';
 import { ClassificationController } from './presentation/classification.controller.js';
+import { CATALOG_REFERENCE_READER } from './application/catalog-reference.reader.js';
 
 @Module({
   controllers: [CatalogController, ClassificationController],
   providers: [
     CatalogService,
+    { provide: CATALOG_REFERENCE_READER, useExisting: CatalogService },
     ClassificationService,
     { provide: CATALOG_REPOSITORY, useClass: PrismaCatalogRepository },
     {
@@ -19,6 +21,6 @@ import { ClassificationController } from './presentation/classification.controll
       useClass: PrismaClassificationRepository,
     },
   ],
-  exports: [CatalogService, ClassificationService],
+  exports: [CatalogService, ClassificationService, CATALOG_REFERENCE_READER],
 })
 export class CatalogModule {}

@@ -39,6 +39,19 @@ export class PlanningService {
     return this.repository.findBetween(from, to);
   }
 
+  async findPlanningSources(from: string, to: string, excludedIds: string[]) {
+    this.validateRange(from, to);
+    const excluded = new Set(excludedIds);
+    return (await this.repository.findBetween(from, to))
+      .filter((meal) => !excluded.has(meal.id))
+      .map((meal) => ({
+        id: meal.id,
+        plannedDate: meal.plannedDate,
+        recipeId: meal.recipeId,
+        recipeName: meal.recipe.name,
+      }));
+  }
+
   async update(id: string, input: PlannedMealInput) {
     const current = await this.repository.findById(id);
     if (!current) throw new NotFoundException('Planificación no encontrada');

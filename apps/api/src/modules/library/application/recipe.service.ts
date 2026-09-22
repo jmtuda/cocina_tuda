@@ -37,6 +37,30 @@ export class RecipeService {
       : null;
   }
 
+  async findShoppingRecipeSnapshot(id: string) {
+    const recipe = await this.repository.findById(id);
+    return recipe
+      ? {
+          id: recipe.id,
+          name: recipe.name,
+          status: recipe.status,
+          ingredients: recipe.ingredients.map((item) => ({
+            id: item.id,
+            ingredientId: item.ingredientId,
+            ingredientName: item.ingredient.name,
+            variantId: item.variantId,
+            variantName: item.variant?.name ?? null,
+            quantity: item.quantity,
+            unitId: item.unitId,
+            unitName: item.unit?.name ?? null,
+            unitAbbreviation: item.unit?.abbreviation ?? null,
+            optional: item.optional,
+            observations: item.observations,
+          })),
+        }
+      : null;
+  }
+
   async update(id: string, input: RecipeInput) {
     try {
       const recipe = await this.repository.update(id, this.validate(input));

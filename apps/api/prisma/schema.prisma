@@ -49,6 +49,73 @@ model PlannedMeal {
   @@map("planned_meals")
 }
 
+model ShoppingList {
+  id          String               @id @default(uuid()) @db.Uuid
+  name        String
+  sourceFrom  DateTime?            @map("source_from") @db.Date
+  sourceTo    DateTime?            @map("source_to") @db.Date
+  generatedAt DateTime?            @map("generated_at")
+  createdAt   DateTime             @default(now()) @map("created_at")
+  updatedAt   DateTime             @updatedAt @map("updated_at")
+  items       ShoppingItem[]
+  sources     ShoppingListSource[]
+
+  @@index([createdAt, id])
+  @@map("shopping_lists")
+}
+
+model ShoppingListSource {
+  id             String               @id @default(uuid()) @db.Uuid
+  shoppingListId String               @map("shopping_list_id") @db.Uuid
+  plannedMealId  String               @map("planned_meal_id") @db.Uuid
+  recipeId       String               @map("recipe_id") @db.Uuid
+  recipeName     String               @map("recipe_name")
+  plannedDate    DateTime             @map("planned_date") @db.Date
+  shoppingList   ShoppingList         @relation(fields: [shoppingListId], references: [id], onDelete: Cascade)
+  itemSources    ShoppingItemSource[]
+
+  @@unique([shoppingListId, plannedMealId])
+  @@index([plannedMealId])
+  @@map("shopping_list_sources")
+}
+
+model ShoppingItem {
+  id             String               @id @default(uuid()) @db.Uuid
+  shoppingListId String               @map("shopping_list_id") @db.Uuid
+  position       Int
+  ingredientId   String?              @map("ingredient_id") @db.Uuid
+  variantId      String?              @map("variant_id") @db.Uuid
+  manualName     String?              @map("manual_name")
+  quantity       Decimal?             @db.Decimal(12, 3)
+  unitId         String?              @map("unit_id") @db.Uuid
+  observations   String?
+  optional       Boolean              @default(false)
+  purchased      Boolean              @default(false)
+  shoppingList   ShoppingList         @relation(fields: [shoppingListId], references: [id], onDelete: Cascade)
+  ingredient     Ingredient?          @relation(fields: [ingredientId], references: [id], onDelete: Restrict)
+  variant        IngredientVariant?   @relation("ShoppingItemVariant", fields: [variantId, ingredientId], references: [id, ingredientId], onDelete: Restrict)
+  unit           Unit?                @relation(fields: [unitId], references: [id], onDelete: Restrict)
+  sources        ShoppingItemSource[]
+
+  @@unique([shoppingListId, position])
+  @@index([ingredientId])
+  @@index([variantId, ingredientId])
+  @@index([unitId])
+  @@map("shopping_items")
+}
+
+model ShoppingItemSource {
+  shoppingItemId     String             @map("shopping_item_id") @db.Uuid
+  listSourceId       String             @map("list_source_id") @db.Uuid
+  recipeIngredientId String             @map("recipe_ingredient_id") @db.Uuid
+  shoppingItem       ShoppingItem       @relation(fields: [shoppingItemId], references: [id], onDelete: Cascade)
+  listSource         ShoppingListSource @relation(fields: [listSourceId], references: [id], onDelete: Cascade)
+
+  @@id([shoppingItemId, listSourceId, recipeIngredientId])
+  @@index([listSourceId])
+  @@map("shopping_item_sources")
+}
+
 model RecipeStep {
   id       String @id @default(uuid()) @db.Uuid
   recipeId String @map("recipe_id") @db.Uuid
@@ -68,6 +135,7 @@ model Ingredient {
   updatedAt      DateTime            @updatedAt @map("updated_at")
   variants       IngredientVariant[]
   recipeUses     RecipeIngredient[]
+  shoppingItems  ShoppingItem[]
 
   @@map("ingredients")
 }
@@ -79,6 +147,7 @@ model IngredientVariant {
   normalizedName String             @map("normalized_name")
   ingredient     Ingredient         @relation(fields: [ingredientId], references: [id], onDelete: Restrict)
   recipeUses     RecipeIngredient[] @relation("RecipeIngredientVariant")
+  shoppingUses   ShoppingItem[]     @relation("ShoppingItemVariant")
 
   @@unique([ingredientId, normalizedName])
   @@unique([id, ingredientId])
@@ -91,6 +160,7 @@ model Unit {
   abbreviation   String
   normalizedName String             @unique @map("normalized_name")
   recipeUses     RecipeIngredient[]
+  shoppingItems  ShoppingItem[]
 
   @@map("units")
 }

@@ -9,6 +9,10 @@
  */
 export type * from './models/Recipe.js';
 export type * from './models/PlannedMeal.js';
+export type * from './models/ShoppingList.js';
+export type * from './models/ShoppingListSource.js';
+export type * from './models/ShoppingItem.js';
+export type * from './models/ShoppingItemSource.js';
 export type * from './models/RecipeStep.js';
 export type * from './models/Ingredient.js';
 export type * from './models/IngredientVariant.js';

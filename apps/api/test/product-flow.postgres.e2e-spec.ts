@@ -314,6 +314,99 @@ postgres('product flow on PostgreSQL', () => {
       .expect(204);
   });
 
+  it('generates an editable shopping snapshot and preserves it after planning changes', async () => {
+    const planned = bodyAs<Array<{ id: string; plannedDate: string }>>(
+      await request(server)
+        .get('/api/v1/planned-meals')
+        .query({ from: '2026-09-21', to: '2026-09-27' })
+        .expect(200),
+    );
+    expect(planned).toHaveLength(2);
+    const excludedId = planned.find(
+      (meal) => meal.plannedDate === '2026-09-23',
+    )!.id;
+    const includedId = planned.find(
+      (meal) => meal.plannedDate === '2026-09-22',
+    )!.id;
+
+    const generated = await request(server)
+      .post('/api/v1/shopping-lists/generate')
+      .send({
+        name: 'Compra semanal',
+        from: '2026-09-21',
+        to: '2026-09-27',
+        excludedPlannedMealIds: [excludedId],
+      })
+      .expect(201);
+    const list = bodyAs<{
+      id: string;
+      sources: Array<{ plannedMealId: string; plannedDate: string }>;
+      items: Array<{
+        id: string;
+        ingredientId: string | null;
+        quantity: string | null;
+        optional: boolean;
+        sources: Array<{ plannedMealId: string }>;
+      }>;
+    }>(generated);
+    expect(list.sources).toEqual([
+      expect.objectContaining({
+        plannedMealId: includedId,
+        plannedDate: '2026-09-22',
+      }),
+    ]);
+    expect(list.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          ingredientId,
+          quantity: '125.5',
+          optional: true,
+          sources: [expect.objectContaining({ plannedMealId: includedId })],
+        }),
+        expect.objectContaining({
+          ingredientId: secondIngredientId,
+          quantity: null,
+          optional: false,
+        }),
+      ]),
+    );
+
+    const manual = await request(server)
+      .post(`/api/v1/shopping-lists/${list.id}/items`)
+      .send({
+        manualName: 'Papel de cocina',
+        optional: false,
+        purchased: false,
+      })
+      .expect(201);
+    await request(server)
+      .put(`/api/v1/shopping-lists/${list.id}/items/${idOf(manual)}`)
+      .send({
+        manualName: 'Papel de cocina',
+        quantity: '2',
+        observations: 'Rollos',
+        optional: false,
+        purchased: true,
+      })
+      .expect(200);
+    await request(server)
+      .delete(`/api/v1/planned-meals/${includedId}`)
+      .expect(204);
+    const persisted = await request(server)
+      .get(`/api/v1/shopping-lists/${list.id}`)
+      .expect(200);
+    expect(
+      bodyAs<{ sources: Array<{ plannedMealId: string }> }>(persisted).sources,
+    ).toEqual([expect.objectContaining({ plannedMealId: includedId })]);
+    expect(
+      bodyAs<{ items: Array<{ manualName: string | null }> }>(persisted).items,
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ manualName: 'Papel de cocina' }),
+      ]),
+    );
+  });
+
   it('returns expected client errors and preserves totals outside the range', async () => {
     await request(server)
       .post('/api/v1/recipes')

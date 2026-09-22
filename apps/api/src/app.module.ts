@@ -7,6 +7,7 @@ import { LibraryModule } from './modules/library/library.module.js';
 import { SearchModule } from './modules/search/search.module.js';
 import { ImportModule } from './modules/import/import.module.js';
 import { PlanningModule } from './modules/planning/planning.module.js';
+import { ShoppingModule } from './modules/shopping/shopping.module.js';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { PlanningModule } from './modules/planning/planning.module.js';
     SearchModule,
     ImportModule,
     PlanningModule,
+    ShoppingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

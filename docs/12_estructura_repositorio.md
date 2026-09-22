@@ -1,6 +1,6 @@
 # Cocina Tuda — Estructura del repositorio
 
-**Versión:** 2.3
+**Versión:** 2.4
 **Estado:** Aprobado
 **Responsable:** Arquitecto Técnico
 
@@ -40,12 +40,13 @@ apps/api/src/
 │   ├── catalog/
 │   ├── search/
 │   ├── import/
-│   └── planning/
+│   ├── planning/
+│   └── shopping/
 ├── app.module.ts
 └── main.ts
 ```
 
-`library`, `catalog`, `search`, `import` y `planning` son módulos físicos independientes. Cada uno contiene solo las capas `domain`, `application`, `infrastructure` y `presentation` que necesita y expone sus dependencias públicas mediante su módulo de composición. `search` es una proyección transversal de lectura y no posee datos. `import` mantiene su propuesta transitoria separada del dominio definitivo y coordina la confirmación mediante los contratos públicos de catálogo y biblioteca. `planning` conserva referencias a recetas y consulta su estado mediante el contrato público de biblioteca.
+`library`, `catalog`, `search`, `import`, `planning` y `shopping` son módulos físicos independientes. Cada uno contiene solo las capas `domain`, `application`, `infrastructure` y `presentation` que necesita y expone sus dependencias públicas mediante su módulo de composición. `search` es una proyección transversal de lectura y no posee datos. `import` mantiene su propuesta transitoria separada del dominio definitivo y coordina la confirmación mediante los contratos públicos de catálogo y biblioteca. `planning` conserva referencias a recetas y consulta su estado mediante el contrato público de biblioteca. `shopping` genera instantáneas mediante contratos públicos de planificación, biblioteca y catálogo, sin acceder a su infraestructura.
 
 Prisma se ubicará dentro de `apps/api/prisma` mientras sea infraestructura exclusiva de la API.
 
@@ -57,7 +58,8 @@ apps/web/
 └── features/
     ├── recipes/
     ├── import/
-    └── planning/
+    ├── planning/
+    └── shopping/
 ```
 
 Las funcionalidades viven en `features`. Los componentes compartidos no contienen acceso directo a datos ni reglas de negocio.
@@ -81,5 +83,3 @@ Se evita usar `shared`, `common`, `utils` o `helpers` como contenedores genéric
 - El frontend consume contratos y API, no código interno del backend.
 - Ningún módulo importa infraestructura interna de otro.
 - El código solo se extrae a un paquete cuando compartirlo reduce una duplicación real.
-
-El módulo de compra se materializará únicamente cuando entre en alcance.
