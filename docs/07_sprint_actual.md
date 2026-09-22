@@ -36,13 +36,13 @@ TASK-060–TASK-063 son el alcance real de Fase 6 según el roadmap vigente y co
 
 ## Flujo funcional propuesto
 
-1. El usuario inicia una lista nueva y define un nombre y la procedencia planificada conforme a la decisión aprobada.
+1. El usuario elige un intervalo, revisa sus comidas planificadas y puede excluir cualquiera antes de generar.
 2. Compras consulta comidas planificadas mediante el contrato público de `planning` y obtiene los usos de ingredientes actuales mediante el contrato público de `library`.
 3. Cada aparición de una receta planificada aporta una vez todos sus usos de ingrediente; recetas y usos repetidos producen contribuciones repetidas.
 4. La aplicación conserva ingrediente base, variante, cantidad decimal exacta, unidad, opcionalidad y observaciones antes de aplicar las reglas de TASK-060.
 5. Se muestra el resultado generado y se crea una lista con elementos propios de Compras.
 6. El usuario puede modificar sus elementos, añadir otros, retirarlos y marcar o desmarcar su compra sin alterar recetas ni planificación.
-7. Los cambios posteriores de recetas o planificación se comportarán según la política de vinculación y regeneración que apruebe el PM.
+7. La lista queda como instantánea independiente: los cambios posteriores de recetas o planificación no la recalculan y regenerar crea otra lista.
 
 ## Modelo de dominio propuesto
 
@@ -50,7 +50,7 @@ TASK-060–TASK-063 son el alcance real de Fase 6 según el roadmap vigente y co
 
 - identificador y nombre;
 - fechas de creación y modificación;
-- procedencia planificada opcional: intervalo, selección o metadatos mínimos según la decisión aprobada;
+- procedencia planificada: intervalo, fecha de generación y referencias suficientes a las comidas y recetas seleccionadas;
 - colección ordenada de elementos de compra.
 
 La lista pertenece exclusivamente a Compras. Su relación con la planificación aporta procedencia, no propiedad compartida.
@@ -58,12 +58,12 @@ La lista pertenece exclusivamente a Compras. Su relación con la planificación 
 ### Elemento de compra
 
 - identidad propia y posición dentro de la lista;
-- ingrediente base y variante opcional, o representación manual conforme a la decisión del PM;
+- ingrediente base y variante opcional para líneas generadas o catalogadas, o nombre libre para elementos manuales exclusivos de Compras;
 - cantidad decimal opcional y unidad opcional;
 - observaciones opcionales;
-- indicador de procedencia opcional si se aprueba conservarlo;
+- procedencia de las contribuciones generadas;
 - estado comprado/no comprado;
-- tratamiento de opcionalidad conforme a TASK-060.
+- indicador de opcionalidad.
 
 Un elemento generado es editable y no modifica el ingrediente de receta que lo originó. La eliminación de un elemento afecta únicamente a la lista.
 
@@ -94,11 +94,12 @@ La futura incorporación de inventario podría aportar otra fuente a Compras, pe
 
 Como base se prevén:
 
-- `shopping_lists`: identificador, nombre, metadatos de procedencia aprobados y marcas de tiempo;
-- `shopping_items`: identificador, lista, posición, ingrediente/representación manual, variante, cantidad decimal nullable, unidad nullable, observaciones, opcionalidad si se aprueba y estado de compra;
+- `shopping_lists`: identificador, nombre, intervalo y fecha de generación nullable y marcas de tiempo;
+- `shopping_items`: identificador, lista, posición, referencia opcional de ingrediente y variante, nombre libre alternativo, cantidad decimal nullable, unidad nullable, observaciones, opcionalidad y estado de compra;
+- procedencia de generación suficiente para relacionar cada resultado con las comidas y recetas que contribuyeron, sin copiar modelos internos de otros módulos;
 - claves foráneas e índices para listar elementos ordenados y consultar listas recientes.
 
-La forma exacta de las referencias de catálogo y procedencia depende de las decisiones pendientes. No se crearán tablas de conversión, inventario, historial o sincronización sin aprobación expresa.
+No se crearán tablas de conversión, inventario, historial o sincronización. Las referencias de procedencia no provocan actualización automática ni propiedad compartida.
 
 ## Alcance incluido
 
@@ -126,10 +127,10 @@ La forma exacta de las referencias de catálogo y procedencia depende de las dec
 ## Estrategia de pruebas
 
 - **Dominio:** matriz aprobada de consolidación para repeticiones, variantes, unidades iguales o distintas, cantidades ausentes, opcionalidad y observaciones.
-- **Aplicación:** una o varias comidas, receta repetida, ingrediente repetido dentro de una receta, días vacíos, receta archivada ya planificada y errores de referencias públicas.
+- **Aplicación:** generación por intervalo con exclusiones, una o varias comidas, receta repetida, ingrediente repetido dentro de una receta, días vacíos, receta archivada ya planificada y errores de referencias públicas.
 - **Exactitud:** suma decimal sin coma flotante binaria y preservación de cantidades que no puedan consolidarse.
-- **Independencia:** editar, retirar o marcar elementos no modifica planificación, recetas ni catálogo; los cambios posteriores en fuentes siguen la política aprobada.
-- **Persistencia/PostgreSQL:** migraciones desde base vacía, claves foráneas, orden, nullable, decimales, borrado de elementos y recorrido generación–persistencia–lectura.
+- **Independencia:** editar, retirar o marcar elementos no modifica planificación, recetas ni catálogo; cambios posteriores en fuentes no alteran la instantánea y regenerar crea otra lista.
+- **Persistencia/PostgreSQL:** migraciones desde base vacía, claves foráneas, procedencia, orden, nullable, decimales, borrado de elementos y recorrido generación–persistencia–lectura.
 - **API:** contratos, UUID, intervalos, listas inexistentes, conflictos y validaciones de altas y ediciones manuales.
 - **Interfaz:** generar, revisar, editar, añadir, retirar y marcar; estados vacío, carga y error.
 - **Regresión:** mantener verdes biblioteca, catálogo, búsqueda, importación, planificación, migraciones acumuladas, lint, tipado, pruebas y builds.
@@ -158,26 +159,27 @@ Una vez aprobado el comportamiento, el equipo técnico podrá decidir:
 - composición visual mínima de generación, detalle y marcado;
 - forma de los lectores públicos mínimos, sin crear una abstracción genérica para inventario futuro.
 
-## Decisiones funcionales pendientes del PM
+## Decisiones funcionales aprobadas
 
-1. **Selección de planificación.** Propuesta: elegir un intervalo inclusivo y permitir excluir comidas concretas antes de generar; cada `PlannedMeal` seleccionado cuenta una vez, incluidas las referencias conservadas a recetas archivadas.
-2. **Consolidación básica.** Propuesta: consolidar solo contribuciones con el mismo ingrediente base, la misma variante o ausencia de ella y la misma unidad o ausencia de ella. Una variante y el ingrediente base sin variante son líneas distintas.
-3. **Unidades diferentes.** El catálogo no contiene dimensiones ni factores. Propuesta: no convertir en Sprint 6 y mantener líneas separadas por unidad; resolver TASK-060 con esta política explícita, sin tablas de conversión.
-4. **Cantidades ausentes.** Propuesta: no mezclarlas con cantidades conocidas. Consolidar entre sí las contribuciones sin cantidad del mismo ingrediente/variante, conservando una línea sin cantidad y sus observaciones.
-5. **Ingredientes opcionales.** Propuesta: incluirlos, marcarlos como opcionales y no consolidarlos con apariciones obligatorias. El usuario puede retirarlos durante la edición.
-6. **Observaciones repetidas.** Propuesta: no utilizarlas como clave de consolidación; conservar los textos distintos, sin duplicarlos, en las observaciones del elemento resultante.
-7. **Raciones.** Planificación no define raciones objetivo. Propuesta: cada aparición de una receta aporta una vez las cantidades tal como están escritas, sin escalado en Sprint 6.
-8. **Vinculación posterior.** Propuesta: la lista es una instantánea editable. Guardar intervalo, fecha de generación y, si se aprueba, identificadores de comidas solo como procedencia; cambios o eliminaciones posteriores en recetas y planificación no recalculan la lista.
-9. **Regeneración.** Propuesta: generar crea una lista nueva. No actualizar ni sobrescribir una lista existente y no intentar mezclar de nuevo sus ediciones manuales.
-10. **Altas manuales.** Debe decidirse si todo elemento exige un ingrediente del catálogo o si se admite un nombre libre para compras no culinarias. Propuesta: admitir ambos sin crear automáticamente entradas de catálogo.
-11. **Eliminación de listas.** Propuesta: permitir eliminar elementos, pero no incorporar todavía archivo, papelera ni eliminación completa de listas; las listas permanecen consultables.
+1. **Selección.** Se elige un intervalo inclusivo y pueden excluirse comidas concretas antes de generar. Cada `PlannedMeal` seleccionado contribuye una vez.
+2. **Consolidación segura.** Solo se consolidan contribuciones con igual ingrediente base, variante —incluida su ausencia—, unidad, opcionalidad y estado cuantificado/no cuantificado.
+3. **Unidades.** Unidades diferentes permanecen separadas. Sprint 6 no incorpora conversiones ni equivalencias.
+4. **Cantidades ausentes.** No equivalen a cero ni se mezclan con cantidades conocidas. Varias contribuciones compatibles sin cantidad pueden producir una línea sin cantidad.
+5. **Opcionalidad.** Los ingredientes opcionales se incluyen, permanecen identificables y no se consolidan con apariciones obligatorias.
+6. **Observaciones.** Se conservan sin interpretación, resumen ni IA; solo se elimina una duplicación textual exacta trivial.
+7. **Raciones.** Cada comida aporta una vez las cantidades actuales de su receta. No existe escalado por raciones o comensales.
+8. **Instantánea y procedencia.** La lista generada es independiente y conserva referencias suficientes a comidas y recetas de origen. Los cambios posteriores en las fuentes no la modifican.
+9. **Regeneración.** Siempre crea una lista nueva y nunca sobrescribe una existente ni sus ediciones manuales.
+10. **Elementos manuales.** Se admiten nombres libres sin relación obligatoria con el catálogo y sin crear ingredientes automáticamente.
+11. **Eliminación.** Pueden retirarse elementos, pero no eliminarse listas completas ni se añaden estados, papelera, archivo o historial.
+12. **Edición independiente.** Editar Compras no modifica biblioteca, catálogo ni planificación.
 
 ## Riesgos y contradicciones
 
-- Sumar unidades incompatibles produciría una lista incorrecta; no existe hoy información de dimensión o conversión que permita hacerlo con seguridad.
+- Sumar unidades incompatibles produciría una lista incorrecta; por ello permanecen separadas y la conversión continúa como evolución pendiente.
 - La ausencia de cantidad y la opcionalidad expresan incertidumbre culinaria y no deben perderse durante la consolidación.
 - Recetas repetidas y usos repetidos multiplican contribuciones legítimas; deduplicar antes de aplicar reglas perdería información.
-- Una lista editable no puede permanecer sincronizada automáticamente con fuentes cambiantes sin sobrescribir decisiones del usuario; debe aprobarse una política de instantánea.
+- Una lista editable no se sincroniza con fuentes cambiantes para no sobrescribir decisiones del usuario.
 - El alta manual libre puede ampliar la utilidad de Compras, pero requiere una representación que no contamine el catálogo culinario.
 - Exponer datos internos de receta o planificación rompería límites modulares; se necesitarán proyecciones públicas mínimas.
 - No se detectan contradicciones restantes entre roadmap, backlog, dominio y producto: Fase 6 corresponde a TASK-060–TASK-063 y B-010.
