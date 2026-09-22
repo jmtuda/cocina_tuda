@@ -1,6 +1,6 @@
 # Cocina Tuda — Modelo de datos
 
-**Versión:** 2.1
+**Versión:** 2.2
 **Estado:** Aprobado
 **Responsable:** Arquitecto Técnico
 
@@ -22,8 +22,9 @@ Describe la traducción persistente vigente de `03_modelo_dominio.md` y separa e
 | `recipe_categories`   | recipe_id, category_id                                                                                        |
 | `tags`                | id, name, normalized_name                                                                                     |
 | `recipe_tags`         | recipe_id, tag_id                                                                                             |
+| `planned_meals`       | id, recipe_id, planned_date, meal_name?, created_at, updated_at                                               |
 
-No existen todavía tablas de importación, planificación, listas de compra, usuarios, grupos de recetas, sincronización ni documentos importados permanentes.
+No existen todavía tablas de importación, listas de compra, usuarios, grupos de recetas, sincronización ni documentos importados permanentes.
 
 ## 3. Relaciones y restricciones
 
@@ -34,6 +35,8 @@ No existen todavía tablas de importación, planificación, listas de compra, us
 - Categorías y etiquetas se relacionan muchos-a-muchos con recetas.
 - Las tablas intermedias evitan pares duplicados.
 - Cantidades nunca se almacenan en ingredientes o unidades.
+- Cada comida planificada referencia una receta sin copiar su contenido; fecha, receta y denominación no son únicas.
+- `planned_meals.planned_date` es un día de calendario `DATE`, no un instante temporal.
 
 ## 4. Identificadores y cantidades
 
@@ -43,7 +46,7 @@ Las cantidades son valores numéricos decimales opcionales del uso de ingredient
 
 ## 5. Archivo y eliminación
 
-Las recetas usan archivo lógico. Los catálogos referenciados no pueden eliminarse físicamente mientras estén en uso. Para el resto de entidades se elegirá archivo o eliminación según la necesidad funcional; no se aplica borrado lógico indiscriminadamente.
+Las recetas usan archivo lógico. Archivarlas no elimina sus planificaciones y estas muestran siempre el estado actual de la receta. Los catálogos referenciados no pueden eliminarse físicamente mientras estén en uso. Una comida planificada se elimina físicamente al retirarla; no usa archivo ni borrado lógico.
 
 ## 6. Migraciones e índices
 
@@ -51,6 +54,5 @@ El esquema se modifica mediante migraciones reproducibles. Los índices adiciona
 
 ## 7. Conceptos futuros no implementados
 
-- La planificación podrá incorporar `planned_meals`, referenciando una receta sin copiar su contenido. Antes deberá decidirse el comportamiento de una receta archivada que ya esté planificada.
 - Las listas de compra podrán incorporar `shopping_lists` y `shopping_list_items`; antes deberá definirse la consolidación entre cantidades y unidades.
 - La importación no tiene todavía persistencia propia ni cambia este esquema.

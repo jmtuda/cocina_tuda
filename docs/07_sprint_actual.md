@@ -1,8 +1,8 @@
 # Cocina Tuda — Sprint actual
 
-**Versión:** 7.1
+**Versión:** 7.2
 
-**Estado:** Activo
+**Estado:** Activo — implementación lista para revisión
 
 **Responsable:** Project Manager
 
@@ -14,13 +14,13 @@ Completar B-009 para que el usuario pueda asociar cualquier número de recetas d
 
 La planificación referencia siempre la receta vigente. No crea versiones, no altera la biblioteca y no anticipa la lista de la compra.
 
-### Alcance activo
+### Alcance implementado
 
-| Orden | Tarea    | Resultado verificable                                                      | Estado        | Depende de |
-| ----- | -------- | -------------------------------------------------------------------------- | ------------- | ---------- |
-| 1     | TASK-050 | Reglas pendientes de planificación resueltas y contratos definidos         | En desarrollo | Sprint 4   |
-| 2     | TASK-051 | Planificación y persistencia con referencias a la biblioteca implementadas | En desarrollo | 050        |
-| 3     | TASK-052 | Experiencia de calendario para consultar y gestionar comidas               | En desarrollo | 051        |
+| Orden | Tarea    | Resultado verificable                                                      | Estado      | Depende de |
+| ----- | -------- | -------------------------------------------------------------------------- | ----------- | ---------- |
+| 1     | TASK-050 | Reglas pendientes de planificación resueltas y contratos definidos         | En revisión | Sprint 4   |
+| 2     | TASK-051 | Planificación y persistencia con referencias a la biblioteca implementadas | En revisión | 050        |
+| 3     | TASK-052 | Experiencia de calendario para consultar y gestionar comidas               | En revisión | 051        |
 
 TASK-050–TASK-052 son el alcance real de Fase 5 según el roadmap vigente y completan B-009. B-010 y la generación de compras pertenecen a Fase 6.
 
@@ -143,3 +143,11 @@ Una vez aprobadas las reglas funcionales, el equipo técnico podrá decidir:
 - El selector puede acoplar planificación a detalles internos de búsqueda o biblioteca; se limitará a contratos públicos y proyecciones estables.
 - Una futura lista de compra necesitará recorrer la planificación, pero no justifica anticipar agregación, snapshots ni estructuras de compras en este sprint.
 - No se detectan decisiones funcionales pendientes ni contradicciones entre roadmap, backlog y producto actual: Fase 5 corresponde a TASK-050–TASK-052 y B-009; Fase 6 permanece pendiente.
+
+## Evidencia de implementación
+
+- La migración acumulada se aplicó desde una base PostgreSQL 16 vacía y produjo `planned_meals` con fecha `DATE`, clave foránea restrictiva e índices por fecha y receta.
+- Las pruebas reales cubren escritura, lectura por intervalo, duplicados exactos, edición, retirada física y el estado actual de una receta archivada o reactivada.
+- El recorrido HTTP confirma que una receta archivada conserva sus planificaciones, no acepta otras nuevas y vuelve a admitirlas tras reactivarse.
+- Las pruebas de dominio e interfaz protegen `2026-09-21` como día de calendario sin conversiones locales, además de la navegación semanal y los días vacíos.
+- La implementación no incorpora compras, vistas adicionales, snapshots, historial ni dependencias de Fase 6.
