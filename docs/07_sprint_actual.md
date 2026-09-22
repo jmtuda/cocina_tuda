@@ -1,8 +1,8 @@
 # Cocina Tuda — Sprint actual
 
-**Versión:** 8.0
+**Versión:** 8.1
 
-**Estado:** Propuesto
+**Estado:** Activo
 
 **Responsable:** Project Manager
 
@@ -14,14 +14,14 @@ Completar B-010 para generar una lista de compra editable a partir de comidas pl
 
 `shopping` será propietario de listas y elementos de compra. Consumirá información pública de planificación, biblioteca y catálogo en el momento de generar, sin escribir en esos módulos ni convertirse en almacenamiento interno de `planning`.
 
-### Alcance propuesto
+### Alcance activo
 
-| Orden | Tarea    | Resultado verificable                                                         | Estado    | Depende de |
-| ----- | -------- | ----------------------------------------------------------------------------- | --------- | ---------- |
-| 1     | TASK-060 | Reglas de consolidación, cantidades, unidades y casos ambiguos aprobadas      | Propuesta | Sprint 5   |
-| 2     | TASK-061 | Listas y elementos de compra implementados y persistentes                     | Propuesta | 060        |
-| 3     | TASK-062 | Generación desde planificación mediante contratos públicos                    | Propuesta | 060–061    |
-| 4     | TASK-063 | Edición, altas, retiradas y marcado manual de elementos disponibles en la web | Propuesta | 061–062    |
+| Orden | Tarea    | Resultado verificable                                                         | Estado        | Depende de |
+| ----- | -------- | ----------------------------------------------------------------------------- | ------------- | ---------- |
+| 1     | TASK-060 | Reglas de consolidación, cantidades, unidades y casos ambiguos aprobadas      | En desarrollo | Sprint 5   |
+| 2     | TASK-061 | Listas y elementos de compra implementados y persistentes                     | En desarrollo | 060        |
+| 3     | TASK-062 | Generación desde planificación mediante contratos públicos                    | En desarrollo | 060–061    |
+| 4     | TASK-063 | Edición, altas, retiradas y marcado manual de elementos disponibles en la web | En desarrollo | 061–062    |
 
 TASK-060–TASK-063 son el alcance real de Fase 6 según el roadmap vigente y completan B-010. Con esta fase concluye el alcance funcional previsto para el MVP; no se incluyen capacidades posteriores.
 
