@@ -428,6 +428,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never
 
 export const ModelName = {
   Recipe: 'Recipe',
+  PlannedMeal: 'PlannedMeal',
   RecipeStep: 'RecipeStep',
   Ingredient: 'Ingredient',
   IngredientVariant: 'IngredientVariant',
@@ -460,6 +461,7 @@ export type TypeMap<
   meta: {
     modelProps:
       | 'recipe'
+      | 'plannedMeal'
       | 'recipeStep'
       | 'ingredient'
       | 'ingredientVariant'
@@ -544,6 +546,82 @@ export type TypeMap<
           args: Prisma.RecipeCountArgs<ExtArgs>;
           result:
             | runtime.Types.Utils.Optional<Prisma.RecipeCountAggregateOutputType>
+            | number;
+        };
+      };
+    };
+    PlannedMeal: {
+      payload: Prisma.$PlannedMealPayload<ExtArgs>;
+      fields: Prisma.PlannedMealFieldRefs;
+      operations: {
+        findUnique: {
+          args: Prisma.PlannedMealFindUniqueArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlannedMealPayload> | null;
+        };
+        findUniqueOrThrow: {
+          args: Prisma.PlannedMealFindUniqueOrThrowArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlannedMealPayload>;
+        };
+        findFirst: {
+          args: Prisma.PlannedMealFindFirstArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlannedMealPayload> | null;
+        };
+        findFirstOrThrow: {
+          args: Prisma.PlannedMealFindFirstOrThrowArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlannedMealPayload>;
+        };
+        findMany: {
+          args: Prisma.PlannedMealFindManyArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlannedMealPayload>[];
+        };
+        create: {
+          args: Prisma.PlannedMealCreateArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlannedMealPayload>;
+        };
+        createMany: {
+          args: Prisma.PlannedMealCreateManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        createManyAndReturn: {
+          args: Prisma.PlannedMealCreateManyAndReturnArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlannedMealPayload>[];
+        };
+        delete: {
+          args: Prisma.PlannedMealDeleteArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlannedMealPayload>;
+        };
+        update: {
+          args: Prisma.PlannedMealUpdateArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlannedMealPayload>;
+        };
+        deleteMany: {
+          args: Prisma.PlannedMealDeleteManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        updateMany: {
+          args: Prisma.PlannedMealUpdateManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        updateManyAndReturn: {
+          args: Prisma.PlannedMealUpdateManyAndReturnArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlannedMealPayload>[];
+        };
+        upsert: {
+          args: Prisma.PlannedMealUpsertArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlannedMealPayload>;
+        };
+        aggregate: {
+          args: Prisma.PlannedMealAggregateArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePlannedMeal>;
+        };
+        groupBy: {
+          args: Prisma.PlannedMealGroupByArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.PlannedMealGroupByOutputType>[];
+        };
+        count: {
+          args: Prisma.PlannedMealCountArgs<ExtArgs>;
+          result:
+            | runtime.Types.Utils.Optional<Prisma.PlannedMealCountAggregateOutputType>
             | number;
         };
       };
@@ -1289,6 +1367,18 @@ export const RecipeScalarFieldEnum = {
 export type RecipeScalarFieldEnum =
   (typeof RecipeScalarFieldEnum)[keyof typeof RecipeScalarFieldEnum];
 
+export const PlannedMealScalarFieldEnum = {
+  id: 'id',
+  recipeId: 'recipeId',
+  plannedDate: 'plannedDate',
+  mealName: 'mealName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+} as const;
+
+export type PlannedMealScalarFieldEnum =
+  (typeof PlannedMealScalarFieldEnum)[keyof typeof PlannedMealScalarFieldEnum];
+
 export const RecipeStepScalarFieldEnum = {
   id: 'id',
   recipeId: 'recipeId',
@@ -1666,6 +1756,7 @@ export type PrismaClientOptions =
   PrismaClientOptionsWithAccelerateUrl | PrismaClientOptionsWithAdapter;
 export type GlobalOmitConfig = {
   recipe?: Prisma.RecipeOmit;
+  plannedMeal?: Prisma.PlannedMealOmit;
   recipeStep?: Prisma.RecipeStepOmit;
   ingredient?: Prisma.IngredientOmit;
   ingredientVariant?: Prisma.IngredientVariantOmit;

@@ -13,25 +13,40 @@ enum RecipeStatus {
 }
 
 model Recipe {
-  id          String             @id @default(uuid()) @db.Uuid
-  name        String
-  normalizedName String          @map("normalized_name")
-  description String?
-  author      String?
-  servings    Int?
-  difficulty  String?
-  notes       String?
-  status      RecipeStatus       @default(ACTIVE)
-  createdAt   DateTime           @default(now()) @map("created_at")
-  updatedAt   DateTime           @updatedAt @map("updated_at")
-  archivedAt  DateTime?          @map("archived_at")
-  steps       RecipeStep[]
-  ingredients RecipeIngredient[]
-  categories  RecipeCategory[]
-  tags        RecipeTag[]
+  id             String             @id @default(uuid()) @db.Uuid
+  name           String
+  normalizedName String             @map("normalized_name")
+  description    String?
+  author         String?
+  servings       Int?
+  difficulty     String?
+  notes          String?
+  status         RecipeStatus       @default(ACTIVE)
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @updatedAt @map("updated_at")
+  archivedAt     DateTime?          @map("archived_at")
+  steps          RecipeStep[]
+  ingredients    RecipeIngredient[]
+  categories     RecipeCategory[]
+  tags           RecipeTag[]
+  plannedMeals   PlannedMeal[]
 
   @@index([normalizedName, id])
   @@map("recipes")
+}
+
+model PlannedMeal {
+  id          String   @id @default(uuid()) @db.Uuid
+  recipeId    String   @map("recipe_id") @db.Uuid
+  plannedDate DateTime @map("planned_date") @db.Date
+  mealName    String?  @map("meal_name")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  recipe      Recipe   @relation(fields: [recipeId], references: [id], onDelete: Restrict)
+
+  @@index([plannedDate, id])
+  @@index([recipeId])
+  @@map("planned_meals")
 }
 
 model RecipeStep {
@@ -81,19 +96,19 @@ model Unit {
 }
 
 model RecipeIngredient {
-  id            String             @id @default(uuid()) @db.Uuid
-  recipeId      String             @map("recipe_id") @db.Uuid
-  ingredientId  String             @map("ingredient_id") @db.Uuid
-  variantId     String?            @map("variant_id") @db.Uuid
-  quantity      Decimal?           @db.Decimal(12, 3)
-  unitId        String?            @map("unit_id") @db.Uuid
-  optional      Boolean            @default(false)
-  observations  String?
-  position      Int
-  recipe        Recipe             @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  ingredient    Ingredient         @relation(fields: [ingredientId], references: [id], onDelete: Restrict)
-  variant       IngredientVariant? @relation("RecipeIngredientVariant", fields: [variantId, ingredientId], references: [id, ingredientId], onDelete: Restrict)
-  unit          Unit?              @relation(fields: [unitId], references: [id], onDelete: Restrict)
+  id           String             @id @default(uuid()) @db.Uuid
+  recipeId     String             @map("recipe_id") @db.Uuid
+  ingredientId String             @map("ingredient_id") @db.Uuid
+  variantId    String?            @map("variant_id") @db.Uuid
+  quantity     Decimal?           @db.Decimal(12, 3)
+  unitId       String?            @map("unit_id") @db.Uuid
+  optional     Boolean            @default(false)
+  observations String?
+  position     Int
+  recipe       Recipe             @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  ingredient   Ingredient         @relation(fields: [ingredientId], references: [id], onDelete: Restrict)
+  variant      IngredientVariant? @relation("RecipeIngredientVariant", fields: [variantId, ingredientId], references: [id, ingredientId], onDelete: Restrict)
+  unit         Unit?              @relation(fields: [unitId], references: [id], onDelete: Restrict)
 
   @@unique([recipeId, position])
   @@index([variantId, ingredientId])

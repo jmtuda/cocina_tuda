@@ -29,6 +29,15 @@ const sprintThreeMigration = readFileSync(
   ),
   'utf8',
 );
+const sprintFiveMigration = readFileSync(
+  fileURLToPath(
+    new URL(
+      '../../../prisma/migrations/20260921190000_sprint_5_planning/migration.sql',
+      import.meta.url,
+    ),
+  ),
+  'utf8',
+);
 
 describe('Sprint 1 migration contract', () => {
   it('stores optional quantities as exact decimals', () => {
@@ -85,5 +94,19 @@ describe('Sprint 3 migration contract', () => {
     expect(sprintThreeMigration).toContain(
       'recipe_ingredients_variant_recipe_idx',
     );
+  });
+});
+
+describe('Sprint 5 migration contract', () => {
+  it('stores calendar days as DATE and preserves recipe references', () => {
+    expect(sprintFiveMigration).toContain('"planned_date" DATE NOT NULL');
+    expect(sprintFiveMigration).toContain(
+      'REFERENCES "recipes"("id")\n    ON DELETE RESTRICT',
+    );
+  });
+
+  it('allows exact duplicates and indexes range queries', () => {
+    expect(sprintFiveMigration).not.toMatch(/UNIQUE[^;]+planned_date/i);
+    expect(sprintFiveMigration).toContain('planned_meals_planned_date_id_idx');
   });
 });

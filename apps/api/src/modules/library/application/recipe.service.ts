@@ -30,6 +30,13 @@ export class RecipeService {
     return recipe;
   }
 
+  async findRecipeReference(id: string) {
+    const recipe = await this.repository.findById(id);
+    return recipe
+      ? { id: recipe.id, name: recipe.name, status: recipe.status }
+      : null;
+  }
+
   async update(id: string, input: RecipeInput) {
     try {
       const recipe = await this.repository.update(id, this.validate(input));

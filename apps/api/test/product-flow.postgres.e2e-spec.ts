@@ -252,6 +252,68 @@ postgres('product flow on PostgreSQL', () => {
     ).toEqual([recipeId]);
   });
 
+  it('plans duplicate meals, preserves calendar dates and keeps archived references', async () => {
+    const payload = {
+      recipeId,
+      plannedDate: '2026-09-21',
+      mealName: 'Cena',
+    };
+    const first = await request(server)
+      .post('/api/v1/planned-meals')
+      .send(payload)
+      .expect(201);
+    const second = await request(server)
+      .post('/api/v1/planned-meals')
+      .send(payload)
+      .expect(201);
+    expect(idOf(first)).not.toBe(idOf(second));
+
+    const week = await request(server)
+      .get('/api/v1/planned-meals')
+      .query({ from: '2026-09-21', to: '2026-09-27' })
+      .expect(200);
+    expect(
+      bodyAs<Array<{ plannedDate: string }>>(week).map(
+        (meal) => meal.plannedDate,
+      ),
+    ).toEqual(['2026-09-21', '2026-09-21']);
+
+    await request(server)
+      .post(`/api/v1/recipes/${recipeId}/archive`)
+      .expect(200);
+    const archivedWeek = await request(server)
+      .get('/api/v1/planned-meals')
+      .query({ from: '2026-09-21', to: '2026-09-27' })
+      .expect(200);
+    expect(
+      bodyAs<Array<{ recipe: { status: string } }>>(archivedWeek).every(
+        (meal) => meal.recipe.status === 'ARCHIVED',
+      ),
+    ).toBe(true);
+    await request(server)
+      .post('/api/v1/planned-meals')
+      .send({ ...payload, plannedDate: '2026-09-22' })
+      .expect(409);
+    await request(server)
+      .put(`/api/v1/planned-meals/${idOf(first)}`)
+      .send({ ...payload, plannedDate: '2026-09-22', mealName: 'Invitados' })
+      .expect(200)
+      .expect(({ body }: { body: { plannedDate: string } }) => {
+        expect(body.plannedDate).toBe('2026-09-22');
+      });
+
+    await request(server)
+      .post(`/api/v1/recipes/${recipeId}/restore`)
+      .expect(200);
+    await request(server)
+      .post('/api/v1/planned-meals')
+      .send({ ...payload, plannedDate: '2026-09-23' })
+      .expect(201);
+    await request(server)
+      .delete(`/api/v1/planned-meals/${idOf(second)}`)
+      .expect(204);
+  });
+
   it('returns expected client errors and preserves totals outside the range', async () => {
     await request(server)
       .post('/api/v1/recipes')

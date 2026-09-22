@@ -1,6 +1,6 @@
 # Cocina Tuda — Estructura del repositorio
 
-**Versión:** 2.2
+**Versión:** 2.3
 **Estado:** Aprobado
 **Responsable:** Arquitecto Técnico
 
@@ -39,12 +39,13 @@ apps/api/src/
 │   ├── library/
 │   ├── catalog/
 │   ├── search/
-│   └── import/
+│   ├── import/
+│   └── planning/
 ├── app.module.ts
 └── main.ts
 ```
 
-`library`, `catalog`, `search` e `import` son módulos físicos independientes. Cada uno contiene solo las capas `domain`, `application`, `infrastructure` y `presentation` que necesita y expone sus dependencias públicas mediante su módulo de composición. `search` es una proyección transversal de lectura y no posee datos. `import` mantiene su propuesta transitoria separada del dominio definitivo y coordina la confirmación mediante los contratos públicos de catálogo y biblioteca.
+`library`, `catalog`, `search`, `import` y `planning` son módulos físicos independientes. Cada uno contiene solo las capas `domain`, `application`, `infrastructure` y `presentation` que necesita y expone sus dependencias públicas mediante su módulo de composición. `search` es una proyección transversal de lectura y no posee datos. `import` mantiene su propuesta transitoria separada del dominio definitivo y coordina la confirmación mediante los contratos públicos de catálogo y biblioteca. `planning` conserva referencias a recetas y consulta su estado mediante el contrato público de biblioteca.
 
 Prisma se ubicará dentro de `apps/api/prisma` mientras sea infraestructura exclusiva de la API.
 
@@ -55,7 +56,8 @@ apps/web/
 ├── app/
 └── features/
     ├── recipes/
-    └── import/
+    ├── import/
+    └── planning/
 ```
 
 Las funcionalidades viven en `features`. Los componentes compartidos no contienen acceso directo a datos ni reglas de negocio.
@@ -80,4 +82,4 @@ Se evita usar `shared`, `common`, `utils` o `helpers` como contenedores genéric
 - Ningún módulo importa infraestructura interna de otro.
 - El código solo se extrae a un paquete cuando compartirlo reduce una duplicación real.
 
-Los módulos de planificación o compra se materializarán únicamente cuando entren en alcance.
+El módulo de compra se materializará únicamente cuando entre en alcance.

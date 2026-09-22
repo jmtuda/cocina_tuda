@@ -22,6 +22,11 @@ export * from './enums.js';
  */
 export type Recipe = Prisma.RecipeModel;
 /**
+ * Model PlannedMeal
+ *
+ */
+export type PlannedMeal = Prisma.PlannedMealModel;
+/**
  * Model RecipeStep
  *
  */

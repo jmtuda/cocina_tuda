@@ -2,7 +2,7 @@
 
 Cocina Tuda es una plataforma personal para convertir recetas procedentes de distintas fuentes en conocimiento culinario estructurado, consultable y reutilizable.
 
-La documentación normativa se encuentra en [`docs/`](docs/README.md). Los cuatro primeros sprints han construido una biblioteca clasificable, navegable, buscable y ampliable mediante importación asistida.
+La documentación normativa se encuentra en [`docs/`](docs/README.md). Los cinco primeros sprints han construido una biblioteca clasificable, navegable, buscable, ampliable mediante importación asistida y utilizable desde una planificación semanal.
 
 ## Estado actual
 
@@ -14,7 +14,8 @@ La documentación normativa se encuentra en [`docs/`](docs/README.md). Los cuatr
 - Sprint 2: finalizado.
 - Sprint 3: finalizado.
 - Sprint 4: finalizado.
-- Funcionalidades: catálogos, clasificación, listado filtrable, búsqueda, mantenimiento de recetas e importación asistida disponibles.
+- Sprint 5: activo, implementación lista para revisión.
+- Funcionalidades: catálogos, clasificación, listado filtrable, búsqueda, mantenimiento de recetas, importación asistida y planificación semanal disponibles.
 
 Los cambios de alcance o arquitectura deberán actualizar la documentación correspondiente antes de implementarse.
 
@@ -68,7 +69,7 @@ pnpm build
 
 La migración de Sprint 1 crea exclusivamente recetas, pasos, ingredientes, variantes, unidades e ingredientes de receta.
 
-Las comprobaciones específicas de búsqueda sobre PostgreSQL se ejecutan contra una base de pruebas ya migrada:
+Las comprobaciones específicas de búsqueda y planificación sobre PostgreSQL se ejecutan contra una base de pruebas ya migrada:
 
 ```bash
 DATABASE_URL="postgresql://..." TEST_POSTGRES_URL="$DATABASE_URL" pnpm --filter @cocina-tuda/api test:postgres
