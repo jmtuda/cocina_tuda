@@ -1,6 +1,6 @@
 # Cocina Tuda — Modelo de dominio
 
-**Versión:** 2.1
+**Versión:** 2.2
 **Estado:** Aprobado
 **Responsable:** Project Manager
 
@@ -56,6 +56,8 @@ Clasificación flexible y plana. Una receta puede tener varias etiquetas y una e
 
 Referencia una receta para una fecha y puede incluir una denominación de comida. No conserva una copia de la receta y utiliza su versión actual.
 
+Si la receta se archiva, las planificaciones existentes se conservan y permiten consultarla. Una receta archivada no está disponible normalmente para nuevas planificaciones y vuelve a estarlo al reactivarse.
+
 ### Lista de compra
 
 Agrupa elementos de compra, tiene nombre y fechas y puede indicar de qué intervalo o selección de planificación se generó.
@@ -76,6 +78,7 @@ Uso de un ingrediente dentro de una lista. Contiene cantidad opcional, unidad op
 - Una receta puede contener varios usos del mismo ingrediente y variante; cada ingrediente de receta es un uso culinario independiente.
 - Categorías y etiquetas son relaciones muchos-a-muchos y no jerárquicas.
 - El importador nunca persiste una receta sin confirmación del usuario.
+- Las fuentes originales de importación son transitorias y no se almacenan permanentemente. La retención técnica o local imprescindible durante la revisión no las convierte en datos definitivos de la biblioteca.
 - La planificación referencia recetas existentes y no las modifica.
 - Los elementos generados de compra pueden editarse sin alterar recetas ni planificación.
 - Las reglas de negocio son independientes de interfaz y persistencia.
@@ -85,5 +88,3 @@ Uso de un ingrediente dentro de una lista. Contiene cantidad opcional, unidad op
 Antes de implementar cada capacidad deberán concretarse, mediante criterios de aceptación:
 
 - consolidación y conversión entre unidades;
-- comportamiento al archivar una receta planificada;
-- retención de fuentes importadas durante el proceso de revisión.
