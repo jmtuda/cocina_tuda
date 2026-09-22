@@ -15,7 +15,7 @@ La documentación normativa se encuentra en [`docs/`](docs/README.md). El produc
 - Sprint 3: finalizado.
 - Sprint 4: finalizado.
 - Sprint 5: finalizado.
-- Sprint 6: activo, implementación lista para revisión.
+- Sprint 6: finalizado.
 - Funcionalidades: catálogos, clasificación, búsqueda, mantenimiento e importación de recetas, planificación semanal y listas de compra editables disponibles.
 
 Los cambios de alcance o arquitectura deberán actualizar la documentación correspondiente antes de implementarse.
