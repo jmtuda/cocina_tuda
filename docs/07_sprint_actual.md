@@ -1,8 +1,8 @@
 # Cocina Tuda — Sprint actual
 
-**Versión:** 7.2
+**Versión:** 7.3
 
-**Estado:** Activo — implementación lista para revisión
+**Estado:** Finalizado
 
 **Responsable:** Project Manager
 
@@ -14,13 +14,13 @@ Completar B-009 para que el usuario pueda asociar cualquier número de recetas d
 
 La planificación referencia siempre la receta vigente. No crea versiones, no altera la biblioteca y no anticipa la lista de la compra.
 
-### Alcance implementado
+### Alcance finalizado
 
-| Orden | Tarea    | Resultado verificable                                                      | Estado      | Depende de |
-| ----- | -------- | -------------------------------------------------------------------------- | ----------- | ---------- |
-| 1     | TASK-050 | Reglas pendientes de planificación resueltas y contratos definidos         | En revisión | Sprint 4   |
-| 2     | TASK-051 | Planificación y persistencia con referencias a la biblioteca implementadas | En revisión | 050        |
-| 3     | TASK-052 | Experiencia de calendario para consultar y gestionar comidas               | En revisión | 051        |
+| Orden | Tarea    | Resultado verificable                                                      | Estado     | Depende de |
+| ----- | -------- | -------------------------------------------------------------------------- | ---------- | ---------- |
+| 1     | TASK-050 | Reglas pendientes de planificación resueltas y contratos definidos         | Finalizada | Sprint 4   |
+| 2     | TASK-051 | Planificación y persistencia con referencias a la biblioteca implementadas | Finalizada | 050        |
+| 3     | TASK-052 | Experiencia de calendario para consultar y gestionar comidas               | Finalizada | 051        |
 
 TASK-050–TASK-052 son el alcance real de Fase 5 según el roadmap vigente y completan B-009. B-010 y la generación de compras pertenecen a Fase 6.
 
@@ -44,7 +44,7 @@ TASK-050–TASK-052 son el alcance real de Fase 5 según el roadmap vigente y co
 
 La retirada elimina únicamente la asociación de planificación. No archiva ni elimina la receta.
 
-## Modelo y reglas propuestas
+## Modelo y reglas finales
 
 `PlannedMeal` pertenece a `planning` y contiene:
 
@@ -65,7 +65,7 @@ Reglas:
 - archivar una receta conserva sus planificaciones, que continúan mostrando y permitiendo consultar la receta actual;
 - una receta archivada no está disponible normalmente para una planificación nueva y vuelve a estarlo al reactivarse.
 
-## Cambios previstos por capa
+## Cambios realizados por capa
 
 - **Dominio:** entidad `PlannedMeal`, fecha y denominación opcional con sus invariantes; ninguna regla de catálogo, búsqueda o importación pasa a este módulo.
 - **Aplicación:** casos de uso para crear, consultar por intervalo, actualizar y retirar asociaciones; validación de la receta mediante un contrato público de `library`.
@@ -75,7 +75,7 @@ Reglas:
 
 `planning` podrá consumir una proyección pública mínima de receta —identificador, nombre y estado—, pero no dependerá de Prisma, de repositorios internos de `library` ni de detalles de búsqueda. No se requieren cambios en el dominio de receta ni en importación.
 
-### Migración prevista
+### Migración realizada
 
 La migración añadirá `planned_meals` con identificador UUID, `recipe_id`, `planned_date`, denominación nullable y marcas de tiempo. La clave foránea no tendrá eliminación en cascada. Se crearán índices para consultas por intervalo y para localizar referencias a una receta.
 
