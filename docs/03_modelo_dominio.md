@@ -1,6 +1,6 @@
 # Cocina Tuda — Modelo de dominio
 
-**Versión:** 2.3
+**Versión:** 2.4
 **Estado:** Aprobado
 **Responsable:** Project Manager
 
@@ -89,4 +89,4 @@ Uso de un ingrediente dentro de una lista. Contiene cantidad opcional, unidad op
 
 Antes de implementar cada capacidad deberán concretarse, mediante criterios de aceptación:
 
-- consolidación y conversión entre unidades;
+- conversión entre unidades diferentes;

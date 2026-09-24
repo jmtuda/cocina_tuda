@@ -13,26 +13,36 @@ enum RecipeStatus {
 }
 
 model Recipe {
-  id             String             @id @default(uuid()) @db.Uuid
-  name           String
-  normalizedName String             @map("normalized_name")
-  description    String?
-  author         String?
-  servings       Int?
-  difficulty     String?
-  notes          String?
-  status         RecipeStatus       @default(ACTIVE)
-  createdAt      DateTime           @default(now()) @map("created_at")
-  updatedAt      DateTime           @updatedAt @map("updated_at")
-  archivedAt     DateTime?          @map("archived_at")
-  steps          RecipeStep[]
-  ingredients    RecipeIngredient[]
-  categories     RecipeCategory[]
-  tags           RecipeTag[]
-  plannedMeals   PlannedMeal[]
+  id                 String              @id @default(uuid()) @db.Uuid
+  name               String
+  normalizedName     String              @map("normalized_name")
+  description        String?
+  author             String?
+  servings           Int?
+  difficulty         String?
+  notes              String?
+  status             RecipeStatus        @default(ACTIVE)
+  createdAt          DateTime            @default(now()) @map("created_at")
+  updatedAt          DateTime            @updatedAt @map("updated_at")
+  archivedAt         DateTime?           @map("archived_at")
+  steps              RecipeStep[]
+  ingredients        RecipeIngredient[]
+  categories         RecipeCategory[]
+  tags               RecipeTag[]
+  plannedMeals       PlannedMeal[]
+  importConfirmation ImportConfirmation?
 
   @@index([normalizedName, id])
   @@map("recipes")
+}
+
+model ImportConfirmation {
+  importId    String   @id @map("import_id") @db.Uuid
+  recipeId    String   @unique @map("recipe_id") @db.Uuid
+  confirmedAt DateTime @default(now()) @map("confirmed_at")
+  recipe      Recipe   @relation(fields: [recipeId], references: [id], onDelete: Restrict)
+
+  @@map("import_confirmations")
 }
 
 model PlannedMeal {

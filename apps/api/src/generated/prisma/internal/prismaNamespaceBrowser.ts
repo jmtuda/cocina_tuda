@@ -55,6 +55,7 @@ export const AnyNull = runtime.AnyNull;
 
 export const ModelName = {
   Recipe: 'Recipe',
+  ImportConfirmation: 'ImportConfirmation',
   PlannedMeal: 'PlannedMeal',
   ShoppingList: 'ShoppingList',
   ShoppingListSource: 'ShoppingListSource',
@@ -104,6 +105,15 @@ export const RecipeScalarFieldEnum = {
 
 export type RecipeScalarFieldEnum =
   (typeof RecipeScalarFieldEnum)[keyof typeof RecipeScalarFieldEnum];
+
+export const ImportConfirmationScalarFieldEnum = {
+  importId: 'importId',
+  recipeId: 'recipeId',
+  confirmedAt: 'confirmedAt',
+} as const;
+
+export type ImportConfirmationScalarFieldEnum =
+  (typeof ImportConfirmationScalarFieldEnum)[keyof typeof ImportConfirmationScalarFieldEnum];
 
 export const PlannedMealScalarFieldEnum = {
   id: 'id',

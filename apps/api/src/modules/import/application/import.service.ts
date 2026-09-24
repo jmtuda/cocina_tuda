@@ -53,34 +53,38 @@ export class ImportService {
 
   confirm(input: ConfirmedRecipeImport) {
     this.validateConfirmation(input);
-    return this.unitOfWork.run(async () => {
-      const categoryIds: string[] = [];
-      for (const reference of input.categories) {
-        categoryIds.push(
-          await this.resolveClassification('category', reference),
-        );
-      }
-      const tagIds: string[] = [];
-      for (const reference of input.tags) {
-        tagIds.push(await this.resolveClassification('tag', reference));
-      }
-      const ingredients = [];
-      for (const [position, item] of input.ingredients.entries()) {
-        ingredients.push(await this.resolveIngredient(item, position));
-      }
-      return this.recipes.create({
-        name: input.name,
-        description: input.description,
-        author: input.author,
-        servings: input.servings,
-        difficulty: input.difficulty,
-        notes: input.notes,
-        steps: input.steps.map((text, position) => ({ position, text })),
-        ingredients,
-        categoryIds,
-        tagIds,
-      });
-    });
+    return this.unitOfWork.runIdempotent(
+      input.importId,
+      (recipeId) => this.recipes.get(recipeId),
+      async () => {
+        const categoryIds: string[] = [];
+        for (const reference of input.categories) {
+          const id = await this.resolveClassification('category', reference);
+          if (id) categoryIds.push(id);
+        }
+        const tagIds: string[] = [];
+        for (const reference of input.tags) {
+          const id = await this.resolveClassification('tag', reference);
+          if (id) tagIds.push(id);
+        }
+        const ingredients = [];
+        for (const [position, item] of input.ingredients.entries()) {
+          ingredients.push(await this.resolveIngredient(item, position));
+        }
+        return this.recipes.create({
+          name: input.name,
+          description: input.description,
+          author: input.author,
+          servings: input.servings,
+          difficulty: input.difficulty,
+          notes: input.notes,
+          steps: input.steps.map((text, position) => ({ position, text })),
+          ingredients,
+          categoryIds,
+          tagIds,
+        });
+      },
+    );
   }
 
   private async resolve(
@@ -173,12 +177,11 @@ export class ImportService {
 
   private async resolveIngredient(item: ConfirmedIngredient, position: number) {
     const ingredientId = await this.resolveIngredientReference(item.ingredient);
-    const variantId = item.variant
-      ? await this.resolveVariantReference(ingredientId, item.variant)
-      : undefined;
-    const unitId = item.unit
-      ? await this.resolveUnitReference(item.unit)
-      : undefined;
+    const variantId = await this.resolveVariantReference(
+      ingredientId,
+      item.variant,
+    );
+    const unitId = await this.resolveUnitReference(item.unit);
     return {
       position,
       ingredientId,
@@ -201,6 +204,7 @@ export class ImportService {
     ingredientId: string,
     reference: ConfirmedReference,
   ) {
+    if (reference.discarded) return undefined;
     if (reference.existingId) return reference.existingId;
     if (reference.createName)
       return (
@@ -210,6 +214,7 @@ export class ImportService {
   }
 
   private async resolveUnitReference(reference: ConfirmedReference) {
+    if (reference.discarded) return undefined;
     if (reference.existingId) return reference.existingId;
     if (reference.createName && reference.createAbbreviation) {
       return (
@@ -226,6 +231,7 @@ export class ImportService {
     kind: 'category' | 'tag',
     reference: ConfirmedReference,
   ) {
+    if (reference.discarded) return null;
     if (reference.existingId) return reference.existingId;
     if (reference.createName)
       return (await this.classifications.create(kind, reference.createName)).id;
@@ -235,15 +241,27 @@ export class ImportService {
   private validateConfirmation(input: ConfirmedRecipeImport) {
     if (!input.name?.trim())
       throw new BadRequestException('El nombre es obligatorio');
-    for (const item of input.ingredients) this.assertReference(item.ingredient);
+    for (const item of input.ingredients) {
+      this.assertReference(item.ingredient, false);
+      this.assertReference(item.variant, true);
+      this.assertReference(item.unit, true);
+    }
     for (const reference of [...input.categories, ...input.tags])
-      this.assertReference(reference);
+      this.assertReference(reference, true);
   }
 
-  private assertReference(reference: ConfirmedReference) {
-    if (!!reference.existingId === !!reference.createName)
+  private assertReference(
+    reference: ConfirmedReference,
+    allowDiscard: boolean,
+  ) {
+    const choices = [
+      Boolean(reference.existingId),
+      Boolean(reference.createName),
+      reference.discarded === true,
+    ].filter(Boolean).length;
+    if (choices !== 1 || (reference.discarded && !allowDiscard))
       throw new BadRequestException(
-        'Cada referencia debe elegir un elemento existente o una alta nueva',
+        'Cada referencia debe resolverse, aprobarse como nueva o descartarse explícitamente',
       );
   }
 

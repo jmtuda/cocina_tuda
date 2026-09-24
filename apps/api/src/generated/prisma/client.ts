@@ -52,6 +52,11 @@ export { Prisma };
  */
 export type Recipe = Prisma.RecipeModel;
 /**
+ * Model ImportConfirmation
+ *
+ */
+export type ImportConfirmation = Prisma.ImportConfirmationModel;
+/**
  * Model PlannedMeal
  *
  */

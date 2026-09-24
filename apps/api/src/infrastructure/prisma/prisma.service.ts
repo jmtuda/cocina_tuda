@@ -35,4 +35,26 @@ export class PrismaService
       this.transactions.run(transaction, work),
     );
   }
+
+  runIdempotent<T extends { id: string }>(
+    key: string,
+    load: (id: string) => Promise<T>,
+    work: () => Promise<T>,
+  ): Promise<T> {
+    return this.run(async () => {
+      const db = this.getDb();
+      await db.$executeRaw(
+        Prisma.sql`SELECT pg_advisory_xact_lock(hashtextextended(${key}, 0))`,
+      );
+      const confirmed = await db.importConfirmation.findUnique({
+        where: { importId: key },
+      });
+      if (confirmed) return load(confirmed.recipeId);
+      const result = await work();
+      await db.importConfirmation.create({
+        data: { importId: key, recipeId: result.id },
+      });
+      return result;
+    });
+  }
 }

@@ -1,6 +1,6 @@
 # Cocina Tuda — Arquitectura funcional
 
-**Versión:** 2.0  
+**Versión:** 2.1
 **Estado:** Aprobado
 **Responsable:** Project Manager
 
@@ -54,7 +54,7 @@ La aplicación web presenta información y recoge acciones; no posee reglas de n
 - Búsqueda consulta biblioteca y catálogo.
 - Importación propone datos y utiliza las operaciones públicas de biblioteca y catálogo tras la confirmación.
 - Planificación referencia recetas de la biblioteca.
-- Compras puede utilizar planificación y catálogo.
+- Compras consume planificación, biblioteca y catálogo mediante sus contratos públicos.
 
 Ningún módulo accede a la implementación interna o a la persistencia de otro.
 

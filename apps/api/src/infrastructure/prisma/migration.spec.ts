@@ -47,6 +47,15 @@ const sprintSixMigration = readFileSync(
   ),
   'utf8',
 );
+const importStabilizationMigration = readFileSync(
+  fileURLToPath(
+    new URL(
+      '../../../prisma/migrations/20260924100000_import_confirmation_idempotency/migration.sql',
+      import.meta.url,
+    ),
+  ),
+  'utf8',
+);
 
 describe('Sprint 1 migration contract', () => {
   it('stores optional quantities as exact decimals', () => {
@@ -136,5 +145,25 @@ describe('Sprint 6 migration contract', () => {
     expect(sprintSixMigration).toContain('shopping_items_identity_check');
     expect(sprintSixMigration).not.toMatch(/shopping_lists[^;]+archived_at/i);
     expect(sprintSixMigration).not.toMatch(/shopping_lists[^;]+deleted_at/i);
+  });
+});
+
+describe('Import confirmation stabilization migration contract', () => {
+  it('uses importId as the persistent idempotency key', () => {
+    expect(importStabilizationMigration).toContain(
+      'CREATE TABLE "import_confirmations"',
+    );
+    expect(importStabilizationMigration).toContain(
+      'CONSTRAINT "import_confirmations_pkey" PRIMARY KEY ("import_id")',
+    );
+  });
+
+  it('allows only one confirmation per definitive recipe', () => {
+    expect(importStabilizationMigration).toContain(
+      'CREATE UNIQUE INDEX "import_confirmations_recipe_id_key"',
+    );
+    expect(importStabilizationMigration).toMatch(
+      /FOREIGN KEY \("recipe_id"\) REFERENCES "recipes"\("id"\)\s+ON DELETE RESTRICT/,
+    );
   });
 });

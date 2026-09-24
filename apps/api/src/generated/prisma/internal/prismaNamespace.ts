@@ -428,6 +428,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never
 
 export const ModelName = {
   Recipe: 'Recipe',
+  ImportConfirmation: 'ImportConfirmation',
   PlannedMeal: 'PlannedMeal',
   ShoppingList: 'ShoppingList',
   ShoppingListSource: 'ShoppingListSource',
@@ -465,6 +466,7 @@ export type TypeMap<
   meta: {
     modelProps:
       | 'recipe'
+      | 'importConfirmation'
       | 'plannedMeal'
       | 'shoppingList'
       | 'shoppingListSource'
@@ -554,6 +556,82 @@ export type TypeMap<
           args: Prisma.RecipeCountArgs<ExtArgs>;
           result:
             | runtime.Types.Utils.Optional<Prisma.RecipeCountAggregateOutputType>
+            | number;
+        };
+      };
+    };
+    ImportConfirmation: {
+      payload: Prisma.$ImportConfirmationPayload<ExtArgs>;
+      fields: Prisma.ImportConfirmationFieldRefs;
+      operations: {
+        findUnique: {
+          args: Prisma.ImportConfirmationFindUniqueArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportConfirmationPayload> | null;
+        };
+        findUniqueOrThrow: {
+          args: Prisma.ImportConfirmationFindUniqueOrThrowArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportConfirmationPayload>;
+        };
+        findFirst: {
+          args: Prisma.ImportConfirmationFindFirstArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportConfirmationPayload> | null;
+        };
+        findFirstOrThrow: {
+          args: Prisma.ImportConfirmationFindFirstOrThrowArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportConfirmationPayload>;
+        };
+        findMany: {
+          args: Prisma.ImportConfirmationFindManyArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportConfirmationPayload>[];
+        };
+        create: {
+          args: Prisma.ImportConfirmationCreateArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportConfirmationPayload>;
+        };
+        createMany: {
+          args: Prisma.ImportConfirmationCreateManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        createManyAndReturn: {
+          args: Prisma.ImportConfirmationCreateManyAndReturnArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportConfirmationPayload>[];
+        };
+        delete: {
+          args: Prisma.ImportConfirmationDeleteArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportConfirmationPayload>;
+        };
+        update: {
+          args: Prisma.ImportConfirmationUpdateArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportConfirmationPayload>;
+        };
+        deleteMany: {
+          args: Prisma.ImportConfirmationDeleteManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        updateMany: {
+          args: Prisma.ImportConfirmationUpdateManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        updateManyAndReturn: {
+          args: Prisma.ImportConfirmationUpdateManyAndReturnArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportConfirmationPayload>[];
+        };
+        upsert: {
+          args: Prisma.ImportConfirmationUpsertArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImportConfirmationPayload>;
+        };
+        aggregate: {
+          args: Prisma.ImportConfirmationAggregateArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.AggregateImportConfirmation>;
+        };
+        groupBy: {
+          args: Prisma.ImportConfirmationGroupByArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.ImportConfirmationGroupByOutputType>[];
+        };
+        count: {
+          args: Prisma.ImportConfirmationCountArgs<ExtArgs>;
+          result:
+            | runtime.Types.Utils.Optional<Prisma.ImportConfirmationCountAggregateOutputType>
             | number;
         };
       };
@@ -1679,6 +1757,15 @@ export const RecipeScalarFieldEnum = {
 export type RecipeScalarFieldEnum =
   (typeof RecipeScalarFieldEnum)[keyof typeof RecipeScalarFieldEnum];
 
+export const ImportConfirmationScalarFieldEnum = {
+  importId: 'importId',
+  recipeId: 'recipeId',
+  confirmedAt: 'confirmedAt',
+} as const;
+
+export type ImportConfirmationScalarFieldEnum =
+  (typeof ImportConfirmationScalarFieldEnum)[keyof typeof ImportConfirmationScalarFieldEnum];
+
 export const PlannedMealScalarFieldEnum = {
   id: 'id',
   recipeId: 'recipeId',
@@ -2119,6 +2206,7 @@ export type PrismaClientOptions =
   PrismaClientOptionsWithAccelerateUrl | PrismaClientOptionsWithAdapter;
 export type GlobalOmitConfig = {
   recipe?: Prisma.RecipeOmit;
+  importConfirmation?: Prisma.ImportConfirmationOmit;
   plannedMeal?: Prisma.PlannedMealOmit;
   shoppingList?: Prisma.ShoppingListOmit;
   shoppingListSource?: Prisma.ShoppingListSourceOmit;

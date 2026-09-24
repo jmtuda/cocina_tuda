@@ -445,6 +445,7 @@ postgres('product flow on PostgreSQL', () => {
     const confirmed = await request(server)
       .post('/api/v1/imports/confirmations')
       .send({
+        importId: '00000000-0000-4000-8000-000000000101',
         name: 'Receta importada',
         description: 'Revisada por el usuario',
         steps: ['Preparar', 'Servir'],
@@ -475,11 +476,14 @@ postgres('product flow on PostgreSQL', () => {
     await request(server)
       .post('/api/v1/imports/confirmations')
       .send({
+        importId: '00000000-0000-4000-8000-000000000102',
         name: 'Debe fallar',
         steps: [],
         ingredients: [
           {
             ingredient: { createName: 'Ingrediente rollback' },
+            variant: { discarded: true },
+            unit: { discarded: true },
             optional: false,
           },
         ],
@@ -496,5 +500,86 @@ postgres('product flow on PostgreSQL', () => {
     expect(
       await prisma.recipe.count({ where: { normalizedName: 'debe fallar' } }),
     ).toBe(0);
+    expect(
+      await prisma.importConfirmation.count({
+        where: { importId: '00000000-0000-4000-8000-000000000102' },
+      }),
+    ).toBe(0);
+
+    const retried = await request(server)
+      .post('/api/v1/imports/confirmations')
+      .send({
+        importId: '00000000-0000-4000-8000-000000000102',
+        name: 'Importación reintentada',
+        steps: [],
+        ingredients: [
+          {
+            ingredient: { createName: 'Ingrediente rollback' },
+            variant: { discarded: true },
+            unit: { discarded: true },
+            optional: false,
+          },
+        ],
+        categories: [],
+        tags: [],
+      })
+      .expect(201);
+    expect(bodyAs<RecipeBody>(retried).name).toBe('Importación reintentada');
+    expect(
+      await prisma.ingredient.count({
+        where: { normalizedName: 'ingrediente rollback' },
+      }),
+    ).toBe(1);
+    expect(
+      await prisma.importConfirmation.count({
+        where: { importId: '00000000-0000-4000-8000-000000000102' },
+      }),
+    ).toBe(1);
+  });
+
+  it('serializes concurrent confirmations and returns the same recipe on retries', async () => {
+    const payload = {
+      importId: '00000000-0000-4000-8000-000000000103',
+      name: 'Importación idempotente',
+      steps: ['Servir'],
+      ingredients: [
+        {
+          ingredient: { existingId: ingredientId },
+          variant: { discarded: true },
+          unit: { existingId: unitId },
+          quantity: '1',
+          optional: false,
+        },
+      ],
+      categories: [{ existingId: categoryId }],
+      tags: [{ existingId: tagId }],
+    };
+
+    const [first, concurrent] = await Promise.all([
+      request(server).post('/api/v1/imports/confirmations').send(payload),
+      request(server).post('/api/v1/imports/confirmations').send(payload),
+    ]);
+    expect(first.status).toBe(201);
+    expect(concurrent.status).toBe(201);
+    const firstRecipe = bodyAs<RecipeBody>(first);
+    expect(bodyAs<RecipeBody>(concurrent).id).toBe(firstRecipe.id);
+
+    const retry = await request(server)
+      .post('/api/v1/imports/confirmations')
+      .send(payload)
+      .expect(201);
+    expect(bodyAs<RecipeBody>(retry).id).toBe(firstRecipe.id);
+
+    const prisma = app.get(PrismaService);
+    expect(
+      await prisma.recipe.count({
+        where: { normalizedName: 'importacion idempotente' },
+      }),
+    ).toBe(1);
+    expect(
+      await prisma.importConfirmation.count({
+        where: { importId: payload.importId },
+      }),
+    ).toBe(1);
   });
 });

@@ -8,6 +8,7 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/Recipe.js';
+export type * from './models/ImportConfirmation.js';
 export type * from './models/PlannedMeal.js';
 export type * from './models/ShoppingList.js';
 export type * from './models/ShoppingListSource.js';

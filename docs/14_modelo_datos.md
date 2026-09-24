@@ -1,6 +1,6 @@
 # Cocina Tuda — Modelo de datos
 
-**Versión:** 2.3
+**Versión:** 2.4
 **Estado:** Aprobado
 **Responsable:** Arquitecto Técnico
 
@@ -27,8 +27,9 @@ Describe la traducción persistente vigente de `03_modelo_dominio.md` y separa e
 | `shopping_list_sources` | id, shopping_list_id, planned_meal_id, recipe_id, recipe_name, planned_date                                                        |
 | `shopping_items`        | id, shopping_list_id, position, ingredient_id?, variant_id?, manual_name?, quantity?, unit_id?, observations?, optional, purchased |
 | `shopping_item_sources` | shopping_item_id, list_source_id, recipe_ingredient_id                                                                             |
+| `import_confirmations`  | import_id, recipe_id, confirmed_at                                                                                                 |
 
-No existen tablas de importación, usuarios, grupos de recetas, sincronización ni documentos importados permanentes.
+No existen tablas para fuentes o propuestas de importación, usuarios, grupos de recetas, sincronización ni documentos importados permanentes. `import_confirmations` conserva únicamente la clave técnica necesaria para que la confirmación sea idempotente.
 
 ## 3. Relaciones y restricciones
 
@@ -45,6 +46,7 @@ No existen tablas de importación, usuarios, grupos de recetas, sincronización 
 - Un elemento referencia un ingrediente de catálogo o contiene un nombre manual, nunca ambos; una variante catalogada debe pertenecer al ingrediente indicado.
 - La procedencia de una lista conserva identificadores y datos descriptivos como instantánea, sin claves foráneas hacia planificación o recetas que puedan invalidarla al cambiar las fuentes.
 - Cantidad conocida, unidad, variante y opcionalidad se conservan en cada línea consolidada; la cantidad desconocida permanece `NULL`.
+- Cada `import_id` confirma como máximo una receta definitiva y cada receta confirmada corresponde a una única importación.
 
 ## 4. Identificadores y cantidades
 
@@ -62,4 +64,4 @@ El esquema se modifica mediante migraciones reproducibles. Los índices adiciona
 
 ## 7. Conceptos no persistidos
 
-La importación conserva sus propuestas y fuentes de forma transitoria y no añade tablas al esquema definitivo.
+La importación conserva sus propuestas y fuentes de forma transitoria. Solo persiste el vínculo técnico entre `import_id` y la receta definitiva para garantizar reintentos idempotentes; no almacena la fuente ni el borrador.
