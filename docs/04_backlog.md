@@ -1,6 +1,6 @@
 # Cocina Tuda — Backlog de producto
 
-**Versión:** 2.8
+**Versión:** 2.9
 **Estado:** Aprobado
 **Responsable:** Project Manager
 
@@ -23,7 +23,7 @@ Estados: pendiente, en análisis, preparado, en desarrollo, en pruebas y finaliz
 | B-007 | Importar desde texto, imagen o documento    | Finalizado |
 | B-008 | Revisar y confirmar una importación         | Finalizado |
 | B-009 | Planificar comidas                          | Finalizado |
-| B-010 | Generar y editar listas de compra           | Pendiente  |
+| B-010 | Generar y editar listas de compra           | Finalizado |
 
 ## 3. Posterior al MVP
 
