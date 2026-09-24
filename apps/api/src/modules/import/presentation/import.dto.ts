@@ -47,6 +47,10 @@ export class ConfirmedReferenceDto {
   @IsString()
   @IsNotEmpty()
   createAbbreviation?: string;
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  discarded?: boolean;
 }
 
 export class ConfirmedIngredientDto {
@@ -54,22 +58,21 @@ export class ConfirmedIngredientDto {
   @ValidateNested()
   @Type(() => ConfirmedReferenceDto)
   ingredient!: ConfirmedReferenceDto;
-  @ApiPropertyOptional({ type: ConfirmedReferenceDto })
-  @IsOptional()
+  @ApiProperty({ type: ConfirmedReferenceDto })
   @ValidateNested()
   @Type(() => ConfirmedReferenceDto)
-  variant?: ConfirmedReferenceDto;
+  variant!: ConfirmedReferenceDto;
   @ApiPropertyOptional() @IsOptional() @IsString() quantity?: string;
-  @ApiPropertyOptional({ type: ConfirmedReferenceDto })
-  @IsOptional()
+  @ApiProperty({ type: ConfirmedReferenceDto })
   @ValidateNested()
   @Type(() => ConfirmedReferenceDto)
-  unit?: ConfirmedReferenceDto;
+  unit!: ConfirmedReferenceDto;
   @ApiProperty() @IsBoolean() optional!: boolean;
   @ApiPropertyOptional() @IsOptional() @IsString() observations?: string;
 }
 
 export class ConfirmImportDto {
+  @ApiProperty({ format: 'uuid' }) @IsUUID('4') importId!: string;
   @ApiProperty() @IsString() @IsNotEmpty() name!: string;
   @ApiPropertyOptional({ nullable: true })
   @IsOptional()

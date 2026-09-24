@@ -66,18 +66,20 @@ export type ConfirmedReference = {
   existingId?: string;
   createName?: string;
   createAbbreviation?: string;
+  discarded?: boolean;
 };
 
 export type ConfirmedIngredient = {
   ingredient: ConfirmedReference;
-  variant?: ConfirmedReference;
+  variant: ConfirmedReference;
   quantity?: string;
-  unit?: ConfirmedReference;
+  unit: ConfirmedReference;
   optional: boolean;
   observations?: string;
 };
 
 export type ConfirmedRecipeImport = {
+  importId: string;
   name: string;
   description?: string | null;
   author?: string | null;

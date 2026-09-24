@@ -22,6 +22,11 @@ export * from './enums.js';
  */
 export type Recipe = Prisma.RecipeModel;
 /**
+ * Model ImportConfirmation
+ *
+ */
+export type ImportConfirmation = Prisma.ImportConfirmationModel;
+/**
  * Model PlannedMeal
  *
  */

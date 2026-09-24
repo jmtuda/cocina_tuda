@@ -281,6 +281,10 @@ export type RecipeWhereInput = {
   categories?: Prisma.RecipeCategoryListRelationFilter;
   tags?: Prisma.RecipeTagListRelationFilter;
   plannedMeals?: Prisma.PlannedMealListRelationFilter;
+  importConfirmation?: Prisma.XOR<
+    Prisma.ImportConfirmationNullableScalarRelationFilter,
+    Prisma.ImportConfirmationWhereInput
+  > | null;
 };
 
 export type RecipeOrderByWithRelationInput = {
@@ -301,6 +305,7 @@ export type RecipeOrderByWithRelationInput = {
   categories?: Prisma.RecipeCategoryOrderByRelationAggregateInput;
   tags?: Prisma.RecipeTagOrderByRelationAggregateInput;
   plannedMeals?: Prisma.PlannedMealOrderByRelationAggregateInput;
+  importConfirmation?: Prisma.ImportConfirmationOrderByWithRelationInput;
 };
 
 export type RecipeWhereUniqueInput = Prisma.AtLeast<
@@ -325,6 +330,10 @@ export type RecipeWhereUniqueInput = Prisma.AtLeast<
     categories?: Prisma.RecipeCategoryListRelationFilter;
     tags?: Prisma.RecipeTagListRelationFilter;
     plannedMeals?: Prisma.PlannedMealListRelationFilter;
+    importConfirmation?: Prisma.XOR<
+      Prisma.ImportConfirmationNullableScalarRelationFilter,
+      Prisma.ImportConfirmationWhereInput
+    > | null;
   },
   'id'
 >;
@@ -396,6 +405,7 @@ export type RecipeCreateInput = {
   categories?: Prisma.RecipeCategoryCreateNestedManyWithoutRecipeInput;
   tags?: Prisma.RecipeTagCreateNestedManyWithoutRecipeInput;
   plannedMeals?: Prisma.PlannedMealCreateNestedManyWithoutRecipeInput;
+  importConfirmation?: Prisma.ImportConfirmationCreateNestedOneWithoutRecipeInput;
 };
 
 export type RecipeUncheckedCreateInput = {
@@ -416,6 +426,7 @@ export type RecipeUncheckedCreateInput = {
   categories?: Prisma.RecipeCategoryUncheckedCreateNestedManyWithoutRecipeInput;
   tags?: Prisma.RecipeTagUncheckedCreateNestedManyWithoutRecipeInput;
   plannedMeals?: Prisma.PlannedMealUncheckedCreateNestedManyWithoutRecipeInput;
+  importConfirmation?: Prisma.ImportConfirmationUncheckedCreateNestedOneWithoutRecipeInput;
 };
 
 export type RecipeUpdateInput = {
@@ -438,6 +449,7 @@ export type RecipeUpdateInput = {
   categories?: Prisma.RecipeCategoryUpdateManyWithoutRecipeNestedInput;
   tags?: Prisma.RecipeTagUpdateManyWithoutRecipeNestedInput;
   plannedMeals?: Prisma.PlannedMealUpdateManyWithoutRecipeNestedInput;
+  importConfirmation?: Prisma.ImportConfirmationUpdateOneWithoutRecipeNestedInput;
 };
 
 export type RecipeUncheckedUpdateInput = {
@@ -460,6 +472,7 @@ export type RecipeUncheckedUpdateInput = {
   categories?: Prisma.RecipeCategoryUncheckedUpdateManyWithoutRecipeNestedInput;
   tags?: Prisma.RecipeTagUncheckedUpdateManyWithoutRecipeNestedInput;
   plannedMeals?: Prisma.PlannedMealUncheckedUpdateManyWithoutRecipeNestedInput;
+  importConfirmation?: Prisma.ImportConfirmationUncheckedUpdateOneWithoutRecipeNestedInput;
 };
 
 export type RecipeCreateManyInput = {
@@ -597,6 +610,32 @@ export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null;
 };
 
+export type RecipeCreateNestedOneWithoutImportConfirmationInput = {
+  create?: Prisma.XOR<
+    Prisma.RecipeCreateWithoutImportConfirmationInput,
+    Prisma.RecipeUncheckedCreateWithoutImportConfirmationInput
+  >;
+  connectOrCreate?: Prisma.RecipeCreateOrConnectWithoutImportConfirmationInput;
+  connect?: Prisma.RecipeWhereUniqueInput;
+};
+
+export type RecipeUpdateOneRequiredWithoutImportConfirmationNestedInput = {
+  create?: Prisma.XOR<
+    Prisma.RecipeCreateWithoutImportConfirmationInput,
+    Prisma.RecipeUncheckedCreateWithoutImportConfirmationInput
+  >;
+  connectOrCreate?: Prisma.RecipeCreateOrConnectWithoutImportConfirmationInput;
+  upsert?: Prisma.RecipeUpsertWithoutImportConfirmationInput;
+  connect?: Prisma.RecipeWhereUniqueInput;
+  update?: Prisma.XOR<
+    Prisma.XOR<
+      Prisma.RecipeUpdateToOneWithWhereWithoutImportConfirmationInput,
+      Prisma.RecipeUpdateWithoutImportConfirmationInput
+    >,
+    Prisma.RecipeUncheckedUpdateWithoutImportConfirmationInput
+  >;
+};
+
 export type RecipeCreateNestedOneWithoutPlannedMealsInput = {
   create?: Prisma.XOR<
     Prisma.RecipeCreateWithoutPlannedMealsInput,
@@ -727,6 +766,118 @@ export type RecipeUpdateOneRequiredWithoutTagsNestedInput = {
   >;
 };
 
+export type RecipeCreateWithoutImportConfirmationInput = {
+  id?: string;
+  name: string;
+  normalizedName: string;
+  description?: string | null;
+  author?: string | null;
+  servings?: number | null;
+  difficulty?: string | null;
+  notes?: string | null;
+  status?: $Enums.RecipeStatus;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+  archivedAt?: Date | string | null;
+  steps?: Prisma.RecipeStepCreateNestedManyWithoutRecipeInput;
+  ingredients?: Prisma.RecipeIngredientCreateNestedManyWithoutRecipeInput;
+  categories?: Prisma.RecipeCategoryCreateNestedManyWithoutRecipeInput;
+  tags?: Prisma.RecipeTagCreateNestedManyWithoutRecipeInput;
+  plannedMeals?: Prisma.PlannedMealCreateNestedManyWithoutRecipeInput;
+};
+
+export type RecipeUncheckedCreateWithoutImportConfirmationInput = {
+  id?: string;
+  name: string;
+  normalizedName: string;
+  description?: string | null;
+  author?: string | null;
+  servings?: number | null;
+  difficulty?: string | null;
+  notes?: string | null;
+  status?: $Enums.RecipeStatus;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+  archivedAt?: Date | string | null;
+  steps?: Prisma.RecipeStepUncheckedCreateNestedManyWithoutRecipeInput;
+  ingredients?: Prisma.RecipeIngredientUncheckedCreateNestedManyWithoutRecipeInput;
+  categories?: Prisma.RecipeCategoryUncheckedCreateNestedManyWithoutRecipeInput;
+  tags?: Prisma.RecipeTagUncheckedCreateNestedManyWithoutRecipeInput;
+  plannedMeals?: Prisma.PlannedMealUncheckedCreateNestedManyWithoutRecipeInput;
+};
+
+export type RecipeCreateOrConnectWithoutImportConfirmationInput = {
+  where: Prisma.RecipeWhereUniqueInput;
+  create: Prisma.XOR<
+    Prisma.RecipeCreateWithoutImportConfirmationInput,
+    Prisma.RecipeUncheckedCreateWithoutImportConfirmationInput
+  >;
+};
+
+export type RecipeUpsertWithoutImportConfirmationInput = {
+  update: Prisma.XOR<
+    Prisma.RecipeUpdateWithoutImportConfirmationInput,
+    Prisma.RecipeUncheckedUpdateWithoutImportConfirmationInput
+  >;
+  create: Prisma.XOR<
+    Prisma.RecipeCreateWithoutImportConfirmationInput,
+    Prisma.RecipeUncheckedCreateWithoutImportConfirmationInput
+  >;
+  where?: Prisma.RecipeWhereInput;
+};
+
+export type RecipeUpdateToOneWithWhereWithoutImportConfirmationInput = {
+  where?: Prisma.RecipeWhereInput;
+  data: Prisma.XOR<
+    Prisma.RecipeUpdateWithoutImportConfirmationInput,
+    Prisma.RecipeUncheckedUpdateWithoutImportConfirmationInput
+  >;
+};
+
+export type RecipeUpdateWithoutImportConfirmationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string;
+  name?: Prisma.StringFieldUpdateOperationsInput | string;
+  normalizedName?: Prisma.StringFieldUpdateOperationsInput | string;
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  author?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  servings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  difficulty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  status?:
+    Prisma.EnumRecipeStatusFieldUpdateOperationsInput | $Enums.RecipeStatus;
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  archivedAt?:
+    Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+  steps?: Prisma.RecipeStepUpdateManyWithoutRecipeNestedInput;
+  ingredients?: Prisma.RecipeIngredientUpdateManyWithoutRecipeNestedInput;
+  categories?: Prisma.RecipeCategoryUpdateManyWithoutRecipeNestedInput;
+  tags?: Prisma.RecipeTagUpdateManyWithoutRecipeNestedInput;
+  plannedMeals?: Prisma.PlannedMealUpdateManyWithoutRecipeNestedInput;
+};
+
+export type RecipeUncheckedUpdateWithoutImportConfirmationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string;
+  name?: Prisma.StringFieldUpdateOperationsInput | string;
+  normalizedName?: Prisma.StringFieldUpdateOperationsInput | string;
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  author?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  servings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  difficulty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  status?:
+    Prisma.EnumRecipeStatusFieldUpdateOperationsInput | $Enums.RecipeStatus;
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  archivedAt?:
+    Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+  steps?: Prisma.RecipeStepUncheckedUpdateManyWithoutRecipeNestedInput;
+  ingredients?: Prisma.RecipeIngredientUncheckedUpdateManyWithoutRecipeNestedInput;
+  categories?: Prisma.RecipeCategoryUncheckedUpdateManyWithoutRecipeNestedInput;
+  tags?: Prisma.RecipeTagUncheckedUpdateManyWithoutRecipeNestedInput;
+  plannedMeals?: Prisma.PlannedMealUncheckedUpdateManyWithoutRecipeNestedInput;
+};
+
 export type RecipeCreateWithoutPlannedMealsInput = {
   id?: string;
   name: string;
@@ -744,6 +895,7 @@ export type RecipeCreateWithoutPlannedMealsInput = {
   ingredients?: Prisma.RecipeIngredientCreateNestedManyWithoutRecipeInput;
   categories?: Prisma.RecipeCategoryCreateNestedManyWithoutRecipeInput;
   tags?: Prisma.RecipeTagCreateNestedManyWithoutRecipeInput;
+  importConfirmation?: Prisma.ImportConfirmationCreateNestedOneWithoutRecipeInput;
 };
 
 export type RecipeUncheckedCreateWithoutPlannedMealsInput = {
@@ -763,6 +915,7 @@ export type RecipeUncheckedCreateWithoutPlannedMealsInput = {
   ingredients?: Prisma.RecipeIngredientUncheckedCreateNestedManyWithoutRecipeInput;
   categories?: Prisma.RecipeCategoryUncheckedCreateNestedManyWithoutRecipeInput;
   tags?: Prisma.RecipeTagUncheckedCreateNestedManyWithoutRecipeInput;
+  importConfirmation?: Prisma.ImportConfirmationUncheckedCreateNestedOneWithoutRecipeInput;
 };
 
 export type RecipeCreateOrConnectWithoutPlannedMealsInput = {
@@ -812,6 +965,7 @@ export type RecipeUpdateWithoutPlannedMealsInput = {
   ingredients?: Prisma.RecipeIngredientUpdateManyWithoutRecipeNestedInput;
   categories?: Prisma.RecipeCategoryUpdateManyWithoutRecipeNestedInput;
   tags?: Prisma.RecipeTagUpdateManyWithoutRecipeNestedInput;
+  importConfirmation?: Prisma.ImportConfirmationUpdateOneWithoutRecipeNestedInput;
 };
 
 export type RecipeUncheckedUpdateWithoutPlannedMealsInput = {
@@ -833,6 +987,7 @@ export type RecipeUncheckedUpdateWithoutPlannedMealsInput = {
   ingredients?: Prisma.RecipeIngredientUncheckedUpdateManyWithoutRecipeNestedInput;
   categories?: Prisma.RecipeCategoryUncheckedUpdateManyWithoutRecipeNestedInput;
   tags?: Prisma.RecipeTagUncheckedUpdateManyWithoutRecipeNestedInput;
+  importConfirmation?: Prisma.ImportConfirmationUncheckedUpdateOneWithoutRecipeNestedInput;
 };
 
 export type RecipeCreateWithoutStepsInput = {
@@ -852,6 +1007,7 @@ export type RecipeCreateWithoutStepsInput = {
   categories?: Prisma.RecipeCategoryCreateNestedManyWithoutRecipeInput;
   tags?: Prisma.RecipeTagCreateNestedManyWithoutRecipeInput;
   plannedMeals?: Prisma.PlannedMealCreateNestedManyWithoutRecipeInput;
+  importConfirmation?: Prisma.ImportConfirmationCreateNestedOneWithoutRecipeInput;
 };
 
 export type RecipeUncheckedCreateWithoutStepsInput = {
@@ -871,6 +1027,7 @@ export type RecipeUncheckedCreateWithoutStepsInput = {
   categories?: Prisma.RecipeCategoryUncheckedCreateNestedManyWithoutRecipeInput;
   tags?: Prisma.RecipeTagUncheckedCreateNestedManyWithoutRecipeInput;
   plannedMeals?: Prisma.PlannedMealUncheckedCreateNestedManyWithoutRecipeInput;
+  importConfirmation?: Prisma.ImportConfirmationUncheckedCreateNestedOneWithoutRecipeInput;
 };
 
 export type RecipeCreateOrConnectWithoutStepsInput = {
@@ -920,6 +1077,7 @@ export type RecipeUpdateWithoutStepsInput = {
   categories?: Prisma.RecipeCategoryUpdateManyWithoutRecipeNestedInput;
   tags?: Prisma.RecipeTagUpdateManyWithoutRecipeNestedInput;
   plannedMeals?: Prisma.PlannedMealUpdateManyWithoutRecipeNestedInput;
+  importConfirmation?: Prisma.ImportConfirmationUpdateOneWithoutRecipeNestedInput;
 };
 
 export type RecipeUncheckedUpdateWithoutStepsInput = {
@@ -941,6 +1099,7 @@ export type RecipeUncheckedUpdateWithoutStepsInput = {
   categories?: Prisma.RecipeCategoryUncheckedUpdateManyWithoutRecipeNestedInput;
   tags?: Prisma.RecipeTagUncheckedUpdateManyWithoutRecipeNestedInput;
   plannedMeals?: Prisma.PlannedMealUncheckedUpdateManyWithoutRecipeNestedInput;
+  importConfirmation?: Prisma.ImportConfirmationUncheckedUpdateOneWithoutRecipeNestedInput;
 };
 
 export type RecipeCreateWithoutIngredientsInput = {
@@ -960,6 +1119,7 @@ export type RecipeCreateWithoutIngredientsInput = {
   categories?: Prisma.RecipeCategoryCreateNestedManyWithoutRecipeInput;
   tags?: Prisma.RecipeTagCreateNestedManyWithoutRecipeInput;
   plannedMeals?: Prisma.PlannedMealCreateNestedManyWithoutRecipeInput;
+  importConfirmation?: Prisma.ImportConfirmationCreateNestedOneWithoutRecipeInput;
 };
 
 export type RecipeUncheckedCreateWithoutIngredientsInput = {
@@ -979,6 +1139,7 @@ export type RecipeUncheckedCreateWithoutIngredientsInput = {
   categories?: Prisma.RecipeCategoryUncheckedCreateNestedManyWithoutRecipeInput;
   tags?: Prisma.RecipeTagUncheckedCreateNestedManyWithoutRecipeInput;
   plannedMeals?: Prisma.PlannedMealUncheckedCreateNestedManyWithoutRecipeInput;
+  importConfirmation?: Prisma.ImportConfirmationUncheckedCreateNestedOneWithoutRecipeInput;
 };
 
 export type RecipeCreateOrConnectWithoutIngredientsInput = {
@@ -1028,6 +1189,7 @@ export type RecipeUpdateWithoutIngredientsInput = {
   categories?: Prisma.RecipeCategoryUpdateManyWithoutRecipeNestedInput;
   tags?: Prisma.RecipeTagUpdateManyWithoutRecipeNestedInput;
   plannedMeals?: Prisma.PlannedMealUpdateManyWithoutRecipeNestedInput;
+  importConfirmation?: Prisma.ImportConfirmationUpdateOneWithoutRecipeNestedInput;
 };
 
 export type RecipeUncheckedUpdateWithoutIngredientsInput = {
@@ -1049,6 +1211,7 @@ export type RecipeUncheckedUpdateWithoutIngredientsInput = {
   categories?: Prisma.RecipeCategoryUncheckedUpdateManyWithoutRecipeNestedInput;
   tags?: Prisma.RecipeTagUncheckedUpdateManyWithoutRecipeNestedInput;
   plannedMeals?: Prisma.PlannedMealUncheckedUpdateManyWithoutRecipeNestedInput;
+  importConfirmation?: Prisma.ImportConfirmationUncheckedUpdateOneWithoutRecipeNestedInput;
 };
 
 export type RecipeCreateWithoutCategoriesInput = {
@@ -1068,6 +1231,7 @@ export type RecipeCreateWithoutCategoriesInput = {
   ingredients?: Prisma.RecipeIngredientCreateNestedManyWithoutRecipeInput;
   tags?: Prisma.RecipeTagCreateNestedManyWithoutRecipeInput;
   plannedMeals?: Prisma.PlannedMealCreateNestedManyWithoutRecipeInput;
+  importConfirmation?: Prisma.ImportConfirmationCreateNestedOneWithoutRecipeInput;
 };
 
 export type RecipeUncheckedCreateWithoutCategoriesInput = {
@@ -1087,6 +1251,7 @@ export type RecipeUncheckedCreateWithoutCategoriesInput = {
   ingredients?: Prisma.RecipeIngredientUncheckedCreateNestedManyWithoutRecipeInput;
   tags?: Prisma.RecipeTagUncheckedCreateNestedManyWithoutRecipeInput;
   plannedMeals?: Prisma.PlannedMealUncheckedCreateNestedManyWithoutRecipeInput;
+  importConfirmation?: Prisma.ImportConfirmationUncheckedCreateNestedOneWithoutRecipeInput;
 };
 
 export type RecipeCreateOrConnectWithoutCategoriesInput = {
@@ -1136,6 +1301,7 @@ export type RecipeUpdateWithoutCategoriesInput = {
   ingredients?: Prisma.RecipeIngredientUpdateManyWithoutRecipeNestedInput;
   tags?: Prisma.RecipeTagUpdateManyWithoutRecipeNestedInput;
   plannedMeals?: Prisma.PlannedMealUpdateManyWithoutRecipeNestedInput;
+  importConfirmation?: Prisma.ImportConfirmationUpdateOneWithoutRecipeNestedInput;
 };
 
 export type RecipeUncheckedUpdateWithoutCategoriesInput = {
@@ -1157,6 +1323,7 @@ export type RecipeUncheckedUpdateWithoutCategoriesInput = {
   ingredients?: Prisma.RecipeIngredientUncheckedUpdateManyWithoutRecipeNestedInput;
   tags?: Prisma.RecipeTagUncheckedUpdateManyWithoutRecipeNestedInput;
   plannedMeals?: Prisma.PlannedMealUncheckedUpdateManyWithoutRecipeNestedInput;
+  importConfirmation?: Prisma.ImportConfirmationUncheckedUpdateOneWithoutRecipeNestedInput;
 };
 
 export type RecipeCreateWithoutTagsInput = {
@@ -1176,6 +1343,7 @@ export type RecipeCreateWithoutTagsInput = {
   ingredients?: Prisma.RecipeIngredientCreateNestedManyWithoutRecipeInput;
   categories?: Prisma.RecipeCategoryCreateNestedManyWithoutRecipeInput;
   plannedMeals?: Prisma.PlannedMealCreateNestedManyWithoutRecipeInput;
+  importConfirmation?: Prisma.ImportConfirmationCreateNestedOneWithoutRecipeInput;
 };
 
 export type RecipeUncheckedCreateWithoutTagsInput = {
@@ -1195,6 +1363,7 @@ export type RecipeUncheckedCreateWithoutTagsInput = {
   ingredients?: Prisma.RecipeIngredientUncheckedCreateNestedManyWithoutRecipeInput;
   categories?: Prisma.RecipeCategoryUncheckedCreateNestedManyWithoutRecipeInput;
   plannedMeals?: Prisma.PlannedMealUncheckedCreateNestedManyWithoutRecipeInput;
+  importConfirmation?: Prisma.ImportConfirmationUncheckedCreateNestedOneWithoutRecipeInput;
 };
 
 export type RecipeCreateOrConnectWithoutTagsInput = {
@@ -1244,6 +1413,7 @@ export type RecipeUpdateWithoutTagsInput = {
   ingredients?: Prisma.RecipeIngredientUpdateManyWithoutRecipeNestedInput;
   categories?: Prisma.RecipeCategoryUpdateManyWithoutRecipeNestedInput;
   plannedMeals?: Prisma.PlannedMealUpdateManyWithoutRecipeNestedInput;
+  importConfirmation?: Prisma.ImportConfirmationUpdateOneWithoutRecipeNestedInput;
 };
 
 export type RecipeUncheckedUpdateWithoutTagsInput = {
@@ -1265,6 +1435,7 @@ export type RecipeUncheckedUpdateWithoutTagsInput = {
   ingredients?: Prisma.RecipeIngredientUncheckedUpdateManyWithoutRecipeNestedInput;
   categories?: Prisma.RecipeCategoryUncheckedUpdateManyWithoutRecipeNestedInput;
   plannedMeals?: Prisma.PlannedMealUncheckedUpdateManyWithoutRecipeNestedInput;
+  importConfirmation?: Prisma.ImportConfirmationUncheckedUpdateOneWithoutRecipeNestedInput;
 };
 
 /**
@@ -1375,6 +1546,8 @@ export type RecipeSelect<
     categories?: boolean | Prisma.Recipe$categoriesArgs<ExtArgs>;
     tags?: boolean | Prisma.Recipe$tagsArgs<ExtArgs>;
     plannedMeals?: boolean | Prisma.Recipe$plannedMealsArgs<ExtArgs>;
+    importConfirmation?:
+      boolean | Prisma.Recipe$importConfirmationArgs<ExtArgs>;
     _count?: boolean | Prisma.RecipeCountOutputTypeDefaultArgs<ExtArgs>;
   },
   ExtArgs['result']['recipe']
@@ -1464,6 +1637,7 @@ export type RecipeInclude<
   categories?: boolean | Prisma.Recipe$categoriesArgs<ExtArgs>;
   tags?: boolean | Prisma.Recipe$tagsArgs<ExtArgs>;
   plannedMeals?: boolean | Prisma.Recipe$plannedMealsArgs<ExtArgs>;
+  importConfirmation?: boolean | Prisma.Recipe$importConfirmationArgs<ExtArgs>;
   _count?: boolean | Prisma.RecipeCountOutputTypeDefaultArgs<ExtArgs>;
 };
 export type RecipeIncludeCreateManyAndReturn<
@@ -1486,6 +1660,7 @@ export type $RecipePayload<
     categories: Prisma.$RecipeCategoryPayload<ExtArgs>[];
     tags: Prisma.$RecipeTagPayload<ExtArgs>[];
     plannedMeals: Prisma.$PlannedMealPayload<ExtArgs>[];
+    importConfirmation: Prisma.$ImportConfirmationPayload<ExtArgs> | null;
   };
   scalars: runtime.Types.Extensions.GetPayloadResult<
     {
@@ -2105,6 +2280,21 @@ export interface Prisma__RecipeClient<
         GlobalOmitOptions
       >
     | Null
+  >;
+  importConfirmation<
+    T extends Prisma.Recipe$importConfirmationArgs<ExtArgs> = {},
+  >(
+    args?: Prisma.Subset<T, Prisma.Recipe$importConfirmationArgs<ExtArgs>>,
+  ): Prisma.Prisma__ImportConfirmationClient<
+    runtime.Types.Result.GetResult<
+      Prisma.$ImportConfirmationPayload<ExtArgs>,
+      T,
+      'findUniqueOrThrow',
+      GlobalOmitOptions
+    > | null,
+    null,
+    ExtArgs,
+    GlobalOmitOptions
   >;
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2755,6 +2945,28 @@ export type Recipe$plannedMealsArgs<
   skip?: number;
   distinct?:
     Prisma.PlannedMealScalarFieldEnum | Prisma.PlannedMealScalarFieldEnum[];
+};
+
+/**
+ * Recipe.importConfirmation
+ */
+export type Recipe$importConfirmationArgs<
+  ExtArgs extends runtime.Types.Extensions.InternalArgs =
+    runtime.Types.Extensions.DefaultArgs,
+> = {
+  /**
+   * Select specific fields to fetch from the ImportConfirmation
+   */
+  select?: Prisma.ImportConfirmationSelect<ExtArgs> | null;
+  /**
+   * Omit specific fields from the ImportConfirmation
+   */
+  omit?: Prisma.ImportConfirmationOmit<ExtArgs> | null;
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ImportConfirmationInclude<ExtArgs> | null;
+  where?: Prisma.ImportConfirmationWhereInput;
 };
 
 /**

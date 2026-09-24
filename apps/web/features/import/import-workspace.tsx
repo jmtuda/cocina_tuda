@@ -4,7 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 
 const apiUrl =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
-const storageKey = "cocina-tuda-import-draft-v1";
+const storageKey = "cocina-tuda-import-draft-v2";
 
 type Named = { id: string; name: string };
 type Variant = Named & { ingredientId: string };
@@ -41,7 +41,7 @@ type Proposal = {
   issues: string[];
 };
 type RefDraft = {
-  mode: "existing" | "new" | "unresolved";
+  mode: "existing" | "new" | "unresolved" | "discarded";
   existingId: string;
   createName: string;
   createAbbreviation: string;
@@ -66,6 +66,7 @@ type Draft = Omit<
   | "categories"
   | "tags"
 > & {
+  importId: string;
   name: string;
   description: string;
   author: string;
@@ -84,7 +85,13 @@ const emptyRef = (): RefDraft => ({
   createAbbreviation: "",
 });
 
+const discardedRef = (): RefDraft => ({
+  ...emptyRef(),
+  mode: "discarded",
+});
+
 const refFromResolution = (resolution: Resolution | null): RefDraft => {
+  if (!resolution) return discardedRef();
   if (resolution?.status === "matched" && resolution.existingId) {
     return {
       ...emptyRef(),
@@ -92,21 +99,15 @@ const refFromResolution = (resolution: Resolution | null): RefDraft => {
       existingId: resolution.existingId,
     };
   }
-  if (resolution?.status === "new") {
-    return {
-      ...emptyRef(),
-      mode: "new",
-      createName: resolution.proposedName ?? "",
-    };
-  }
   return {
     ...emptyRef(),
-    createName: resolution?.proposedName ?? "",
+    createName: resolution.proposedName ?? "",
   };
 };
 
-const draftFromProposal = (proposal: Proposal): Draft => ({
+const draftFromProposal = (importId: string, proposal: Proposal): Draft => ({
   ...proposal,
+  importId,
   name: proposal.name ?? "",
   description: proposal.description ?? "",
   author: proposal.author ?? "",
@@ -195,12 +196,13 @@ export function ImportWorkspace() {
         body: JSON.stringify({ consent: true, source }),
       });
       const body = (await response.json()) as {
+        importId?: string;
         proposal?: Proposal;
         message?: string;
       };
-      if (!response.ok || !body.proposal)
+      if (!response.ok || !body.importId || !body.proposal)
         throw new Error(body.message ?? "No se pudo interpretar la fuente");
-      setDraft(draftFromProposal(body.proposal));
+      setDraft(draftFromProposal(body.importId, body.proposal));
       setConsent(false);
       setMessage("Propuesta creada. Revísala antes de confirmar.");
     } catch (error) {
@@ -214,13 +216,14 @@ export function ImportWorkspace() {
 
   async function confirm(event: FormEvent) {
     event.preventDefault();
-    if (!draft || hasUnresolvedIngredient(draft)) return;
+    if (!draft || hasPendingResolution(draft)) return;
     setBusy(true);
     try {
       const response = await fetch(`${apiUrl}/imports/confirmations`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          importId: draft.importId,
           name: draft.name,
           description: draft.description || null,
           author: draft.author || null,
@@ -230,22 +233,14 @@ export function ImportWorkspace() {
           steps: draft.steps,
           ingredients: draft.ingredients.map((item) => ({
             ingredient: referencePayload(item.ingredient),
-            ...(item.variant.mode !== "unresolved"
-              ? { variant: referencePayload(item.variant) }
-              : {}),
+            variant: referencePayload(item.variant),
             ...(item.quantity ? { quantity: item.quantity } : {}),
-            ...(item.unit.mode !== "unresolved"
-              ? { unit: referencePayload(item.unit) }
-              : {}),
+            unit: referencePayload(item.unit),
             optional: item.optional,
             ...(item.observations ? { observations: item.observations } : {}),
           })),
-          categories: draft.categories
-            .filter((item) => item.mode !== "unresolved")
-            .map(referencePayload),
-          tags: draft.tags
-            .filter((item) => item.mode !== "unresolved")
-            .map(referencePayload),
+          categories: draft.categories.map(referencePayload),
+          tags: draft.tags.map(referencePayload),
         }),
       });
       const body = (await response.json()) as {
@@ -457,7 +452,10 @@ function ReviewForm({
               onChange={(value) =>
                 updateIngredient(draft, setDraft, index, {
                   ingredient: value,
-                  variant: emptyRef(),
+                  variant:
+                    item.variant.mode === "existing"
+                      ? emptyRef()
+                      : item.variant,
                 })
               }
               required
@@ -469,6 +467,7 @@ function ReviewForm({
               onChange={(value) =>
                 updateIngredient(draft, setDraft, index, { variant: value })
               }
+              allowDiscard
             />
             <label>
               Cantidad
@@ -486,6 +485,7 @@ function ReviewForm({
               value={item.unit}
               existing={units}
               unit
+              allowDiscard
               onChange={(value) =>
                 updateIngredient(draft, setDraft, index, { unit: value })
               }
@@ -562,10 +562,13 @@ function ReviewForm({
         onChange={(values) => setDraft({ ...draft, tags: values })}
       />
 
-      {hasUnresolvedIngredient(draft) && (
-        <p>Resuelve todos los ingredientes base antes de confirmar.</p>
+      {hasPendingResolution(draft) && (
+        <p role="alert">
+          Resuelve, aprueba como nuevo o descarta explícitamente cada dato
+          pendiente antes de confirmar.
+        </p>
       )}
-      <button disabled={busy || hasUnresolvedIngredient(draft)}>
+      <button disabled={busy || hasPendingResolution(draft)}>
         Confirmar y crear receta
       </button>
       <button type="button" onClick={onDiscard}>
@@ -598,6 +601,7 @@ function ReferenceList({
           onChange={(next) =>
             onChange(values.map((item, i) => (i === index ? next : item)))
           }
+          allowDiscard
         />
       ))}
       <button type="button" onClick={() => onChange([...values, emptyRef()])}>
@@ -614,6 +618,7 @@ function ReferenceEditor({
   onChange,
   required = false,
   unit = false,
+  allowDiscard = false,
 }: {
   label: string;
   value: RefDraft;
@@ -621,6 +626,7 @@ function ReferenceEditor({
   onChange: (value: RefDraft) => void;
   required?: boolean;
   unit?: boolean;
+  allowDiscard?: boolean;
 }) {
   const selected =
     value.mode === "existing" ? `existing:${value.existingId}` : value.mode;
@@ -641,11 +647,12 @@ function ReferenceEditor({
               });
             else if (next === "new")
               onChange({ ...value, mode: "new", existingId: "" });
+            else if (next === "discarded") onChange(discardedRef());
             else onChange({ ...value, mode: "unresolved", existingId: "" });
           }}
         >
           <option value="unresolved">
-            {required ? "Resolver…" : "Sin asignar"}
+            {required ? "Resolver dato obligatorio…" : "Resolver…"}
           </option>
           {existing.map((item) => (
             <option key={item.id} value={`existing:${item.id}`}>
@@ -653,8 +660,12 @@ function ReferenceEditor({
             </option>
           ))}
           <option value="new">Crear nuevo…</option>
+          {allowDiscard && <option value="discarded">Descartar dato</option>}
         </select>
       </label>
+      {value.mode === "unresolved" && (
+        <p role="alert">{label}: resolución pendiente</p>
+      )}
       {value.mode === "new" && (
         <>
           <label>
@@ -702,6 +713,7 @@ function updateIngredient(
 }
 
 function referencePayload(reference: RefDraft) {
+  if (reference.mode === "discarded") return { discarded: true };
   return reference.mode === "existing"
     ? { existingId: reference.existingId }
     : {
@@ -712,11 +724,24 @@ function referencePayload(reference: RefDraft) {
       };
 }
 
-function hasUnresolvedIngredient(draft: Draft) {
-  return draft.ingredients.some(
-    (item) =>
-      item.ingredient.mode === "unresolved" ||
-      (item.ingredient.mode === "new" && !item.ingredient.createName.trim()),
+function isPending(reference: RefDraft, unit = false) {
+  return (
+    reference.mode === "unresolved" ||
+    (reference.mode === "new" &&
+      (!reference.createName.trim() ||
+        (unit && !reference.createAbbreviation.trim())))
+  );
+}
+
+function hasPendingResolution(draft: Draft) {
+  return (
+    draft.ingredients.some(
+      (item) =>
+        item.ingredient.mode === "discarded" ||
+        isPending(item.ingredient) ||
+        isPending(item.variant) ||
+        isPending(item.unit, true),
+    ) || [...draft.categories, ...draft.tags].some((item) => isPending(item))
   );
 }
 
