@@ -1,6 +1,6 @@
 # Cocina Tuda — Roadmap
 
-**Versión:** 2.0  
+**Versión:** 2.1
 **Estado:** Aprobado
 **Responsable:** Project Manager
 
@@ -75,3 +75,9 @@ Resultado: el usuario genera y modifica una lista de compra desde una selección
 - TASK-063 Permitir edición y marcado manual.
 
 El MVP concluye al completar las fases 1 a 6 con sus criterios de calidad. Las capacidades posteriores se priorizarán desde el backlog cuando el núcleo esté validado.
+
+## 9. Estado del MVP
+
+**Completado.** Las fases 1 a 6 y B-001–B-010 están finalizadas. El producto permite crear o importar y confirmar recetas, gestionar biblioteca y catálogos, clasificar, buscar y filtrar, planificar comidas, generar listas de compra y editarlas para su uso.
+
+Las capacidades de la sección posterior al MVP de `04_backlog.md` y las evoluciones expresamente aplazadas no forman parte de este cierre.
