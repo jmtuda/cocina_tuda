@@ -1,9 +1,7 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-
-const apiUrl =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
+import { FormEvent, useEffect, useState } from "react";
+import { apiFetch, apiUrl, responseError } from "../../lib/api";
 
 type RecipeSummary = {
   id: string;
@@ -55,15 +53,6 @@ const dayLabel = (value: string) =>
     timeZone: "UTC",
   }).format(toUtcDate(value));
 
-async function responseError(response: Response, fallback: string) {
-  const body = (await response.json().catch(() => ({}))) as {
-    message?: string | string[];
-  };
-  return Array.isArray(body.message)
-    ? body.message.join(", ")
-    : (body.message ?? fallback);
-}
-
 export function PlanningWorkspace() {
   const initialDay = today();
   const [weekStart, setWeekStart] = useState(startOfCalendarWeek(initialDay));
@@ -75,9 +64,7 @@ export function PlanningWorkspace() {
   const [mealName, setMealName] = useState("");
   const [editingId, setEditingId] = useState("");
   const [detail, setDetail] = useState<RecipeDetail | null>(null);
-  const [message, setMessage] = useState(
-    "Carga la semana para consultar la planificación.",
-  );
+  const [message, setMessage] = useState("Cargando la semana…");
 
   const safely = (action: () => Promise<void>) =>
     action().catch((error: unknown) =>
@@ -87,7 +74,7 @@ export function PlanningWorkspace() {
     );
 
   async function loadRecipes() {
-    const response = await fetch(
+    const response = await apiFetch(
       `${apiUrl}/recipes?status=ACTIVE&page=1&pageSize=100`,
     );
     if (!response.ok) throw new Error("No se pudieron cargar las recetas");
@@ -98,7 +85,7 @@ export function PlanningWorkspace() {
 
   async function loadWeek(start = weekStart) {
     const end = addCalendarDays(start, 6);
-    const response = await fetch(
+    const response = await apiFetch(
       `${apiUrl}/planned-meals?from=${start}&to=${end}`,
     );
     if (!response.ok) throw new Error("No se pudo cargar la planificación");
@@ -126,7 +113,7 @@ export function PlanningWorkspace() {
 
   async function save(event: FormEvent) {
     event.preventDefault();
-    const response = await fetch(
+    const response = await apiFetch(
       `${apiUrl}/planned-meals${editingId ? `/${editingId}` : ""}`,
       {
         method: editingId ? "PUT" : "POST",
@@ -162,7 +149,7 @@ export function PlanningWorkspace() {
 
   async function remove(id: string) {
     if (!window.confirm("¿Retirar esta comida planificada?")) return;
-    const response = await fetch(`${apiUrl}/planned-meals/${id}`, {
+    const response = await apiFetch(`${apiUrl}/planned-meals/${id}`, {
       method: "DELETE",
     });
     if (!response.ok) throw new Error("No se pudo retirar la planificación");
@@ -172,15 +159,21 @@ export function PlanningWorkspace() {
   }
 
   async function openRecipe(id: string) {
-    const response = await fetch(`${apiUrl}/recipes/${id}`);
+    const response = await apiFetch(`${apiUrl}/recipes/${id}`);
     if (!response.ok) throw new Error("No se pudo consultar la receta");
     setDetail((await response.json()) as RecipeDetail);
   }
 
+  useEffect(() => {
+    void safely(initialize);
+    // La semana actual se carga al entrar; la navegación gestiona las recargas posteriores.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const days = calendarWeek(weekStart);
 
   return (
-    <main className="shell planning-shell">
+    <div className="shell workspace planning-shell">
       <header>
         <span className="eyebrow">Sprint 5</span>
         <h1>Plan semanal</h1>
@@ -190,7 +183,6 @@ export function PlanningWorkspace() {
       <section className="panel recipe">
         <div className="panel-title">
           <h2>Semana</h2>
-          <button onClick={() => void safely(initialize)}>Actualizar</button>
         </div>
         <div className="week-navigation">
           <button onClick={() => void safely(() => moveWeek(-1))}>
@@ -322,6 +314,6 @@ export function PlanningWorkspace() {
       <p className="status" role="status">
         {message}
       </p>
-    </main>
+    </div>
   );
 }

@@ -1,9 +1,8 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
+import { apiFetch, apiUrl, responseError } from "../../lib/api";
 
-const apiUrl =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
 type Named = { id: string; name: string };
 type Variant = Named & { ingredientId: string };
 type Ingredient = Named & { variants: Variant[] };
@@ -64,9 +63,7 @@ export function RecipeWorkspace() {
   const [variantFilter, setVariantFilter] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [message, setMessage] = useState(
-    "Actualiza los catálogos para empezar.",
-  );
+  const [message, setMessage] = useState("Cargando tu biblioteca…");
 
   const safely = (action: () => Promise<void>) =>
     action().catch((error: unknown) =>
@@ -77,10 +74,10 @@ export function RecipeWorkspace() {
 
   async function refreshCatalogs() {
     const responses = await Promise.all([
-      fetch(`${apiUrl}/catalog/ingredients`),
-      fetch(`${apiUrl}/catalog/units`),
-      fetch(`${apiUrl}/classifications/categories`),
-      fetch(`${apiUrl}/classifications/tags`),
+      apiFetch(`${apiUrl}/catalog/ingredients`),
+      apiFetch(`${apiUrl}/catalog/units`),
+      apiFetch(`${apiUrl}/classifications/categories`),
+      apiFetch(`${apiUrl}/classifications/tags`),
     ]);
     if (responses.some((response) => !response.ok))
       throw new Error("No se pudieron cargar los catálogos");
@@ -94,13 +91,13 @@ export function RecipeWorkspace() {
   }
 
   async function addItem(path: string, payload: object) {
-    const response = await fetch(`${apiUrl}/${path}`, {
+    const response = await apiFetch(`${apiUrl}/${path}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
     if (!response.ok)
-      throw new Error((await response.json()).message ?? "No se pudo guardar");
+      throw new Error(await responseError(response, "No se pudo guardar"));
     await refreshCatalogs();
   }
 
@@ -117,7 +114,7 @@ export function RecipeWorkspace() {
       ? undefined
       : window.prompt("Nuevo nombre", item.name);
     if (!remove && !nextName) return;
-    const response = await fetch(
+    const response = await apiFetch(
       `${apiUrl}/classifications/${kind}/${item.id}`,
       {
         method: remove ? "DELETE" : "PATCH",
@@ -126,9 +123,7 @@ export function RecipeWorkspace() {
       },
     );
     if (!response.ok)
-      throw new Error(
-        (await response.json()).message ?? "No se pudo modificar",
-      );
+      throw new Error(await responseError(response, "No se pudo modificar"));
     await refreshCatalogs();
   }
 
@@ -144,7 +139,7 @@ export function RecipeWorkspace() {
     if (ingredientFilter.length)
       params.set("ingredient", ingredientFilter.join(","));
     if (variantFilter.length) params.set("variant", variantFilter.join(","));
-    const response = await fetch(`${apiUrl}/recipes?${params}`);
+    const response = await apiFetch(`${apiUrl}/recipes?${params}`);
     if (!response.ok) throw new Error("No se pudo cargar la biblioteca");
     const result = (await response.json()) as {
       items: Summary[];
@@ -156,7 +151,7 @@ export function RecipeWorkspace() {
   }
 
   async function openRecipe(id: string) {
-    const response = await fetch(`${apiUrl}/recipes/${id}`);
+    const response = await apiFetch(`${apiUrl}/recipes/${id}`);
     if (!response.ok) throw new Error("No se pudo abrir la receta");
     const recipe = (await response.json()) as {
       id: string;
@@ -225,7 +220,7 @@ export function RecipeWorkspace() {
       categoryIds,
       tagIds,
     };
-    const response = await fetch(
+    const response = await apiFetch(
       `${apiUrl}/recipes${recipeId ? `/${recipeId}` : ""}`,
       {
         method: recipeId ? "PUT" : "POST",
@@ -234,7 +229,7 @@ export function RecipeWorkspace() {
       },
     );
     if (!response.ok)
-      throw new Error((await response.json()).message ?? "No se pudo guardar");
+      throw new Error(await responseError(response, "No se pudo guardar"));
     const recipe = (await response.json()) as {
       id: string;
       status: "ACTIVE" | "ARCHIVED";
@@ -248,7 +243,7 @@ export function RecipeWorkspace() {
   }
 
   async function setArchived(archive: boolean) {
-    const response = await fetch(
+    const response = await apiFetch(
       `${apiUrl}/recipes/${recipeId}/${archive ? "archive" : "restore"}`,
       { method: "POST" },
     );
@@ -257,6 +252,15 @@ export function RecipeWorkspace() {
     setMessage(archive ? "Receta archivada." : "Receta reactivada.");
     await loadRecipes();
   }
+
+  useEffect(() => {
+    void safely(async () => {
+      await Promise.all([refreshCatalogs(), loadRecipes(1)]);
+      setMessage("Biblioteca lista.");
+    });
+    // La carga inicial debe ejecutarse una sola vez al abrir esta sección.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const updateStep = (index: number, text: string) =>
     setSteps((current) =>
@@ -273,7 +277,7 @@ export function RecipeWorkspace() {
     );
 
   return (
-    <main className="shell">
+    <div className="shell workspace">
       <header>
         <span className="eyebrow">Cocina Tuda</span>
         <h1>Biblioteca de recetas</h1>
@@ -373,13 +377,11 @@ export function RecipeWorkspace() {
       <section className="panel catalogs">
         <div>
           <h2>Catálogos</h2>
-          <button onClick={() => void safely(refreshCatalogs)}>
-            Actualizar
-          </button>
+          <p>Ingredientes, unidades y clasificaciones disponibles.</p>
         </div>
         <form
           action={(form) =>
-            void safely(() => addFormItem("catalog/ingredients", form))
+            safely(() => addFormItem("catalog/ingredients", form))
           }
         >
           <label>
@@ -389,9 +391,7 @@ export function RecipeWorkspace() {
           <button>Agregar</button>
         </form>
         <form
-          action={(form) =>
-            void safely(() => addFormItem("catalog/units", form))
-          }
+          action={(form) => safely(() => addFormItem("catalog/units", form))}
         >
           <label>
             Nueva unidad
@@ -407,7 +407,7 @@ export function RecipeWorkspace() {
           action={(form) => {
             const ingredientId = String(form.get("ingredientId") ?? "");
             form.delete("ingredientId");
-            return void safely(() =>
+            return safely(() =>
               addFormItem(`catalog/ingredients/${ingredientId}/variants`, form),
             );
           }}
@@ -431,7 +431,7 @@ export function RecipeWorkspace() {
         </form>
         <form
           action={(form) =>
-            void safely(() => addFormItem("classifications/categories", form))
+            safely(() => addFormItem("classifications/categories", form))
           }
         >
           <label>
@@ -442,7 +442,7 @@ export function RecipeWorkspace() {
         </form>
         <form
           action={(form) =>
-            void safely(() => addFormItem("classifications/tags", form))
+            safely(() => addFormItem("classifications/tags", form))
           }
         >
           <label>
@@ -730,7 +730,7 @@ export function RecipeWorkspace() {
         {message}
         {recipeId && ` ID: ${recipeId}`}
       </p>
-    </main>
+    </div>
   );
 }
 
