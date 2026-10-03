@@ -1,9 +1,8 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import { apiFetch, apiUrl } from "../../lib/api";
 
-const apiUrl =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
 const storageKey = "cocina-tuda-import-draft-v2";
 
 type Named = { id: string; name: string };
@@ -160,12 +159,15 @@ export function ImportWorkspace() {
 
   async function loadCatalogs() {
     const responses = await Promise.all([
-      fetch(`${apiUrl}/catalog/ingredients`),
-      fetch(`${apiUrl}/catalog/units`),
-      fetch(`${apiUrl}/classifications/categories`),
-      fetch(`${apiUrl}/classifications/tags`),
+      apiFetch(`${apiUrl}/catalog/ingredients`),
+      apiFetch(`${apiUrl}/catalog/units`),
+      apiFetch(`${apiUrl}/classifications/categories`),
+      apiFetch(`${apiUrl}/classifications/tags`),
     ]);
-    if (responses.some((response) => !response.ok)) return;
+    if (responses.some((response) => !response.ok)) {
+      setMessage("No se pudieron cargar los catálogos.");
+      return;
+    }
     const [nextIngredients, nextUnits, nextCategories, nextTags] =
       await Promise.all(responses.map((response) => response.json()));
     setIngredients(nextIngredients as Ingredient[]);
@@ -190,7 +192,7 @@ export function ImportWorkspace() {
             dataBase64: await fileBase64(file),
           }
         : { kind: "text", text: sourceText };
-      const response = await fetch(`${apiUrl}/imports/proposals`, {
+      const response = await apiFetch(`${apiUrl}/imports/proposals`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ consent: true, source }),
@@ -219,7 +221,7 @@ export function ImportWorkspace() {
     if (!draft || hasPendingResolution(draft)) return;
     setBusy(true);
     try {
-      const response = await fetch(`${apiUrl}/imports/confirmations`, {
+      const response = await apiFetch(`${apiUrl}/imports/confirmations`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -269,55 +271,62 @@ export function ImportWorkspace() {
   }
 
   return (
-    <section className="panel recipe">
-      <h2>Importar receta</h2>
-      {!draft ? (
-        <form onSubmit={propose}>
-          <label>
-            Texto pegado
-            <textarea
-              value={sourceText}
-              onChange={(event) => setSourceText(event.target.value)}
-              disabled={!!file}
-            />
-          </label>
-          <label>
-            O archivo JPEG, PNG, WebP, PDF o DOCX
-            <input
-              aria-label="Archivo de receta"
-              type="file"
-              accept="image/jpeg,image/png,image/webp,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.docx"
-              onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-            />
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={consent}
-              onChange={(event) => setConsent(event.target.checked)}
-            />
-            Confirmo que el contenido de esta fuente se enviará a un servicio
-            externo de IA para interpretarlo.
-          </label>
-          <button disabled={busy || (!sourceText.trim() && !file)}>
-            {busy ? "Procesando…" : "Crear propuesta"}
-          </button>
-        </form>
-      ) : (
-        <ReviewForm
-          draft={draft}
-          setDraft={setDraft}
-          ingredients={ingredients}
-          units={units}
-          categories={categories}
-          tags={tags}
-          busy={busy}
-          onConfirm={confirm}
-          onDiscard={discard}
-        />
-      )}
-      {message && <p role="status">{message}</p>}
-    </section>
+    <div className="shell workspace">
+      <header>
+        <span className="eyebrow">Cocina Tuda</span>
+        <h1>Importar receta</h1>
+        <p>Convierte una fuente en una receta revisable antes de guardarla.</p>
+      </header>
+      <section className="panel recipe">
+        <h2>Importar receta</h2>
+        {!draft ? (
+          <form onSubmit={propose}>
+            <label>
+              Texto pegado
+              <textarea
+                value={sourceText}
+                onChange={(event) => setSourceText(event.target.value)}
+                disabled={!!file}
+              />
+            </label>
+            <label>
+              O archivo JPEG, PNG, WebP, PDF o DOCX
+              <input
+                aria-label="Archivo de receta"
+                type="file"
+                accept="image/jpeg,image/png,image/webp,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.docx"
+                onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+              />
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={consent}
+                onChange={(event) => setConsent(event.target.checked)}
+              />
+              Confirmo que el contenido de esta fuente se enviará a un servicio
+              externo de IA para interpretarlo.
+            </label>
+            <button disabled={busy || (!sourceText.trim() && !file)}>
+              {busy ? "Procesando…" : "Crear propuesta"}
+            </button>
+          </form>
+        ) : (
+          <ReviewForm
+            draft={draft}
+            setDraft={setDraft}
+            ingredients={ingredients}
+            units={units}
+            categories={categories}
+            tags={tags}
+            busy={busy}
+            onConfirm={confirm}
+            onDiscard={discard}
+          />
+        )}
+        {message && <p role="status">{message}</p>}
+      </section>
+    </div>
   );
 }
 

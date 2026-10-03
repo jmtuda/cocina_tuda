@@ -76,8 +76,6 @@ describe("RecipeWorkspace", () => {
     const user = userEvent.setup();
     render(<RecipeWorkspace />);
 
-    await user.click(screen.getByRole("button", { name: "Actualizar" }));
-    await user.click(screen.getByRole("button", { name: "Aplicar filtros" }));
     await user.click(await screen.findByRole("button", { name: /Ensalada/ }));
 
     expect(screen.getByLabelText("Descripción")).toHaveValue("Fresca");
@@ -136,6 +134,9 @@ describe("RecipeWorkspace", () => {
       .mockResolvedValueOnce(new Response(JSON.stringify(units)))
       .mockResolvedValueOnce(new Response(JSON.stringify(categories)))
       .mockResolvedValueOnce(new Response(JSON.stringify(tags)))
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ items: [], totalPages: 1 })),
+      )
       .mockResolvedValueOnce(new Response(JSON.stringify({ id: "new" })))
       .mockResolvedValueOnce(new Response(JSON.stringify(ingredients)))
       .mockResolvedValueOnce(new Response(JSON.stringify(units)))
@@ -144,15 +145,15 @@ describe("RecipeWorkspace", () => {
     vi.stubGlobal("fetch", fetchMock);
     const user = userEvent.setup();
     render(<RecipeWorkspace />);
-    await user.click(screen.getByRole("button", { name: "Actualizar" }));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(5));
     await user.type(screen.getByLabelText("Nuevo ingrediente"), "Patata");
     await user.click(screen.getAllByRole("button", { name: "Agregar" })[0]);
 
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(9));
-    expect(String(fetchMock.mock.calls[4]?.[0])).toMatch(
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(10));
+    expect(String(fetchMock.mock.calls[5]?.[0])).toMatch(
       /catalog\/ingredients$/,
     );
-    expect(JSON.parse(String(fetchMock.mock.calls[4]?.[1]?.body))).toEqual({
+    expect(JSON.parse(String(fetchMock.mock.calls[5]?.[1]?.body))).toEqual({
       name: "Patata",
     });
   });

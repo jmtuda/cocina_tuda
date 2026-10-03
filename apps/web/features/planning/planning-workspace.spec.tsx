@@ -47,7 +47,6 @@ describe("PlanningWorkspace", () => {
     const user = userEvent.setup();
     render(<PlanningWorkspace />);
 
-    await user.click(screen.getByRole("button", { name: "Actualizar" }));
     expect(await screen.findAllByText("Día vacío")).toHaveLength(7);
     await user.click(screen.getByRole("button", { name: "Semana siguiente" }));
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
@@ -61,7 +60,7 @@ describe("PlanningWorkspace", () => {
     const meal = {
       id: "meal-1",
       recipeId: recipe.id,
-      plannedDate: "2026-09-21",
+      plannedDate: "2026-10-03",
       mealName: "Cena",
       recipe,
     };
@@ -78,13 +77,13 @@ describe("PlanningWorkspace", () => {
     const user = userEvent.setup();
     render(<PlanningWorkspace />);
 
-    await user.click(screen.getByRole("button", { name: "Actualizar" }));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
     await user.selectOptions(
       screen.getByLabelText("Receta activa"),
       "recipe-1",
     );
     await user.clear(screen.getByLabelText("Fecha"));
-    await user.type(screen.getByLabelText("Fecha"), "2026-09-21");
+    await user.type(screen.getByLabelText("Fecha"), "2026-10-03");
     await user.type(screen.getByLabelText("Denominación opcional"), "Cena");
     await user.click(screen.getByRole("button", { name: "Añadir al plan" }));
     expect(await screen.findAllByText("Tortilla")).toHaveLength(2);

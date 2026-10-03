@@ -60,6 +60,8 @@ describe("ShoppingWorkspace", () => {
     const fetchMock = vi
       .fn<typeof fetch>()
       .mockResolvedValueOnce(new Response(JSON.stringify([meal])))
+      .mockResolvedValueOnce(new Response(JSON.stringify([])))
+      .mockResolvedValueOnce(new Response(JSON.stringify([])))
       .mockResolvedValueOnce(new Response(JSON.stringify(list)))
       .mockResolvedValueOnce(new Response(JSON.stringify([list])))
       .mockResolvedValueOnce(new Response(JSON.stringify([])));
@@ -67,9 +69,6 @@ describe("ShoppingWorkspace", () => {
     const user = userEvent.setup();
     render(<ShoppingWorkspace />);
 
-    await user.click(
-      screen.getByRole("button", { name: "Consultar intervalo" }),
-    );
     const selection = await screen.findByLabelText(
       /2026-09-21 · Cena · Tortilla/,
     );
@@ -79,7 +78,7 @@ describe("ShoppingWorkspace", () => {
     );
 
     await screen.findByText("Huevo");
-    const request = JSON.parse(String(fetchMock.mock.calls[1]?.[1]?.body)) as {
+    const request = JSON.parse(String(fetchMock.mock.calls[3]?.[1]?.body)) as {
       excludedPlannedMealIds: string[];
     };
     expect(request.excludedPlannedMealIds).toEqual([meal.id]);
@@ -98,6 +97,8 @@ describe("ShoppingWorkspace", () => {
     const fetchMock = vi
       .fn<typeof fetch>()
       .mockResolvedValueOnce(new Response(JSON.stringify([meal])))
+      .mockResolvedValueOnce(new Response(JSON.stringify([])))
+      .mockResolvedValueOnce(new Response(JSON.stringify([])))
       .mockResolvedValueOnce(new Response(JSON.stringify(list)))
       .mockResolvedValueOnce(new Response(JSON.stringify([list])))
       .mockResolvedValueOnce(new Response(JSON.stringify([])))
@@ -110,9 +111,7 @@ describe("ShoppingWorkspace", () => {
     vi.stubGlobal("fetch", fetchMock);
     const user = userEvent.setup();
     render(<ShoppingWorkspace />);
-    await user.click(
-      screen.getByRole("button", { name: "Consultar intervalo" }),
-    );
+    await screen.findByLabelText(/2026-09-21 · Cena · Tortilla/);
     await user.click(
       screen.getByRole("button", { name: "Generar nueva lista" }),
     );
@@ -122,9 +121,9 @@ describe("ShoppingWorkspace", () => {
     expect(
       await screen.findByDisplayValue("Papel de cocina"),
     ).toBeInTheDocument();
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(6));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(8));
     const request = JSON.parse(
-      String(fetchMock.mock.calls[4]?.[1]?.body),
+      String(fetchMock.mock.calls[6]?.[1]?.body),
     ) as Record<string, unknown>;
     expect(request).toMatchObject({
       manualName: "Papel de cocina",

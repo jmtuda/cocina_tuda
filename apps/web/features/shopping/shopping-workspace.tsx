@@ -1,9 +1,7 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-
-const apiUrl =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
+import { FormEvent, useEffect, useState } from "react";
+import { apiFetch, apiUrl, responseError } from "../../lib/api";
 
 type PlannedMeal = {
   id: string;
@@ -45,15 +43,6 @@ const today = () => {
   return `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, "0")}-${String(value.getDate()).padStart(2, "0")}`;
 };
 
-async function errorMessage(response: Response, fallback: string) {
-  const body = (await response.json().catch(() => ({}))) as {
-    message?: string | string[];
-  };
-  return Array.isArray(body.message)
-    ? body.message.join(", ")
-    : (body.message ?? fallback);
-}
-
 export function ShoppingWorkspace() {
   const initialDate = today();
   const [from, setFrom] = useState(initialDate);
@@ -81,7 +70,7 @@ export function ShoppingWorkspace() {
     );
 
   async function loadPlanning() {
-    const response = await fetch(
+    const response = await apiFetch(
       `${apiUrl}/planned-meals?from=${from}&to=${to}`,
     );
     if (!response.ok) throw new Error("No se pudo cargar la planificación");
@@ -92,8 +81,8 @@ export function ShoppingWorkspace() {
 
   async function loadLists() {
     const [listResponse, unitResponse] = await Promise.all([
-      fetch(`${apiUrl}/shopping-lists`),
-      fetch(`${apiUrl}/catalog/units`),
+      apiFetch(`${apiUrl}/shopping-lists`),
+      apiFetch(`${apiUrl}/catalog/units`),
     ]);
     if (!listResponse.ok || !unitResponse.ok)
       throw new Error("No se pudieron cargar las listas de compra");
@@ -103,7 +92,7 @@ export function ShoppingWorkspace() {
 
   async function generate(event: FormEvent) {
     event.preventDefault();
-    const response = await fetch(`${apiUrl}/shopping-lists/generate`, {
+    const response = await apiFetch(`${apiUrl}/shopping-lists/generate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -114,7 +103,7 @@ export function ShoppingWorkspace() {
       }),
     });
     if (!response.ok)
-      throw new Error(await errorMessage(response, "No se pudo generar"));
+      throw new Error(await responseError(response, "No se pudo generar"));
     const list = (await response.json()) as ShoppingList;
     setCurrent(list);
     await loadLists();
@@ -122,7 +111,7 @@ export function ShoppingWorkspace() {
   }
 
   async function openList(id: string) {
-    const response = await fetch(`${apiUrl}/shopping-lists/${id}`);
+    const response = await apiFetch(`${apiUrl}/shopping-lists/${id}`);
     if (!response.ok) throw new Error("No se pudo abrir la lista");
     setCurrent((await response.json()) as ShoppingList);
   }
@@ -130,7 +119,7 @@ export function ShoppingWorkspace() {
   async function addManual(event: FormEvent) {
     event.preventDefault();
     if (!current) return;
-    const response = await fetch(
+    const response = await apiFetch(
       `${apiUrl}/shopping-lists/${current.id}/items`,
       {
         method: "POST",
@@ -146,7 +135,7 @@ export function ShoppingWorkspace() {
       },
     );
     if (!response.ok)
-      throw new Error(await errorMessage(response, "No se pudo añadir"));
+      throw new Error(await responseError(response, "No se pudo añadir"));
     setManualName("");
     setManualQuantity("");
     setManualUnitId("");
@@ -159,7 +148,7 @@ export function ShoppingWorkspace() {
   async function saveItem(item: ShoppingItem, update: Partial<ShoppingItem>) {
     if (!current) return;
     const next = { ...item, ...update };
-    const response = await fetch(
+    const response = await apiFetch(
       `${apiUrl}/shopping-lists/${current.id}/items/${item.id}`,
       {
         method: "PUT",
@@ -177,13 +166,13 @@ export function ShoppingWorkspace() {
       },
     );
     if (!response.ok)
-      throw new Error(await errorMessage(response, "No se pudo editar"));
+      throw new Error(await responseError(response, "No se pudo editar"));
     await openList(current.id);
   }
 
   async function removeItem(itemId: string) {
     if (!current || !window.confirm("¿Retirar este elemento?")) return;
-    const response = await fetch(
+    const response = await apiFetch(
       `${apiUrl}/shopping-lists/${current.id}/items/${itemId}`,
       { method: "DELETE" },
     );
@@ -198,8 +187,17 @@ export function ShoppingWorkspace() {
         : [...currentIds, id],
     );
 
+  useEffect(() => {
+    void safely(async () => {
+      await Promise.all([loadPlanning(), loadLists()]);
+      setMessage("Listas y planificación cargadas.");
+    });
+    // El intervalo inicial se carga una vez; las consultas posteriores son explícitas.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
-    <main className="shell shopping-shell">
+    <div className="shell workspace shopping-shell">
       <header>
         <span className="eyebrow">Sprint 6</span>
         <h1>Lista de compra</h1>
@@ -261,7 +259,6 @@ export function ShoppingWorkspace() {
       <section className="panel recipe shopping-lists">
         <div className="panel-title">
           <h2>Listas guardadas</h2>
-          <button onClick={() => void safely(loadLists)}>Actualizar</button>
         </div>
         {lists.map((list) => (
           <button
@@ -488,6 +485,6 @@ export function ShoppingWorkspace() {
       <p className="status" role="status">
         {message}
       </p>
-    </main>
+    </div>
   );
 }
