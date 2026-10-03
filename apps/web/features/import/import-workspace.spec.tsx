@@ -137,6 +137,136 @@ function richCatalogResponses(fetchMock: ReturnType<typeof vi.fn>) {
 }
 
 describe("ImportWorkspace", () => {
+  it("marks required fields and explains every pending action until explicit approval makes the recipe ready", async () => {
+    const fetchMock = vi.fn<typeof fetch>();
+    catalogResponses(fetchMock);
+    const result = proposal("new");
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          ...result,
+          proposal: {
+            ...result.proposal,
+            name: null,
+            ingredients: [
+              {
+                ...result.proposal.ingredients[0],
+                unitResolution: {
+                  status: "new",
+                  proposedName: "Manojo",
+                  suggestions: [],
+                },
+              },
+            ],
+          },
+        }),
+      ),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const user = userEvent.setup();
+    render(<ImportWorkspace />);
+    await user.type(screen.getByLabelText("Texto pegado"), "receta");
+    await user.click(screen.getByLabelText(/Confirmo que el contenido/));
+    await user.click(screen.getByRole("button", { name: "Crear propuesta" }));
+    const confirm = await screen.findByRole("button", {
+      name: "Confirmar y crear receta",
+    });
+    expect(confirm).toBeDisabled();
+    expect(screen.getByText(/\* Obligatorio/)).toBeVisible();
+    expect(screen.getByText("Nombre *")).toBeVisible();
+    expect(screen.getByText("Ingrediente base *")).toBeVisible();
+    expect(screen.getByLabelText("Nombre")).toBeRequired();
+    expect(screen.getByLabelText("Ingrediente base")).toHaveAttribute(
+      "aria-required",
+      "true",
+    );
+    expect(screen.getByLabelText("Ingrediente base")).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
+    expect(screen.getByLabelText("Raciones")).not.toBeRequired();
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "3 acciones pendientes",
+    );
+    await user.click(screen.getByRole("link", { name: /Ver qué falta/ }));
+    const name = screen.getByLabelText("Nombre");
+    name.scrollIntoView = vi.fn();
+    await user.click(screen.getByRole("link", { name: "Nombre obligatorio." }));
+    expect(name).toHaveFocus();
+    await user.type(name, "Receta revisada");
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "2 acciones pendientes",
+    );
+    expect(
+      screen.queryByRole("link", { name: "Nombre obligatorio." }),
+    ).not.toBeInTheDocument();
+    await user.click(
+      screen.getByRole("button", { name: "Revisar creación de Patata" }),
+    );
+    expect(
+      screen.getByLabelText("Ingrediente base nuevo nombre"),
+    ).toBeRequired();
+    expect(confirm).toBeDisabled();
+    await user.click(
+      screen.getByRole("button", {
+        name: "Aprobar creación de ingrediente base",
+      }),
+    );
+    expect(screen.getByRole("status")).toHaveTextContent("1 acción pendiente");
+    expect(
+      screen.queryByLabelText("Ingrediente base nuevo nombre"),
+    ).not.toBeInTheDocument();
+    await user.click(
+      screen.getByRole("button", { name: "Revisar creación de Manojo" }),
+    );
+    expect(screen.getByLabelText("Unidad abreviatura")).toBeRequired();
+    expect(
+      screen.getByRole("link", { name: /Unidad 1: Completa la abreviatura/ }),
+    ).toBeVisible();
+    await user.type(screen.getByLabelText("Unidad abreviatura"), "man");
+    expect(confirm).toBeDisabled();
+    await user.click(
+      screen.getByRole("button", { name: "Aprobar creación de unidad" }),
+    );
+    expect(screen.getByRole("status")).toHaveTextContent("Lista para guardar");
+    expect(confirm).toBeEnabled();
+    expect(fetchMock).toHaveBeenCalledTimes(5);
+  });
+
+  it("explains invalid optional values without making them mandatory", async () => {
+    const fetchMock = vi.fn<typeof fetch>();
+    catalogResponses(fetchMock);
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify(proposal("ambiguous"))),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const user = userEvent.setup();
+    render(<ImportWorkspace />);
+    await user.type(screen.getByLabelText("Texto pegado"), "receta");
+    await user.click(screen.getByLabelText(/Confirmo que el contenido/));
+    await user.click(screen.getByRole("button", { name: "Crear propuesta" }));
+    await screen.findByRole("button", { name: "Confirmar y crear receta" });
+    await user.selectOptions(
+      screen.getByLabelText("Ingrediente base"),
+      "existing:ingredient-1",
+    );
+    const quantity = screen.getByLabelText("Cantidad");
+    await user.clear(quantity);
+    await user.type(quantity, "1/2");
+    const servings = screen.getByLabelText("Raciones");
+    await user.clear(servings);
+    await user.type(servings, "0");
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "2 acciones pendientes",
+    );
+    await user.click(screen.getByRole("link", { name: /Ver qué falta/ }));
+    expect(screen.getByRole("link", { name: /Cantidad 1:/ })).toBeVisible();
+    expect(screen.getByRole("link", { name: /Raciones:/ })).toBeVisible();
+    await user.clear(quantity);
+    await user.clear(servings);
+    expect(screen.getByRole("status")).toHaveTextContent("Lista para guardar");
+  });
+
   it("retains review after a server collision and reloads the catalog for explicit resolution", async () => {
     const fetchMock = vi.fn<typeof fetch>();
     catalogResponses(fetchMock);
@@ -177,7 +307,7 @@ describe("ImportWorkspace", () => {
       screen.getByRole("button", { name: "Confirmar y crear receta" }),
     );
     await waitFor(() =>
-      expect(screen.getByRole("status")).toHaveTextContent(
+      expect(screen.getByRole("alert")).toHaveTextContent(
         "Resuelve explícitamente",
       ),
     );
@@ -235,7 +365,7 @@ describe("ImportWorkspace", () => {
     await user.type(screen.getByLabelText("Texto pegado"), "receta");
     await user.click(screen.getByLabelText(/Confirmo que el contenido/));
     await user.click(screen.getByRole("button", { name: "Crear propuesta" }));
-    await screen.findByText("Kumato", { selector: "strong" });
+    await screen.findByRole("button", { name: "Revisar creación de Kumato" });
     expect(
       screen.getByText("Variante de:", { exact: false }),
     ).toHaveTextContent("Tomate");
@@ -259,7 +389,13 @@ describe("ImportWorkspace", () => {
       name: "Confirmar y crear receta",
     });
     expect(confirm).toBeEnabled();
-    await user.type(variantName, " especial");
+    await user.click(
+      screen.getByRole("button", { name: "Modificar variante" }),
+    );
+    await user.type(
+      screen.getByLabelText("Variante nuevo nombre"),
+      " especial",
+    );
     expect(confirm).toBeDisabled();
     await user.click(
       screen.getByRole("button", { name: "Aprobar creación de variante" }),
@@ -313,7 +449,7 @@ describe("ImportWorkspace", () => {
     expect(
       screen.getByRole("button", { name: "Confirmar y crear receta" }),
     ).toBeEnabled();
-    expect(screen.getByText("Resuelto contra existente: Tomate")).toBeVisible();
+    expect(screen.getByRole("option", { name: "Tomate" })).toBeVisible();
   });
 
   it("requires variant reapproval when its base changes", async () => {
@@ -504,7 +640,9 @@ describe("ImportWorkspace", () => {
       name: "Confirmar y crear receta",
     });
     expect(confirm).toBeDisabled();
-    expect(screen.getAllByRole("alert")).toHaveLength(5);
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "4 acciones pendientes",
+    );
 
     await user.selectOptions(
       screen.getByLabelText("Variante"),

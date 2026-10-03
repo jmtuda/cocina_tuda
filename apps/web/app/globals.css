@@ -604,15 +604,278 @@ fieldset {
     gap: 0.8rem;
   }
 }
-.import-reference {
-  padding: 0.6rem;
-  border: 1px solid var(--line, #ddd6cb);
-  border-radius: 0.5rem;
-  margin-bottom: 0.5rem;
+.import-review-shell {
+  width: min(1380px, calc(100% - 2rem));
 }
-
-.import-reference p {
-  margin: 0.25rem 0;
-  font-size: 0.875rem;
+.import-review-shell > header {
+  margin-bottom: 0.6rem;
+  padding-bottom: 0.5rem;
+}
+.import-review-shell .import-review {
+  gap: 0.7rem;
+}
+.import-review h3 {
+  margin: 0 0 0.4rem;
+  font-size: 1rem;
+}
+.import-review small {
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+}
+.import-review-heading {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+}
+.import-review-heading a {
+  margin-left: auto;
+  font-size: 0.82rem;
+  color: var(--accent);
+}
+.import-main-data {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 3fr) minmax(90px, 0.7fr) minmax(0, 1fr)
+    minmax(0, 1fr);
+  gap: 0.45rem 0.7rem;
+}
+.import-description {
+  grid-column: 1 / -1;
+}
+.import-review textarea {
+  min-height: 3.3rem;
+}
+.import-review-content {
+  display: grid;
+  grid-template-columns: minmax(0, 2.5fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+.import-ingredient {
+  min-width: 0;
+  margin: 0 0 0.45rem;
+  padding: 0.45rem 0.55rem;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: #f8f5ee;
+}
+.import-ingredient legend {
+  padding: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.import-ingredient-fields {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.4fr) minmax(0, 1.1fr) minmax(70px, 0.55fr)
+    minmax(0, 1fr);
+  gap: 0.5rem;
+  align-items: start;
+}
+.import-reference {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+.import-reference-caption {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+.import-review .import-state {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.25rem;
+  background: #e9eee3;
+  color: #435635;
+}
+.import-review .is-pending .import-state {
+  background: var(--accent-soft);
+  color: #86371e;
+}
+.import-review [aria-invalid="true"] {
+  border: 1px solid var(--accent);
+  border-left-width: 3px;
+}
+.import-reference-help {
   overflow-wrap: anywhere;
+}
+.import-new-fields {
+  display: grid;
+  gap: 0.25rem;
+}
+.import-ingredient-extra {
+  display: flex;
+  align-items: end;
+  gap: 0.6rem;
+  margin-top: 0.3rem;
+}
+.import-ingredient-options {
+  flex: 1;
+  font-size: 0.78rem;
+}
+.import-ingredient-options summary {
+  cursor: pointer;
+  padding: 0.25rem 0;
+  color: var(--ink-soft);
+}
+.import-ingredient-options[open] {
+  display: grid;
+  gap: 0.3rem;
+}
+.import-ingredient-options label:has(input[type="checkbox"]) {
+  display: flex;
+  align-items: center;
+}
+.import-ingredient-extra > label:first-child {
+  display: flex;
+  align-items: center;
+  align-self: center;
+}
+.import-observations {
+  flex: 1;
+  min-width: 0;
+}
+.import-review button {
+  justify-self: start;
+}
+.import-review button.secondary {
+  background: transparent;
+  color: var(--ink-soft);
+  border: 1px solid var(--line);
+}
+.import-confirm-actions > button:first-child {
+  background: var(--accent);
+}
+.import-reference button {
+  width: 100%;
+  padding: 0.35rem 0.45rem;
+  font-size: 0.76rem;
+  overflow-wrap: anywhere;
+}
+.import-review input,
+.import-review select {
+  min-height: 2.35rem;
+  padding: 0.35rem 0.45rem;
+}
+.import-step {
+  display: grid;
+  gap: 0.25rem;
+  margin-bottom: 0.6rem;
+}
+.import-step textarea {
+  min-height: 5rem;
+}
+.import-review-secondary {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.3fr;
+  gap: 0.7rem;
+  border-top: 1px solid var(--line);
+  padding-top: 0.6rem;
+}
+.import-review-secondary > div {
+  display: grid;
+  align-content: start;
+  gap: 0.35rem;
+}
+.import-validation {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.25rem 1rem;
+  padding: 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  background: var(--paper);
+  box-shadow: 0 -3px 10px rgb(60 45 30 / 8%);
+}
+.import-validation-status {
+  font-size: 0.86rem;
+}
+.import-pending {
+  grid-column: 1;
+  font-size: 0.8rem;
+}
+.import-pending summary {
+  cursor: pointer;
+}
+.import-pending ul {
+  margin: 0.3rem 0 0;
+  padding-left: 1.2rem;
+  max-height: 7rem;
+  overflow-y: auto;
+}
+.import-pending a {
+  color: var(--accent);
+  display: inline-block;
+  padding: 0.2rem 0;
+}
+.import-confirm-actions {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  align-self: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+@media (max-width: 1000px) {
+  .import-review-content {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 640px) {
+  .import-review-shell {
+    width: calc(100% - 1rem);
+  }
+  .import-main-data,
+  .import-ingredient-fields,
+  .import-review-secondary {
+    grid-template-columns: 1fr;
+  }
+  .import-description {
+    grid-column: auto;
+  }
+  .import-review-heading {
+    align-items: start;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  .import-review-heading a {
+    margin-left: 0;
+  }
+  .import-ingredient-extra {
+    flex-wrap: wrap;
+  }
+  .import-observations {
+    flex-basis: 70%;
+  }
+  .import-validation {
+    grid-template-columns: 1fr;
+    position: static;
+  }
+  .import-confirm-actions {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  .import-reference button,
+  .import-confirm-actions button {
+    min-height: 2.75rem;
+  }
+  .import-review input,
+  .import-review select {
+    min-height: 2.75rem;
+  }
+  .import-pending ul {
+    max-height: none;
+  }
 }
