@@ -137,6 +137,254 @@ function richCatalogResponses(fetchMock: ReturnType<typeof vi.fn>) {
 }
 
 describe("ImportWorkspace", () => {
+  it("retains review after a server collision and reloads the catalog for explicit resolution", async () => {
+    const fetchMock = vi.fn<typeof fetch>();
+    catalogResponses(fetchMock);
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify(proposal("new"))),
+    );
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          message:
+            "Ya existe ingrediente «Patata». Resuelve explícitamente contra el catálogo existente.",
+        }),
+        { status: 409 },
+      ),
+    );
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify([{ id: "potato-id", name: "Patata", variants: [] }]),
+      ),
+    );
+    for (let i = 0; i < 3; i++)
+      fetchMock.mockResolvedValueOnce(new Response("[]"));
+    vi.stubGlobal("fetch", fetchMock);
+    const user = userEvent.setup();
+    render(<ImportWorkspace />);
+    await user.type(screen.getByLabelText("Texto pegado"), "receta");
+    await user.click(screen.getByLabelText(/Confirmo que el contenido/));
+    await user.click(screen.getByRole("button", { name: "Crear propuesta" }));
+    await user.click(
+      await screen.findByRole("button", { name: "Revisar creación de Patata" }),
+    );
+    await user.click(
+      screen.getByRole("button", {
+        name: "Aprobar creación de ingrediente base",
+      }),
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Confirmar y crear receta" }),
+    );
+    await waitFor(() =>
+      expect(screen.getByRole("status")).toHaveTextContent(
+        "Resuelve explícitamente",
+      ),
+    );
+    expect(screen.getByLabelText("Nombre")).toHaveValue("Tortilla");
+    expect(
+      window.localStorage.getItem("cocina-tuda-import-draft-v2"),
+    ).toContain("Patata");
+    expect(
+      screen.getByRole("button", { name: "Confirmar y crear receta" }),
+    ).toBeDisabled();
+    await user.selectOptions(
+      screen.getByLabelText("Ingrediente base"),
+      "existing:potato-id",
+    );
+    expect(
+      screen.getByRole("button", { name: "Confirmar y crear receta" }),
+    ).toBeEnabled();
+  });
+
+  it("shows detected names, approves edited creations and invalidates approval after edits", async () => {
+    const fetchMock = vi.fn<typeof fetch>();
+    richCatalogResponses(fetchMock);
+    const proposed = {
+      ...ambiguousReferencesProposal,
+      proposal: {
+        ...ambiguousReferencesProposal.proposal,
+        ingredients: [
+          {
+            ...ambiguousReferencesProposal.proposal.ingredients[0],
+            variantResolution: {
+              status: "new",
+              proposedName: "Kumato",
+              suggestions: [],
+            },
+            unitResolution: {
+              status: "new",
+              proposedName: "Manojo",
+              suggestions: [],
+            },
+          },
+        ],
+        categories: [],
+        tags: [],
+      },
+    };
+    fetchMock
+      .mockResolvedValueOnce(new Response(JSON.stringify(proposed)))
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ name: "Tortilla" })),
+      );
+    richCatalogResponses(fetchMock);
+    vi.stubGlobal("fetch", fetchMock);
+    const user = userEvent.setup();
+    render(<ImportWorkspace />);
+    await user.type(screen.getByLabelText("Texto pegado"), "receta");
+    await user.click(screen.getByLabelText(/Confirmo que el contenido/));
+    await user.click(screen.getByRole("button", { name: "Crear propuesta" }));
+    await screen.findByText("Kumato", { selector: "strong" });
+    expect(
+      screen.getByText("Variante de:", { exact: false }),
+    ).toHaveTextContent("Tomate");
+    await user.click(
+      screen.getByRole("button", { name: "Revisar creación de Kumato" }),
+    );
+    const variantName = screen.getByLabelText("Variante nuevo nombre");
+    await user.clear(variantName);
+    await user.type(variantName, "Kumato revisado");
+    await user.click(
+      screen.getByRole("button", { name: "Aprobar creación de variante" }),
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Revisar creación de Manojo" }),
+    );
+    await user.type(screen.getByLabelText("Unidad abreviatura"), "man");
+    await user.click(
+      screen.getByRole("button", { name: "Aprobar creación de unidad" }),
+    );
+    const confirm = screen.getByRole("button", {
+      name: "Confirmar y crear receta",
+    });
+    expect(confirm).toBeEnabled();
+    await user.type(variantName, " especial");
+    expect(confirm).toBeDisabled();
+    await user.click(
+      screen.getByRole("button", { name: "Aprobar creación de variante" }),
+    );
+    await user.click(confirm);
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(10));
+    expect(
+      JSON.parse(String(fetchMock.mock.calls[5]?.[1]?.body)),
+    ).toMatchObject({
+      ingredients: [
+        {
+          ingredient: { existingId: "ingredient-1" },
+          variant: { createName: "Kumato revisado especial" },
+          unit: { createName: "Manojo", createAbbreviation: "man" },
+        },
+      ],
+    });
+  });
+
+  it("blocks normalized collisions until the user selects the existing entity", async () => {
+    const fetchMock = vi.fn<typeof fetch>();
+    catalogResponses(fetchMock);
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify(proposal("new"))),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const user = userEvent.setup();
+    render(<ImportWorkspace />);
+    await user.type(screen.getByLabelText("Texto pegado"), "receta");
+    await user.click(screen.getByLabelText(/Confirmo que el contenido/));
+    await user.click(screen.getByRole("button", { name: "Crear propuesta" }));
+    await user.click(
+      await screen.findByRole("button", { name: "Revisar creación de Patata" }),
+    );
+    const name = screen.getByLabelText("Ingrediente base nuevo nombre");
+    await user.clear(name);
+    await user.type(name, "  TÓMATE  ");
+    expect(screen.getByText(/Ya existe «Tomate»/)).toBeVisible();
+    expect(
+      screen.getByRole("button", {
+        name: "Aprobar creación de ingrediente base",
+      }),
+    ).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: "Confirmar y crear receta" }),
+    ).toBeDisabled();
+    await user.selectOptions(
+      screen.getByLabelText("Ingrediente base"),
+      "existing:ingredient-1",
+    );
+    expect(
+      screen.getByRole("button", { name: "Confirmar y crear receta" }),
+    ).toBeEnabled();
+    expect(screen.getByText("Resuelto contra existente: Tomate")).toBeVisible();
+  });
+
+  it("requires variant reapproval when its base changes", async () => {
+    window.localStorage.setItem(
+      "cocina-tuda-import-draft-v2",
+      JSON.stringify({
+        ...proposal("new").proposal,
+        importId: proposal("new").importId,
+        servings: "2",
+        description: "",
+        author: "",
+        difficulty: "",
+        notes: "",
+        categories: [],
+        tags: [],
+        ingredients: [
+          {
+            ingredient: {
+              mode: "new",
+              createName: "Pak choi",
+              existingId: "",
+              createAbbreviation: "",
+              approved: true,
+            },
+            variant: {
+              mode: "new",
+              createName: "Baby",
+              existingId: "",
+              createAbbreviation: "",
+              approved: true,
+            },
+            unit: {
+              mode: "discarded",
+              createName: "",
+              existingId: "",
+              createAbbreviation: "",
+            },
+            quantity: "1",
+            optional: false,
+            observations: "",
+          },
+        ],
+      }),
+    );
+    const fetchMock = vi.fn<typeof fetch>();
+    catalogResponses(fetchMock);
+    vi.stubGlobal("fetch", fetchMock);
+    const user = userEvent.setup();
+    render(<ImportWorkspace />);
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(4));
+    expect(
+      screen.getByRole("button", { name: "Confirmar y crear receta" }),
+    ).toBeEnabled();
+    await user.selectOptions(
+      screen.getByLabelText("Ingrediente base"),
+      "existing:ingredient-1",
+    );
+    expect(
+      screen.getByRole("button", { name: "Confirmar y crear receta" }),
+    ).toBeDisabled();
+    expect(
+      screen.getByText("Variante de:", { exact: false }),
+    ).toHaveTextContent("Tomate");
+    await user.click(
+      screen.getByRole("button", { name: "Aprobar creación de variante" }),
+    );
+    expect(
+      screen.getByRole("button", { name: "Confirmar y crear receta" }),
+    ).toBeEnabled();
+  });
+
   afterEach(() => {
     cleanup();
     window.localStorage.clear();
@@ -173,6 +421,14 @@ describe("ImportWorkspace", () => {
     expect(fetchMock).toHaveBeenCalledTimes(5);
 
     await user.selectOptions(screen.getByLabelText("Ingrediente base"), "new");
+    expect(
+      screen.getByRole("button", { name: "Confirmar y crear receta" }),
+    ).toBeDisabled();
+    await user.click(
+      screen.getByRole("button", {
+        name: "Aprobar creación de ingrediente base",
+      }),
+    );
     await user.click(
       screen.getByRole("button", { name: "Confirmar y crear receta" }),
     );
@@ -256,6 +512,9 @@ describe("ImportWorkspace", () => {
     );
     await user.selectOptions(screen.getByLabelText("Unidad"), "discarded");
     await user.selectOptions(screen.getByLabelText("Categorías 1"), "new");
+    await user.click(
+      screen.getByRole("button", { name: "Aprobar creación de categorías 1" }),
+    );
     await user.selectOptions(screen.getByLabelText("Etiquetas 1"), "discarded");
     expect(confirm).toBeEnabled();
     await user.click(confirm);

@@ -44,6 +44,9 @@ type RefDraft = {
   existingId: string;
   createName: string;
   createAbbreviation: string;
+  proposedName?: string;
+  proposalStatus?: Resolution["status"];
+  approved?: boolean;
 };
 type IngredientDraft = {
   ingredient: RefDraft;
@@ -96,11 +99,17 @@ const refFromResolution = (resolution: Resolution | null): RefDraft => {
       ...emptyRef(),
       mode: "existing",
       existingId: resolution.existingId,
+      proposedName: resolution.suggestions.find(
+        (item) => item.id === resolution.existingId,
+      )?.name,
+      proposalStatus: resolution.status,
     };
   }
   return {
     ...emptyRef(),
     createName: resolution.proposedName ?? "",
+    proposedName: resolution.proposedName,
+    proposalStatus: resolution.status,
   };
 };
 
@@ -218,7 +227,11 @@ export function ImportWorkspace() {
 
   async function confirm(event: FormEvent) {
     event.preventDefault();
-    if (!draft || hasPendingResolution(draft)) return;
+    if (
+      !draft ||
+      hasPendingResolution(draft, ingredients, units, categories, tags)
+    )
+      return;
     setBusy(true);
     try {
       const response = await apiFetch(`${apiUrl}/imports/confirmations`, {
@@ -249,8 +262,10 @@ export function ImportWorkspace() {
         name?: string;
         message?: string;
       };
-      if (!response.ok)
+      if (!response.ok) {
+        await loadCatalogs();
         throw new Error(body.message ?? "No se pudo confirmar la importación");
+      }
       window.localStorage.removeItem(storageKey);
       setDraft(null);
       setSourceText("");
@@ -463,8 +478,13 @@ function ReviewForm({
                   ingredient: value,
                   variant:
                     item.variant.mode === "existing"
-                      ? emptyRef()
-                      : item.variant,
+                      ? {
+                          ...item.variant,
+                          mode: "unresolved",
+                          existingId: "",
+                          approved: false,
+                        }
+                      : { ...item.variant, approved: false },
                 })
               }
               required
@@ -473,6 +493,8 @@ function ReviewForm({
               label="Variante"
               value={item.variant}
               existing={base?.variants ?? []}
+              parentName={base?.name ?? item.ingredient.createName}
+              parentPending={isPending(item.ingredient)}
               onChange={(value) =>
                 updateIngredient(draft, setDraft, index, { variant: value })
               }
@@ -571,13 +593,18 @@ function ReviewForm({
         onChange={(values) => setDraft({ ...draft, tags: values })}
       />
 
-      {hasPendingResolution(draft) && (
+      {hasPendingResolution(draft, ingredients, units, categories, tags) && (
         <p role="alert">
           Resuelve, aprueba como nuevo o descarta explícitamente cada dato
           pendiente antes de confirmar.
         </p>
       )}
-      <button disabled={busy || hasPendingResolution(draft)}>
+      <button
+        disabled={
+          busy ||
+          hasPendingResolution(draft, ingredients, units, categories, tags)
+        }
+      >
         Confirmar y crear receta
       </button>
       <button type="button" onClick={onDiscard}>
@@ -628,6 +655,8 @@ function ReferenceEditor({
   required = false,
   unit = false,
   allowDiscard = false,
+  parentName,
+  parentPending = false,
 }: {
   label: string;
   value: RefDraft;
@@ -636,11 +665,38 @@ function ReferenceEditor({
   required?: boolean;
   unit?: boolean;
   allowDiscard?: boolean;
+  parentName?: string;
+  parentPending?: boolean;
 }) {
   const selected =
     value.mode === "existing" ? `existing:${value.existingId}` : value.mode;
+  const collision = findCollision(value, existing);
+  const selectedName = existing.find(
+    (item) => item.id === value.existingId,
+  )?.name;
   return (
-    <div>
+    <div className="import-reference">
+      {value.proposedName && (
+        <p>
+          Detectado por IA: <strong>{value.proposedName}</strong>.{" "}
+          {value.proposalStatus === "new"
+            ? "No existe en catálogo."
+            : value.proposalStatus === "matched"
+              ? "Coincide con el catálogo."
+              : "Requiere revisión."}
+        </p>
+      )}
+      {parentName && (
+        <p>
+          Variante de: <strong>{parentName}</strong>
+        </p>
+      )}
+      {value.mode === "existing" && (
+        <p>Resuelto contra existente: {selectedName}</p>
+      )}
+      {value.mode === "discarded" && (
+        <p>Descartado: no se guardará este dato.</p>
+      )}
       <label>
         {label}
         <select
@@ -650,14 +706,32 @@ function ReferenceEditor({
             const next = event.target.value;
             if (next.startsWith("existing:"))
               onChange({
-                ...emptyRef(),
+                ...value,
                 mode: "existing",
                 existingId: next.slice(9),
+                approved: false,
               });
             else if (next === "new")
-              onChange({ ...value, mode: "new", existingId: "" });
-            else if (next === "discarded") onChange(discardedRef());
-            else onChange({ ...value, mode: "unresolved", existingId: "" });
+              onChange({
+                ...value,
+                mode: "new",
+                existingId: "",
+                approved: false,
+              });
+            else if (next === "discarded")
+              onChange({
+                ...value,
+                mode: "discarded",
+                existingId: "",
+                approved: false,
+              });
+            else
+              onChange({
+                ...value,
+                mode: "unresolved",
+                existingId: "",
+                approved: false,
+              });
           }}
         >
           <option value="unresolved">
@@ -673,7 +747,19 @@ function ReferenceEditor({
         </select>
       </label>
       {value.mode === "unresolved" && (
-        <p role="alert">{label}: resolución pendiente</p>
+        <>
+          <p role="alert">{label}: pendiente de resolución o aprobación</p>
+          {value.createName && (
+            <button
+              type="button"
+              onClick={() =>
+                onChange({ ...value, mode: "new", approved: false })
+              }
+            >
+              Revisar creación de {value.createName}
+            </button>
+          )}
+        </>
       )}
       {value.mode === "new" && (
         <>
@@ -683,7 +769,11 @@ function ReferenceEditor({
               aria-label={`${label} nuevo nombre`}
               value={value.createName}
               onChange={(e) =>
-                onChange({ ...value, createName: e.target.value })
+                onChange({
+                  ...value,
+                  createName: e.target.value,
+                  approved: false,
+                })
               }
               required
             />
@@ -695,12 +785,44 @@ function ReferenceEditor({
                 aria-label={`${label} abreviatura`}
                 value={value.createAbbreviation}
                 onChange={(e) =>
-                  onChange({ ...value, createAbbreviation: e.target.value })
+                  onChange({
+                    ...value,
+                    createAbbreviation: e.target.value,
+                    approved: false,
+                  })
                 }
                 required
               />
             </label>
           )}
+          {collision ? (
+            <p role="alert">
+              Ya existe «{collision.name}». Selecciónalo en {label}; no se
+              creará un duplicado.
+            </p>
+          ) : (
+            <p>
+              {value.approved
+                ? "Aprobado para crear al confirmar la receta."
+                : "Propuesta pendiente de aprobación. No se guardará todavía."}
+            </p>
+          )}
+          {parentPending && (
+            <p role="alert">Resuelve o aprueba primero el ingrediente base.</p>
+          )}
+          <button
+            type="button"
+            disabled={
+              !!collision ||
+              parentPending ||
+              !value.createName.trim() ||
+              (unit && !value.createAbbreviation.trim()) ||
+              value.approved === true
+            }
+            onClick={() => onChange({ ...value, approved: true })}
+          >
+            Aprobar creación de {label.toLocaleLowerCase("es")}
+          </button>
         </>
       )}
     </div>
@@ -725,32 +847,70 @@ function referencePayload(reference: RefDraft) {
   if (reference.mode === "discarded") return { discarded: true };
   return reference.mode === "existing"
     ? { existingId: reference.existingId }
-    : {
-        createName: reference.createName,
-        ...(reference.createAbbreviation
-          ? { createAbbreviation: reference.createAbbreviation }
-          : {}),
-      };
+    : reference.mode === "new" && reference.approved
+      ? {
+          createName: reference.createName,
+          ...(reference.createAbbreviation
+            ? { createAbbreviation: reference.createAbbreviation }
+            : {}),
+        }
+      : {};
 }
 
 function isPending(reference: RefDraft, unit = false) {
   return (
     reference.mode === "unresolved" ||
     (reference.mode === "new" &&
-      (!reference.createName.trim() ||
+      (!reference.approved ||
+        !reference.createName.trim() ||
         (unit && !reference.createAbbreviation.trim())))
   );
 }
 
-function hasPendingResolution(draft: Draft) {
+function normalizeName(value: string) {
+  return value
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase("es")
+    .replace(/\s+/g, " ");
+}
+
+function findCollision(reference: RefDraft, existing: Named[]) {
+  return reference.mode === "new"
+    ? existing.find(
+        (item) =>
+          normalizeName(item.name) === normalizeName(reference.createName),
+      )
+    : undefined;
+}
+
+function hasPendingResolution(
+  draft: Draft,
+  ingredients: Ingredient[],
+  units: Unit[],
+  categories: Named[],
+  tags: Named[],
+) {
   return (
     draft.ingredients.some(
       (item) =>
         item.ingredient.mode === "discarded" ||
         isPending(item.ingredient) ||
+        !!findCollision(item.ingredient, ingredients) ||
+        !!findCollision(
+          item.variant,
+          ingredients.find((base) => base.id === item.ingredient.existingId)
+            ?.variants ?? [],
+        ) ||
+        !!findCollision(item.unit, units) ||
         isPending(item.variant) ||
         isPending(item.unit, true),
-    ) || [...draft.categories, ...draft.tags].some((item) => isPending(item))
+    ) ||
+    draft.categories.some(
+      (item) => isPending(item) || !!findCollision(item, categories),
+    ) ||
+    draft.tags.some((item) => isPending(item) || !!findCollision(item, tags))
   );
 }
 
