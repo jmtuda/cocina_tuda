@@ -470,6 +470,124 @@ postgres('product flow on PostgreSQL', () => {
     expect(body.ingredients[0]).toMatchObject({ quantity: '1.25' });
     expect(body.categories).toHaveLength(1);
     expect(body.tags).toHaveLength(1);
+    const prisma = app.get(PrismaService);
+    const ingredient = await prisma.ingredient.findUniqueOrThrow({
+      where: { id: body.ingredients[0].ingredientId },
+    });
+    const variant = await prisma.ingredientVariant.findUniqueOrThrow({
+      where: { id: body.ingredients[0].variantId! },
+    });
+    const unit = await prisma.unit.findUniqueOrThrow({
+      where: { id: body.ingredients[0].unitId! },
+    });
+    expect(ingredient.name).toBe('Patata');
+    expect(variant).toMatchObject({
+      name: 'Nueva',
+      ingredientId: ingredient.id,
+    });
+    expect(unit).toMatchObject({ name: 'Kilogramo', abbreviation: 'kg' });
+    const reloaded = await request(server)
+      .get(`/api/v1/recipes/${body.id}`)
+      .expect(200);
+    expect(bodyAs<RecipeBody>(reloaded)).toMatchObject({
+      id: body.id,
+      name: 'Receta importada',
+      steps: [{ text: 'Preparar' }, { text: 'Servir' }],
+    });
+  });
+
+  it('requires explicit resolution after a normalized collision and retries without duplicating new catalog data', async () => {
+    const payload = {
+      importId: '00000000-0000-4000-8000-000000000104',
+      name: 'Importación resuelta',
+      steps: ['Mezclar'],
+      categories: [],
+      tags: [],
+      ingredients: [
+        {
+          ingredient: { createName: '  TÓMATE  ' },
+          variant: { createName: 'Kumato' },
+          unit: { createName: 'Manojo', createAbbreviation: 'man' },
+          optional: false,
+        },
+      ],
+    };
+    const rejected = await request(server)
+      .post('/api/v1/imports/confirmations')
+      .send(payload)
+      .expect(409);
+    expect(bodyAs<{ message: string }>(rejected).message).toContain(
+      'Resuelve explícitamente',
+    );
+    const resolved = {
+      ...payload,
+      ingredients: [
+        { ...payload.ingredients[0], ingredient: { existingId: ingredientId } },
+      ],
+    };
+    const first = await request(server)
+      .post('/api/v1/imports/confirmations')
+      .send(resolved)
+      .expect(201);
+    const repeated = await request(server)
+      .post('/api/v1/imports/confirmations')
+      .send(resolved)
+      .expect(201);
+    expect(idOf(repeated)).toBe(idOf(first));
+    const prisma = app.get(PrismaService);
+    expect(
+      await prisma.ingredientVariant.count({
+        where: { ingredientId, normalizedName: 'kumato' },
+      }),
+    ).toBe(1);
+    expect(
+      await prisma.unit.count({ where: { normalizedName: 'manojo' } }),
+    ).toBe(1);
+    expect(
+      await prisma.ingredient.count({ where: { normalizedName: 'tomate' } }),
+    ).toBe(1);
+  });
+
+  it('rolls back earlier catalog creations when a later catalog creation collides', async () => {
+    await request(server)
+      .post('/api/v1/imports/confirmations')
+      .send({
+        importId: '00000000-0000-4000-8000-000000000105',
+        name: 'No guardar catálogo parcial',
+        steps: [],
+        categories: [],
+        tags: [],
+        ingredients: [
+          {
+            ingredient: { createName: 'Pak choi rollback' },
+            variant: { createName: 'Baby' },
+            unit: { createName: '  GRÁMO  ', createAbbreviation: 'g' },
+            optional: false,
+          },
+        ],
+      })
+      .expect(409);
+    const prisma = app.get(PrismaService);
+    expect(
+      await prisma.ingredient.count({
+        where: { normalizedName: 'pak choi rollback' },
+      }),
+    ).toBe(0);
+    expect(
+      await prisma.ingredientVariant.count({
+        where: { normalizedName: 'baby' },
+      }),
+    ).toBe(0);
+    expect(
+      await prisma.recipe.count({
+        where: { normalizedName: 'no guardar catalogo parcial' },
+      }),
+    ).toBe(0);
+    expect(
+      await prisma.importConfirmation.count({
+        where: { importId: '00000000-0000-4000-8000-000000000105' },
+      }),
+    ).toBe(0);
   });
 
   it('rolls back catalog creations when imported recipe persistence fails', async () => {
@@ -482,8 +600,8 @@ postgres('product flow on PostgreSQL', () => {
         ingredients: [
           {
             ingredient: { createName: 'Ingrediente rollback' },
-            variant: { discarded: true },
-            unit: { discarded: true },
+            variant: { createName: 'Variante rollback' },
+            unit: { createName: 'Unidad rollback', createAbbreviation: 'ur' },
             optional: false,
           },
         ],
@@ -496,6 +614,14 @@ postgres('product flow on PostgreSQL', () => {
       await prisma.ingredient.count({
         where: { normalizedName: 'ingrediente rollback' },
       }),
+    ).toBe(0);
+    expect(
+      await prisma.ingredientVariant.count({
+        where: { normalizedName: 'variante rollback' },
+      }),
+    ).toBe(0);
+    expect(
+      await prisma.unit.count({ where: { normalizedName: 'unidad rollback' } }),
     ).toBe(0);
     expect(
       await prisma.recipe.count({ where: { normalizedName: 'debe fallar' } }),

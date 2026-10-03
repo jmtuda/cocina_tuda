@@ -44,6 +44,8 @@ El contenido de cada fuente importada se envía al proveedor externo solo despu�
 
 El adaptador OpenAI continúa disponible como alternativa mediante `IMPORT_AI_PROVIDER=openai`, `OPENAI_API_KEY` y, opcionalmente, `OPENAI_IMPORT_MODEL`. La elección es configuración de servidor y no modifica el dominio ni el flujo de importación.
 
+Durante la revisión, cada referencia muestra lo detectado por IA y su estado. Para crear un elemento de catálogo, selecciona «Crear nuevo…» o «Revisar creación», corrige el nombre (y la abreviatura de una unidad) y pulsa «Aprobar creación». Cambiar sus datos retira la aprobación; cambiar el ingrediente base también obliga a revisar su variante. Puedes elegir un elemento existente o descartar los datos opcionales. Una colisión de nombre normalizado requiere seleccionar explícitamente el existente, nunca se fusiona automáticamente. Los elementos aprobados solo se guardan junto con la receta al confirmar, en una única transacción idempotente; no es necesario abandonar Importar.
+
 ## Desarrollo
 
 Ejecutar API y web simultáneamente:

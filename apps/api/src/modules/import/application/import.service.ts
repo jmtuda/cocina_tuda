@@ -1,11 +1,13 @@
 import {
   BadGatewayException,
   BadRequestException,
+  ConflictException,
   Inject,
   Injectable,
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { CatalogService } from '../../catalog/application/catalog.service.js';
+import { normalizeName } from '../../catalog/domain/catalog.js';
 import { ClassificationService } from '../../catalog/application/classification.service.js';
 import { RecipeService } from '../../library/application/recipe.service.js';
 import {
@@ -148,7 +150,7 @@ export class ImportService {
   ): Resolution {
     const name = rawName?.trim();
     if (!name) return { status: 'unresolved', suggestions: [] };
-    const normalized = this.normalize(name);
+    const normalized = normalizeName(name);
     const exact = candidates.find(
       (candidate) => candidate.normalizedName === normalized,
     );
@@ -195,8 +197,14 @@ export class ImportService {
 
   private async resolveIngredientReference(reference: ConfirmedReference) {
     if (reference.existingId) return reference.existingId;
-    if (reference.createName)
+    if (reference.createName) {
+      this.assertNoCollision(
+        reference.createName,
+        await this.catalog.listIngredients(),
+        'ingrediente',
+      );
       return (await this.catalog.createIngredient(reference.createName)).id;
+    }
     throw new BadRequestException('Todos los ingredientes deben resolverse');
   }
 
@@ -205,11 +213,26 @@ export class ImportService {
     reference: ConfirmedReference,
   ) {
     if (reference.discarded) return undefined;
-    if (reference.existingId) return reference.existingId;
-    if (reference.createName)
+    const base = (await this.catalog.listIngredients()).find(
+      (item) => item.id === ingredientId,
+    );
+    if (reference.existingId) {
+      if (!base?.variants.some((item) => item.id === reference.existingId))
+        throw new BadRequestException(
+          'La variante debe pertenecer al ingrediente seleccionado',
+        );
+      return reference.existingId;
+    }
+    if (reference.createName) {
+      this.assertNoCollision(
+        reference.createName,
+        base?.variants ?? [],
+        'variante',
+      );
       return (
         await this.catalog.createVariant(ingredientId, reference.createName)
       ).id;
+    }
     throw new BadRequestException('La variante no está resuelta');
   }
 
@@ -217,6 +240,11 @@ export class ImportService {
     if (reference.discarded) return undefined;
     if (reference.existingId) return reference.existingId;
     if (reference.createName && reference.createAbbreviation) {
+      this.assertNoCollision(
+        reference.createName,
+        await this.catalog.listUnits(),
+        'unidad',
+      );
       return (
         await this.catalog.createUnit(
           reference.createName,
@@ -289,12 +317,13 @@ export class ImportService {
     return raw as RawRecipeProposal;
   }
 
-  private normalize(value: string) {
-    return value
-      .trim()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLocaleLowerCase('es')
-      .replace(/\s+/g, ' ');
+  private assertNoCollision(name: string, existing: Named[], kind: string) {
+    const collision = existing.find(
+      (item) => item.normalizedName === normalizeName(name),
+    );
+    if (collision)
+      throw new ConflictException(
+        `Ya existe ${kind} «${collision.name}». Resuelve explícitamente contra el catálogo existente.`,
+      );
   }
 }

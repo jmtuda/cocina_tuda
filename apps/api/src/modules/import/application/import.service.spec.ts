@@ -130,6 +130,86 @@ function harness(interpreted: unknown = raw) {
 }
 
 describe('ImportService', () => {
+  it.each(['variant', 'unit'] as const)(
+    'requires explicit resolution of a normalized %s collision',
+    async (kind) => {
+      const { service, catalog, recipes } = harness();
+      const item = {
+        ingredient: { existingId: 'tomato-id' },
+        variant: { discarded: true } as {
+          discarded?: boolean;
+          createName?: string;
+        },
+        unit: { discarded: true } as {
+          discarded?: boolean;
+          createName?: string;
+          createAbbreviation?: string;
+        },
+        optional: false,
+      };
+      if (kind === 'variant') item.variant = { createName: '  CHÉRRY  ' };
+      else item.unit = { createName: '  GRÁMO  ', createAbbreviation: 'g' };
+      await expect(
+        service.confirm({
+          importId: `collision-${kind}`,
+          name: 'Test',
+          steps: [],
+          categories: [],
+          tags: [],
+          ingredients: [item],
+        }),
+      ).rejects.toThrow('Resuelve explícitamente');
+      expect(catalog.createVariant).not.toHaveBeenCalled();
+      expect(catalog.createUnit).not.toHaveBeenCalled();
+      expect(recipes.create).not.toHaveBeenCalled();
+    },
+  );
+
+  it('rejects normalized collisions instead of silently using or duplicating an ingredient', async () => {
+    const { service, catalog, recipes } = harness();
+    await expect(
+      service.confirm({
+        importId: 'collision',
+        name: 'Test',
+        steps: [],
+        categories: [],
+        tags: [],
+        ingredients: [
+          {
+            ingredient: { createName: '  TÓMATE  ' },
+            variant: { discarded: true },
+            unit: { discarded: true },
+            optional: false,
+          },
+        ],
+      }),
+    ).rejects.toThrow('Resuelve explícitamente');
+    expect(catalog.createIngredient).not.toHaveBeenCalled();
+    expect(recipes.create).not.toHaveBeenCalled();
+  });
+
+  it('rejects a variant belonging to another ingredient', async () => {
+    const { service, recipes } = harness();
+    await expect(
+      service.confirm({
+        importId: 'wrong-base',
+        name: 'Test',
+        steps: [],
+        categories: [],
+        tags: [],
+        ingredients: [
+          {
+            ingredient: { existingId: 'tomato-id' },
+            variant: { existingId: 'foreign-variant' },
+            unit: { discarded: true },
+            optional: false,
+          },
+        ],
+      }),
+    ).rejects.toThrow('debe pertenecer');
+    expect(recipes.create).not.toHaveBeenCalled();
+  });
+
   it('requires consent before any provider call or definitive write', async () => {
     const { service, interpret, catalog, recipes } = harness();
     await expect(

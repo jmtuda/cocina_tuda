@@ -604,3 +604,15 @@ fieldset {
     gap: 0.8rem;
   }
 }
+.import-reference {
+  padding: 0.6rem;
+  border: 1px solid var(--line, #ddd6cb);
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.import-reference p {
+  margin: 0.25rem 0;
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
