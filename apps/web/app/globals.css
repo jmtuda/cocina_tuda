@@ -471,3 +471,136 @@ fieldset {
     flex-direction: column;
   }
 }
+
+/* Biblioteca: consulta y edición comparten los controles de la aplicación. */
+.recipe-modal {
+  width: min(1100px, calc(100vw - 3rem));
+  max-width: none;
+  max-height: calc(100dvh - 3rem);
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 0.85rem;
+  background: var(--paper);
+  color: var(--foreground);
+  overflow: hidden;
+}
+.recipe-modal::backdrop {
+  background: rgb(30 25 20 / 45%);
+}
+.recipe-modal-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0.9rem;
+  border-bottom: 1px solid var(--line);
+}
+.recipe-modal-bar > span {
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+}
+.recipe-modal-content {
+  max-height: calc(100dvh - 7rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.9rem;
+}
+.recipe-modal .panel {
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+}
+.recipe-modal button,
+.workspace form.recipe button {
+  align-self: start;
+  justify-self: start;
+}
+.workspace form.recipe .row {
+  align-items: start;
+}
+.recipe-read-header h2 {
+  font-size: 1.6rem;
+}
+.recipe-read-header p {
+  margin-bottom: 0.6rem;
+  white-space: pre-wrap;
+}
+.recipe-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.7rem;
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  margin-bottom: 0.9rem;
+}
+.recipe-meta span {
+  padding: 0.2rem 0.45rem;
+  background: var(--background);
+  border-radius: 0.3rem;
+}
+.recipe-read-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.8fr);
+  gap: 1.4rem;
+}
+.recipe-ingredients {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.recipe-ingredients li {
+  border-bottom: 1px solid var(--line);
+  padding: 0.4rem 0;
+  font-size: 0.9rem;
+}
+.recipe-ingredients span,
+.recipe-ingredients small {
+  display: block;
+  color: var(--ink-soft);
+}
+.recipe-steps {
+  list-style: decimal;
+  margin: 0;
+  padding-left: 1.65rem;
+}
+.recipe-steps li {
+  padding: 0.3rem 0 0.4rem 0.3rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+.recipe-steps li::marker {
+  color: var(--accent);
+  font-weight: 700;
+}
+.recipe-notes {
+  margin-top: 0.8rem;
+  padding: 0.55rem 0.75rem;
+  background: var(--background);
+  border-radius: 0.5rem;
+}
+.recipe-notes p {
+  margin-bottom: 0;
+  white-space: pre-wrap;
+}
+.recipe-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+}
+.recipe-modal-content {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 760px) {
+  .recipe-modal {
+    width: calc(100vw - 0.75rem);
+    max-height: calc(100dvh - 0.75rem);
+  }
+  .recipe-modal-content {
+    max-height: calc(100dvh - 4.5rem);
+    padding: 0.75rem;
+  }
+  .recipe-read-columns {
+    grid-template-columns: 1fr;
+    gap: 0.8rem;
+  }
+}

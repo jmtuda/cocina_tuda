@@ -1,4 +1,10 @@
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { RecipeWorkspace } from "./recipe-workspace";
@@ -71,12 +77,23 @@ describe("RecipeWorkspace", () => {
       .mockResolvedValueOnce(new Response(JSON.stringify(detail)))
       .mockResolvedValueOnce(
         new Response(JSON.stringify({ items: [summary], totalPages: 1 })),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({ ...detail, name: "Ensalada actualizada" }),
+        ),
       );
     vi.stubGlobal("fetch", fetchMock);
     const user = userEvent.setup();
     render(<RecipeWorkspace />);
 
     await user.click(await screen.findByRole("button", { name: /Ensalada/ }));
+    expect(
+      await screen.findByRole("dialog", { name: "Ensalada" }),
+    ).toBeVisible();
+    expect(screen.getByText("Cortar")).toBeVisible();
+    expect(screen.getByText("Mezclar")).toBeVisible();
+    await user.click(screen.getByRole("button", { name: "Editar" }));
 
     expect(screen.getByLabelText("Descripción")).toHaveValue("Fresca");
     expect(screen.getByLabelText("Autor")).toHaveValue("Tuda");
@@ -91,8 +108,20 @@ describe("RecipeWorkspace", () => {
       "Partidos",
     );
 
+    await user.clear(screen.getByLabelText("Nombre"));
+    await user.type(screen.getByLabelText("Nombre"), "Cambio descartado");
+    await user.click(screen.getByRole("button", { name: "Cancelar edición" }));
+    expect(
+      screen.queryByDisplayValue("Cambio descartado"),
+    ).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Editar" }));
+    expect(screen.getByLabelText("Nombre")).toHaveValue("Ensalada");
+
     await user.click(screen.getByRole("button", { name: "Guardar cambios" }));
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(8));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(9));
+    expect(
+      screen.queryByRole("button", { name: "Guardar cambios" }),
+    ).not.toBeInTheDocument();
     const request = fetchMock.mock.calls[6]?.[1];
     expect(JSON.parse(String(request?.body))).toEqual({
       name: "Ensalada",
@@ -125,6 +154,18 @@ describe("RecipeWorkspace", () => {
       categoryIds: ["category-1"],
       tagIds: ["tag-1"],
     });
+    expect(
+      await screen.findByRole("dialog", { name: "Ensalada actualizada" }),
+    ).toBeVisible();
+    expect(screen.getByText("Cortar")).toBeVisible();
+    expect(screen.getByText("Mezclar")).toBeVisible();
+    expect(document.body.style.overflow).toBe("hidden");
+    fireEvent(
+      screen.getByRole("dialog"),
+      new Event("cancel", { bubbles: false, cancelable: true }),
+    );
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(document.body.style.overflow).toBe("");
   });
 
   it("creates ingredients, variants and units from the catalog interface", async () => {
