@@ -1,6 +1,6 @@
 # Estado del proyecto y traspaso a Hermes
 
-Fecha de revisión: 7 de octubre de 2026. Base contrastada mediante fetch y API de GitHub: `origin/main` en `6ce24b3911dfd4cafb91ed756a60badff4beefd0`. Este documento registra hechos observados; no convierte conversaciones en evidencia de implementación.
+Fecha de revisión: 7 de octubre de 2026. El traspaso inicial contrastó `origin/main` en `6ce24b3911dfd4cafb91ed756a60badff4beefd0`; antes de la transferencia a Neon se comprobó el checkout limpio y sincronizado en `18e723b5e4cd6595974be422c0a2a34a7661a288`. La configuración y la evidencia de transferencia se entregan mediante PR; las credenciales permanecen exclusivamente en el archivo local ignorado por Git. Este documento registra hechos observados; no convierte conversaciones en evidencia de implementación.
 
 ## Estado real y último trabajo
 
@@ -27,7 +27,21 @@ Este traspaso incorpora guía de agentes, estado operativo y correcciones del RE
 
 No se ha identificado una funcionalidad del MVP declarada parcial en el código revisado. Su disponibilidad en una instancia concreta depende de DB, migraciones y configuración de IA; no queda certificada por las pruebas sin PostgreSQL.
 
-**Carga histórica XLSX: no acreditada.** No hay importador XLSX ni informe de ejecución en el repositorio. La conexión local PostgreSQL devolvió `ECONNREFUSED`, no hay `.env` en este checkout y Docker no está ejecutándose. No se consultaron datos privados ni se migró la base real. No afirmar que el lote está cargado ni repetirlo a ciegas. El recuento de recetas por sí solo tampoco probaría la procedencia. Si sigue pendiente, es una carga única con reconciliación y respaldo, nunca una nueva feature de importación masiva.
+**Base histórica recuperada y copiada a Neon.** El propietario aportó evidencia documental de la carga XLSX y de sus respaldos en frío y `pg_dump`; esos backups no se inspeccionaron ni modificaron. Se verificaron independientemente 85 recetas, 675 líneas de ingredientes, 471 pasos y 85 confirmaciones de importación en la instancia local recuperada. Los recuentos respaldan la conservación de los datos; la atribución al XLSX procede de la evidencia del propietario, no de un campo de archivo fuente en el esquema. No repetir la importación.
+
+## Transferencia a Neon — 7 de octubre de 2026
+
+- Destino autorizado: proyecto `cocina-tuda-pg16`, ID `calm-butterfly-64933476`, rama `production`, ID `br-morning-rain-b1ixq8dj`, base `cocina_tuda`, PostgreSQL 16.15, Frankfurt, plan Free comprobado en el panel. No se activaron servicios adicionales ni planes de pago. El proyecto inicial incorrecto PostgreSQL 18 (`cold-truth-35056944`) se eliminó con autorización explícita y se comprobó su ausencia.
+- Origen: contenedor existente `cocina-tuda-postgres`, PostgreSQL 16.14, base `cocina_tuda`, volumen persistente. La conexión cliente con Neon se verificó con TLS 1.3.
+- Copia: `pg_dump` completo desde un snapshot exportado en una transacción de origen `REPEATABLE READ READ ONLY`; restauración atómica en el destino previamente comprobado vacío. Sin exportar propietarios ni ACL locales: los objetos restaurados pertenecen al rol de Neon. No se ejecutó `prisma migrate deploy`, ninguna importación XLSX, `test:postgres` ni benchmark.
+- Verificación: las filas completas de las 17 tablas, incluidas las vacías, coinciden por SHA-256 entre origen y destino. Coinciden también columnas, tipos, defaults, restricciones, índices, funciones y versiones de extensiones (`pg_trgm`, `unaccent`, `plpgsql`). Las seis migraciones están finalizadas, no revertidas y sus checksums coinciden con los archivos del repositorio. El origen no cambió durante la copia y el snapshot se cerró.
+- Recuentos de Neon: 85 recetas, 675 líneas de ingredientes, 471 pasos, 85 confirmaciones de importación, 111 ingredientes, 104 variantes, 28 unidades, 15 categorías, 3 etiquetas y 2 listas de compra. No hay comidas planificadas. También se conservaron las tablas de relaciones y procedencia de compras.
+- Configuración local autorizada: conexión de servidor en `apps/api/.env`, ignorada por Git y con permisos `600`; sin `TEST_POSTGRES_URL`. La API carga dotenv antes de arrancar. No se publican credenciales, archivos fuente ni dumps en el repositorio.
+- La base local permanece intacta como respaldo previo al cambio; no existe sincronización entre las dos instancias. Los nuevos cambios de la aplicación configurada para Neon se guardarán únicamente en Neon. API y web siguen siendo locales/de confianza, no un despliegue público.
+- Verificación del arranque: cliente Node/pg conectado a Neon 16.15 desde `apps/api/.env`; API compilada arrancada temporalmente con sesiones DB de solo lectura. Health, listado de las 85 recetas y detalle de una receta devolvieron HTTP 200 mediante GET. El proceso de comprobación se detuvo al terminar. Las filas de origen y destino seguían idénticas tras todas las comprobaciones.
+- Regresión actual: formato, lint, typecheck y build correctos, ejecutados secuencialmente y sin caché de Turbo para las tareas aplicables. API: 60 pruebas correctas y 9 PostgreSQL omitidas; web: 20 correctas; HTTP e2e: 2 correctas y 11 PostgreSQL omitidas. La prueba de carga de entorno falló antes de añadir dotenv y pasó después; otra prueba comprueba la prioridad de las variables del proceso.
+- Entorno actual: Node 26.7.0 y pnpm 11.19.0. El primer intento web falló porque el almacenamiento nativo de Node 26 interfería con jsdom; la prueba acotada y la suite completa pasaron con `NODE_OPTIONS=--no-experimental-webstorage` solo para el proceso de tests, sin cambiar código web. No se considera validado el comando de tests sin ese ajuste en Node 26.
+- Evidencia técnica sin credenciales ni datos de recetas: [`neon-transfer-verification.json`](neon-transfer-verification.json), con recuentos y huellas SHA-256 por tabla, comparación de esquema y resultados de comprobación. Es una instantánea del momento de la verificación, no un indicador dinámico del estado de publicación ni de futuros datos.
 
 Pendientes del backlog: B-020 variantes/grupos de recetas y B-021 cuentas/propiedad multiusuario; después offline/sincronización, inventario, nutrición/escalado, recomendaciones, colaboración y favoritos/colecciones/estadísticas. No hay un nuevo sprint activo aprobado.
 
@@ -51,9 +65,9 @@ Monolito modular NestJS con contratos públicos entre módulos, Next/React como 
 | `PORT`                | Puerto de API; fallback 3001.                                                                                                      |
 | `NEXT_PUBLIC_API_URL` | URL pública para el cliente web; fallback `/api/v1`. No incluir secretos.                                                          |
 
-Exportar la configuración para el proceso API; `main.ts` no carga dotenv. Prisma CLI sí importa `dotenv/config`. No versionar archivos privados de entorno.
+La API (`main.ts`) y Prisma CLI cargan `dotenv/config`. Los comandos pnpm del paquete API leen su archivo local `apps/api/.env`; las variables ya exportadas conservan prioridad. No versionar archivos privados de entorno ni configurar `TEST_POSTGRES_URL` hacia la base real.
 
-## Verificaciones realizadas
+## Verificaciones del traspaso inicial
 
 Entorno local: Node 24.7.0 y pnpm 11.19.0; dependencias existentes. Lint, tipado, tests y build ejecutados sin caché de Turbo.
 
@@ -70,4 +84,4 @@ No quedan fallos observados en las verificaciones locales ejecutables tras la co
 
 ## Siguiente tarea recomendada para Hermes
 
-Restablecer acceso a PostgreSQL local y verificar en modo lectura las migraciones y la trazabilidad de la carga histórica; preparar una base desechable separada para ejecutar `test:postgres` y el benchmark. Determinar con evidencia si el XLSX sigue pendiente antes de proponer su carga única. Después, acordar el siguiente alcance del backlog; no implementar B-020/B-021 automáticamente.
+Preparar, solo tras autorización, un proyecto PostgreSQL desechable separado y vacío para `test:postgres`; verificar su plan gratuito y mantener credenciales y endpoint distintos de Neon real. No usar una copia histórica para las pruebas destructivas. Integrar por PR la configuración y esta documentación tras las comprobaciones, sin publicar `.env`. Después, acordar el siguiente alcance del backlog; no implementar B-020/B-021 automáticamente.

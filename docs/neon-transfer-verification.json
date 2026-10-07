@@ -1,0 +1,144 @@
+{
+  "verified_at_utc": "2026-10-07T15:10:35.922074+00:00",
+  "repository_commit": "18e723b5e4cd6595974be422c0a2a34a7661a288",
+  "source": {
+    "container": "cocina-tuda-postgres",
+    "database": "cocina_tuda",
+    "version": "16.14 (Debian 16.14-1.pgdg13+1)",
+    "unchanged": true
+  },
+  "destination": {
+    "project_id": "calm-butterfly-64933476",
+    "project_name": "cocina-tuda-pg16",
+    "branch_id": "br-morning-rain-b1ixq8dj",
+    "database": "cocina_tuda",
+    "version": "16.15 (9e87aff)",
+    "region": "aws-eu-central-1",
+    "plan": "Free",
+    "client_tls": "TLSv1.3"
+  },
+  "copy": {
+    "method": "pg_dump snapshot + psql single transaction",
+    "owners_and_acls_copied": false,
+    "dump_sha256": "5d0d2e16f0b4daade8ca644602015b22b47758f47d6a9b1dfd77fc1213065c54",
+    "dump_bytes": 281833,
+    "dump_saved_to_disk": false,
+    "owner_backups_accessed": false
+  },
+  "comparison": {
+    "table_count": 17,
+    "tables": {
+      "_prisma_migrations": {
+        "count": 6,
+        "sha256": "d138a8f4c918b3229d26077b161d33deff921c3a0786d33a31ce198a752fc4a2"
+      },
+      "categories": {
+        "count": 15,
+        "sha256": "efe827d52a9565f314c523ad444b14287d18def971896f43969cca2b248d4f7f"
+      },
+      "import_confirmations": {
+        "count": 85,
+        "sha256": "9f9ec29dcb9bb0b32cfe0d9f132bbfa3e7b5decba96adbec243fb06ca97ae0ef"
+      },
+      "ingredient_variants": {
+        "count": 104,
+        "sha256": "eb120c70854b9f427535e5e4d3e81eef6aaf536607326d688d5c88e9471cd8c0"
+      },
+      "ingredients": {
+        "count": 111,
+        "sha256": "d414f27f7c3a99b6873a0efb2e6f49dc9b086d85339d5c173d479204ff4a8e41"
+      },
+      "planned_meals": {
+        "count": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "recipe_categories": {
+        "count": 85,
+        "sha256": "80712a19ff310a8709a964451e78ccee65c336f7c3127b720b3ea056646fdb7e"
+      },
+      "recipe_ingredients": {
+        "count": 675,
+        "sha256": "87c85ebd16c6254570393106a57efa92a0b60a2b354b4c611b27d7fafe9449b4"
+      },
+      "recipe_steps": {
+        "count": 471,
+        "sha256": "d2438f7c699a16039bd41f3cce99899d0a26ec17e07e5528c6e4fffe0f1decf1"
+      },
+      "recipe_tags": {
+        "count": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "recipes": {
+        "count": 85,
+        "sha256": "4b7d74cd60f4e5e44013fddf3c805b0573d238a2c761bc73d317a0679aa8e600"
+      },
+      "shopping_item_sources": {
+        "count": 2,
+        "sha256": "78c9d72db01fcd39edc7e6d627327d6e2ae3c6dd65f8086941ea45a400c2aa67"
+      },
+      "shopping_items": {
+        "count": 3,
+        "sha256": "79e1283ed6c83e39a6e7d682dcce020556036cd31b98302a49b6caea9dd2990d"
+      },
+      "shopping_list_sources": {
+        "count": 2,
+        "sha256": "d090580f712fe20da42f5357beab84befbd979a01e91c037f658408d4d0c26ea"
+      },
+      "shopping_lists": {
+        "count": 2,
+        "sha256": "deaf988f54a56107e436506ed5227c89b945aedfd4664d8add7105e431671861"
+      },
+      "tags": {
+        "count": 3,
+        "sha256": "50ccc9f07ca402e2d0f3eaa9af564c6245cb5ac842c18fd1646ec892b221fa2a"
+      },
+      "units": {
+        "count": 28,
+        "sha256": "9659dbc0d95faf05536a7d6be5f01375ceba6649f128dbfa252f148e11f5e40a"
+      }
+    },
+    "schema_matches": {
+      "columns": true,
+      "constraints": true,
+      "indexes": true,
+      "extensions": true,
+      "functions": true,
+      "table_inventory": true
+    },
+    "migrations_match_repository": true,
+    "source_unchanged_after_checks": true,
+    "destination_unchanged_after_checks": true
+  },
+  "runtime": {
+    "health_http": 200,
+    "recipe_list_http": 200,
+    "total_recipes": 85,
+    "returned_recipes": 85,
+    "detail_http": 200,
+    "only_get_requests": true,
+    "database_sessions_read_only": true,
+    "configuration_loaded_from": "apps/api/.env"
+  },
+  "validation": {
+    "format": "passed",
+    "lint": "passed",
+    "typecheck": "passed",
+    "build": "passed",
+    "api_tests_passed": 60,
+    "api_postgres_tests_skipped": 9,
+    "web_tests_passed": 20,
+    "http_e2e_tests_passed": 2,
+    "postgres_e2e_tests_skipped": 11,
+    "node_version": "26.7.0",
+    "test_only_node_options": "--no-experimental-webstorage",
+    "postgres_destructive_tests_executed": false,
+    "benchmark_executed": false
+  },
+  "local_configuration": {
+    "file": "apps/api/.env",
+    "git_ignored": true,
+    "permissions": "0600",
+    "test_postgres_url_configured": false
+  },
+  "repository_changes_published_at_verification": false
+}
