@@ -43,6 +43,10 @@ export GEMINI_IMPORT_MODEL="gemini-3.5-flash-lite"
 pnpm --filter @cocina-tuda/api db:migrate
 ```
 
+La API y Prisma CLI cargan `apps/api/.env` al ejecutarse desde ese paquete, como hacen los comandos pnpm anteriores. También pueden recibir variables exportadas; estas tienen prioridad sobre el archivo. Guarda las credenciales únicamente en el archivo local ignorado por Git, con permisos `600`, nunca en la documentación ni en el cliente web.
+
+La instancia personal se ha copiado y verificado en Neon Free, PostgreSQL 16, región Frankfurt. `apps/api/.env` configura su conexión TLS. No vuelvas a importar el XLSX ni a ejecutar migraciones para repetir esa transferencia; consulta `docs/PROJECT_STATUS.md`. La base local se conserva como respaldo previo al cambio y no se sincroniza automáticamente con Neon.
+
 El contenido de cada fuente importada se envía al proveedor externo solo después del consentimiento explícito del usuario. Cocina Tuda no conserva permanentemente la fuente original. En el nivel gratuito de Gemini, Google puede utilizar el contenido para mejorar sus productos; deben utilizarse únicamente fuentes que el usuario acepte compartir bajo esas condiciones.
 
 El adaptador OpenAI continúa disponible como alternativa mediante `IMPORT_AI_PROVIDER=openai`, `OPENAI_API_KEY` y, opcionalmente, `OPENAI_IMPORT_MODEL`. La elección es configuración de servidor y no modifica el dominio ni el flujo de importación.
