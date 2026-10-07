@@ -4,6 +4,8 @@ Cocina Tuda es una plataforma personal para convertir recetas procedentes de dis
 
 La documentación normativa se encuentra en [`docs/`](docs/README.md). El producto permite mantener e importar recetas, planificarlas y generar listas de compra editables.
 
+Para continuar el desarrollo: [`AGENTS.md`](AGENTS.md) y [`docs/PROJECT_STATUS.md`](docs/PROJECT_STATUS.md) describen las reglas operativas y el estado verificado del traspaso a Hermes.
+
 ## Estado actual
 
 - Producto: línea base aprobada.
@@ -31,7 +33,8 @@ Los cambios de alcance o arquitectura deberán actualizar la documentación corr
 
 ```bash
 corepack enable
-pnpm install
+pnpm install --frozen-lockfile
+pnpm --filter @cocina-tuda/api prisma:generate
 export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/cocina_tuda"
 export IMPORT_AI_PROVIDER="gemini"
 export GEMINI_API_KEY="..."
@@ -70,9 +73,9 @@ pnpm test:e2e
 pnpm build
 ```
 
-La migración de Sprint 1 crea exclusivamente recetas, pasos, ingredientes, variantes, unidades e ingredientes de receta.
+Las seis migraciones acumuladas cubren biblioteca, catálogo y clasificación, búsqueda, planificación, compras e idempotencia de confirmación de importaciones.
 
-Las comprobaciones específicas de búsqueda, planificación y compras sobre PostgreSQL se ejecutan contra una base de pruebas ya migrada:
+Las comprobaciones específicas de búsqueda, planificación y compras sobre PostgreSQL se ejecutan contra una base de pruebas desechable ya migrada. Estas pruebas truncan tablas; nunca deben apuntar a la base del propietario. Sin `TEST_POSTGRES_URL` se omiten:
 
 ```bash
 DATABASE_URL="postgresql://..." TEST_POSTGRES_URL="$DATABASE_URL" pnpm --filter @cocina-tuda/api test:postgres

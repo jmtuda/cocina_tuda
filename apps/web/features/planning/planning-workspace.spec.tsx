@@ -29,6 +29,7 @@ describe("PlanningWorkspace", () => {
   afterEach(() => {
     cleanup();
     vi.restoreAllMocks();
+    vi.useRealTimers();
   });
 
   it("shows empty days and navigates to adjacent weeks", async () => {
@@ -56,6 +57,8 @@ describe("PlanningWorkspace", () => {
   });
 
   it("creates and permanently removes a planned meal", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-10-03T12:00:00Z"));
     const recipe = { id: "recipe-1", name: "Tortilla", status: "ACTIVE" };
     const meal = {
       id: "meal-1",
@@ -86,7 +89,9 @@ describe("PlanningWorkspace", () => {
     await user.type(screen.getByLabelText("Fecha"), "2026-10-03");
     await user.type(screen.getByLabelText("Denominación opcional"), "Cena");
     await user.click(screen.getByRole("button", { name: "Añadir al plan" }));
-    expect(await screen.findAllByText("Tortilla")).toHaveLength(2);
+    await waitFor(() =>
+      expect(screen.getAllByText("Tortilla")).toHaveLength(2),
+    );
     await user.click(screen.getByRole("button", { name: "Retirar" }));
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(6));
     expect(fetchMock.mock.calls[4]?.[1]?.method).toBe("DELETE");

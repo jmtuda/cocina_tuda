@@ -2,6 +2,8 @@
 
 Esta carpeta es la fuente de verdad del proyecto. Las conversaciones ayudan a tomar decisiones, pero solo los documentos aprobados tienen carácter normativo.
 
+Para el traspaso operativo, empezar por [`../AGENTS.md`](../AGENTS.md) y [`PROJECT_STATUS.md`](PROJECT_STATUS.md). Este último distingue implementación comprobada, verificaciones pendientes y estado de los datos.
+
 ## Orden de lectura
 
 | Documento                      | Pregunta que responde                                          |
