@@ -94,6 +94,8 @@ El subshell limita estas variables al comando de pruebas y no cambia la conexió
 
 El parámetro `--testTimeout=30000` se añade al tramo HTTP e2e del script; los repositorios mantienen su límite habitual. En Neon, dos recorridos HTTP superaron los 5 segundos predeterminados. La ejecución sin este ajuste falló; con el límite de 30 segundos pasaron las mismas aserciones, sin modificar código ni pruebas. El límite no es una garantía de rendimiento de la aplicación.
 
+En GitHub Actions, `validate` crea su propio servicio `postgres:16`, aplica las seis migraciones y ejecuta `test:postgres` en un paso separado. Las variables de conexión se limitan a esos pasos y apuntan a `cocina_tuda_ci` en el loopback del runner; la contraseña pública de prueba solo pertenece a ese contenedor desechable. No usa secretos, conexiones de Neon ni datos personales. Los comandos generales siguen omitiendo los casos PostgreSQL, pero el paso dedicado los ejecuta secuencialmente y hace fallar `validate` si fallan. El servicio no monta almacenamiento persistente del propietario y se elimina al finalizar el job.
+
 El benchmark es una operación independiente, no ejecutada durante esta verificación. Reemplaza los datos de la base indicada para generar su dataset reproducible; no debe apuntar a una base compartida:
 
 ```bash
