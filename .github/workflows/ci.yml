@@ -14,6 +14,22 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: cocina_tuda_ci
+          POSTGRES_USER: cocina_tuda_ci
+          # Public test-only password for this disposable, loopback-bound service.
+          POSTGRES_PASSWORD: ci-only
+        ports:
+          - 127.0.0.1:5432:5432
+        options: >-
+          --health-cmd "pg_isready -U cocina_tuda_ci -d cocina_tuda_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v4
 
@@ -32,4 +48,15 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm test:e2e
+      - name: Apply migrations to disposable PostgreSQL
+        env:
+          DATABASE_URL: postgresql://cocina_tuda_ci:ci-only@127.0.0.1:5432/cocina_tuda_ci
+          DOTENV_CONFIG_PATH: /dev/null
+        run: pnpm --filter @cocina-tuda/api db:migrate
+      - name: PostgreSQL persistence tests
+        env:
+          DATABASE_URL: postgresql://cocina_tuda_ci:ci-only@127.0.0.1:5432/cocina_tuda_ci
+          TEST_POSTGRES_URL: postgresql://cocina_tuda_ci:ci-only@127.0.0.1:5432/cocina_tuda_ci
+          DOTENV_CONFIG_PATH: /dev/null
+        run: pnpm --filter @cocina-tuda/api test:postgres --testTimeout=30000
       - run: pnpm build
