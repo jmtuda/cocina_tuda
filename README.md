@@ -101,3 +101,11 @@ El benchmark es una operación independiente, no ejecutada durante esta verifica
 ```bash
 DATABASE_URL="postgresql://.../cocina_tuda_test?sslmode=verify-full" pnpm --filter @cocina-tuda/api benchmark:search
 ```
+
+## Backups y recuperación
+
+El 8 de octubre de 2026 se guardó una nueva copia privada de Neon fuera del repositorio, bajo `/Users/Tuda/Documents/proyectos_hermes/backups/cocina_tuda_neon/20261008T083625Z/`. Se exportó con `pg_dump` 16.15 en formato custom desde un snapshot de solo lectura, se releyó y se comprobó su SHA-256. La carpeta tiene permisos `700` y los archivos `600`; el dump no está cifrado. Los backups históricos no se inspeccionaron ni modificaron.
+
+La recuperación se probó con `pg_restore` 16.15 en una transacción sobre una base vacía de un proyecto temporal Neon Free PostgreSQL 16. Coincidieron las filas completas de las 17 tablas, las columnas, restricciones, índices, funciones, extensiones y las seis migraciones. La fuente se consultó solo en lectura y permaneció intacta durante la restauración. El proyecto temporal se eliminó después de verificar todo y se comprobó su ausencia. La evidencia pública está en `docs/backup-recovery-verification.json`; el archivo privado y las pruebas detalladas permanecen fuera de Git.
+
+Esta copia recupera la base de aplicación, no las cuentas, contraseñas, propietarios/grants originales ni la configuración de Neon. La restauración usa `--no-owner --no-acl` y los objetos quedan bajo el rol del destino. Un checksum acredita integridad del archivo, no autenticidad ni cifrado. No se ha configurado una copia periódica automática: quedan por acordar frecuencia, retención, cifrado y una segunda ubicación. No restaurar nunca sobre la base real ni reutilizar sus backups como fixtures de pruebas.
