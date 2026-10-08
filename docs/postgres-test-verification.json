@@ -1,0 +1,249 @@
+{
+  "verified_at": "2026-10-08T09:51:06+02:00",
+  "repository": {
+    "name": "jmtuda/cocina_tuda",
+    "tested_commit": "c12be78df5c3021b97e0a175e194111af57013da"
+  },
+  "environment": {
+    "node": "26.7.0",
+    "pnpm": "11.19.0",
+    "vitest": "4.1.11"
+  },
+  "test_project": {
+    "name": "cocina-tuda-tests-pg16",
+    "id": "spring-wave-84908668",
+    "branch_name": "production",
+    "branch_id": "br-autumn-base-b2dss856",
+    "database": "cocina_tuda_test",
+    "region": "aws-eu-central-1",
+    "postgres_version": "16.15 (9355089)",
+    "plan_verified_in_console": "Free",
+    "additional_services_enabled": false,
+    "different_endpoint_from_historical": true,
+    "created_with_zero_public_tables": true,
+    "historical_data_cloned": false,
+    "connection_type": "direct",
+    "tls": {
+      "encrypted": true,
+      "authorized": true,
+      "protocol": "TLSv1.3"
+    }
+  },
+  "migrations": {
+    "command": "pnpm --filter @cocina-tuda/api db:migrate",
+    "exit_code": 0,
+    "count": 6,
+    "checksums_match_repository": true,
+    "applied": [
+      {
+        "migration_name": "20260915123000_sprint_1",
+        "checksum": "e16fef6bbfa6e921b3ca5762ce0e1ad55de9332dfe86856fba3e2adf66127dcd",
+        "finished_at": "2026-10-08T07:46:23.242Z",
+        "rolled_back_at": null
+      },
+      {
+        "migration_name": "20260916100000_sprint_2",
+        "checksum": "1cb4162bf3878ca78fe3e7e709423197cadd6b309b1d0fcc8a47ff025beb0521",
+        "finished_at": "2026-10-08T07:46:24.782Z",
+        "rolled_back_at": null
+      },
+      {
+        "migration_name": "20260916180000_sprint_3_search",
+        "checksum": "7623b2ddee3bac6bfbc784c96212711b75aadec7086e1637537a8fa01c9ddaa7",
+        "finished_at": "2026-10-08T07:46:26.284Z",
+        "rolled_back_at": null
+      },
+      {
+        "migration_name": "20260921190000_sprint_5_planning",
+        "checksum": "f77d0f34504dab02bb0486ff715eb3dd0828c9fa6a55c1c9099a658ce6dd09c2",
+        "finished_at": "2026-10-08T07:46:27.587Z",
+        "rolled_back_at": null
+      },
+      {
+        "migration_name": "20260922100000_sprint_6_shopping",
+        "checksum": "7fa75e0ddc3f4674ef4b757aa8fcf10dd07d5a9f1cd550453c15af558eb5a65b",
+        "finished_at": "2026-10-08T07:46:30.069Z",
+        "rolled_back_at": null
+      },
+      {
+        "migration_name": "20260924100000_import_confirmation_idempotency",
+        "checksum": "ec6800d063de5b69bdcb20e1689f610535ad93878bb9cda7f284ecc3409eb0e0",
+        "finished_at": "2026-10-08T07:46:30.929Z",
+        "rolled_back_at": null
+      }
+    ]
+  },
+  "tests": {
+    "initial_command": "pnpm --filter @cocina-tuda/api test:postgres",
+    "initial_exit_code": 1,
+    "initial_repositories": {
+      "passed": 9,
+      "failed": 0,
+      "skipped": 0
+    },
+    "initial_http_e2e": {
+      "passed": 7,
+      "failed": 4,
+      "skipped": 0,
+      "timed_out_at_5000ms": 2,
+      "dependent_fixture_failures": 2
+    },
+    "verified_command": "pnpm --filter @cocina-tuda/api test:postgres --testTimeout=30000",
+    "verified_exit_code": 0,
+    "repositories": {
+      "passed": 9,
+      "failed": 0,
+      "skipped": 0
+    },
+    "http_e2e": {
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0,
+      "test_timeout_ms": 30000,
+      "previously_timed_out_test_durations_ms": [5026, 5770]
+    },
+    "total_passed": 20,
+    "application_or_assertion_changes": false,
+    "warning": "pg deprecated querying a client while another query is executing; not investigated in this task"
+  },
+  "cleanup": {
+    "application_tables_cleared": 16,
+    "application_tables_verified_empty": true,
+    "migration_rows_preserved": 6,
+    "test_project_retained_for_reuse": true
+  },
+  "historical_database_verification": {
+    "project_id": "calm-butterfly-64933476",
+    "database": "cocina_tuda",
+    "access": "REPEATABLE READ READ ONLY, followed by ROLLBACK",
+    "counts": {
+      "recipes": 85,
+      "recipe_ingredients": 675,
+      "recipe_steps": 471,
+      "import_confirmations": 85
+    },
+    "table_count": 17,
+    "all_rows_unchanged": true,
+    "table_fingerprints": {
+      "_prisma_migrations": {
+        "rows_before": 6,
+        "rows_after": 6,
+        "sha256_before": "4d10cf2014f7e4fdf9f6458bbfa1b5ef678e2f4da547e2f3a826ed6afd58a959",
+        "sha256_after": "4d10cf2014f7e4fdf9f6458bbfa1b5ef678e2f4da547e2f3a826ed6afd58a959"
+      },
+      "categories": {
+        "rows_before": 15,
+        "rows_after": 15,
+        "sha256_before": "d781ba4459393d22a0b911f8e4131312935ead0f5b640e77b97c9c39881acb04",
+        "sha256_after": "d781ba4459393d22a0b911f8e4131312935ead0f5b640e77b97c9c39881acb04"
+      },
+      "import_confirmations": {
+        "rows_before": 85,
+        "rows_after": 85,
+        "sha256_before": "addd2e81a2cb00086473fe6af8d8baeda8fd3c225486f8a95311775aeeade2ed",
+        "sha256_after": "addd2e81a2cb00086473fe6af8d8baeda8fd3c225486f8a95311775aeeade2ed"
+      },
+      "ingredient_variants": {
+        "rows_before": 104,
+        "rows_after": 104,
+        "sha256_before": "8d18e0e68a38cf6256794d41756d680d7c19643337e6855a446f99a97b9780da",
+        "sha256_after": "8d18e0e68a38cf6256794d41756d680d7c19643337e6855a446f99a97b9780da"
+      },
+      "ingredients": {
+        "rows_before": 111,
+        "rows_after": 111,
+        "sha256_before": "cce3fde072bcfed29c515836399c00672d58ff0e47f432da812f88f73f6d3178",
+        "sha256_after": "cce3fde072bcfed29c515836399c00672d58ff0e47f432da812f88f73f6d3178"
+      },
+      "planned_meals": {
+        "rows_before": 0,
+        "rows_after": 0,
+        "sha256_before": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_after": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "recipe_categories": {
+        "rows_before": 85,
+        "rows_after": 85,
+        "sha256_before": "d1ae13cfea33bdda8659cd58c5bade3bbc7a4cd175dbfccfb04f766d8143d746",
+        "sha256_after": "d1ae13cfea33bdda8659cd58c5bade3bbc7a4cd175dbfccfb04f766d8143d746"
+      },
+      "recipe_ingredients": {
+        "rows_before": 675,
+        "rows_after": 675,
+        "sha256_before": "a65321310c09c9e1c0629dd686066d4fc89d96d2ed081f12a19495cd56a14a76",
+        "sha256_after": "a65321310c09c9e1c0629dd686066d4fc89d96d2ed081f12a19495cd56a14a76"
+      },
+      "recipe_steps": {
+        "rows_before": 471,
+        "rows_after": 471,
+        "sha256_before": "de2ef2af32fa7214f3a8b1a3c211e26cc4d1599030c258c9ba173ff957490f48",
+        "sha256_after": "de2ef2af32fa7214f3a8b1a3c211e26cc4d1599030c258c9ba173ff957490f48"
+      },
+      "recipe_tags": {
+        "rows_before": 0,
+        "rows_after": 0,
+        "sha256_before": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_after": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "recipes": {
+        "rows_before": 85,
+        "rows_after": 85,
+        "sha256_before": "88354e1fac4d9e6a976262d5f121e996007baad7ae7a7c22dc3067e000e832ea",
+        "sha256_after": "88354e1fac4d9e6a976262d5f121e996007baad7ae7a7c22dc3067e000e832ea"
+      },
+      "shopping_item_sources": {
+        "rows_before": 2,
+        "rows_after": 2,
+        "sha256_before": "c6c8a88345d2e8d2747ded5f9fe3046ca2e029c6b3ed1f314b53f6906c3e57d7",
+        "sha256_after": "c6c8a88345d2e8d2747ded5f9fe3046ca2e029c6b3ed1f314b53f6906c3e57d7"
+      },
+      "shopping_items": {
+        "rows_before": 3,
+        "rows_after": 3,
+        "sha256_before": "77ddcddfe1fc1d4f064be64ed2944bcebcbbd3071e3c93cb34c85a1a52129af0",
+        "sha256_after": "77ddcddfe1fc1d4f064be64ed2944bcebcbbd3071e3c93cb34c85a1a52129af0"
+      },
+      "shopping_list_sources": {
+        "rows_before": 2,
+        "rows_after": 2,
+        "sha256_before": "d4841c466d05348c7d58867cf35cb80a267c46f4d3d9bbd2fb2db19e11741cf2",
+        "sha256_after": "d4841c466d05348c7d58867cf35cb80a267c46f4d3d9bbd2fb2db19e11741cf2"
+      },
+      "shopping_lists": {
+        "rows_before": 2,
+        "rows_after": 2,
+        "sha256_before": "f24e3650e4e2c32364e9700899052f474468ff6ff681936950fcabaf0c261304",
+        "sha256_after": "f24e3650e4e2c32364e9700899052f474468ff6ff681936950fcabaf0c261304"
+      },
+      "tags": {
+        "rows_before": 3,
+        "rows_after": 3,
+        "sha256_before": "fe4059570fafd10635f46129a7a3ca905a32bb181a23fb1d3b2148af42cd2d7e",
+        "sha256_after": "fe4059570fafd10635f46129a7a3ca905a32bb181a23fb1d3b2148af42cd2d7e"
+      },
+      "units": {
+        "rows_before": 28,
+        "rows_after": 28,
+        "sha256_before": "c55ca2f7b01c66fdba53bcf1823ac8d4392be9fa49e40cdbd19bf45e72f372ce",
+        "sha256_after": "c55ca2f7b01c66fdba53bcf1823ac8d4392be9fa49e40cdbd19bf45e72f372ce"
+      }
+    },
+    "fingerprint_method": "Within one read-only repeatable-read transaction, SELECT row_to_json(t)::text AS data FROM each public table t, ordered by row_to_json(t)::text COLLATE \"C\". SHA-256 of the UTF-8 row strings joined by newline, without a trailing newline; empty tables hash the empty string."
+  },
+  "safety": {
+    "historical_env_file_unchanged": true,
+    "historical_env_file_git_ignored": true,
+    "test_credentials_persisted_to_disk": false,
+    "test_env_only_in_child_processes": true,
+    "automatic_real_dotenv_loading_disabled_for_test_commands": true,
+    "backups_accessed": false,
+    "benchmark_executed": false,
+    "real_ai_provider_called": false,
+    "paid_plan_activated": false
+  },
+  "remaining": {
+    "ci_postgres_configured": false,
+    "default_5s_http_timeout_validated_for_remote_database": false,
+    "future_test_connections_must_be_retrieved_from_neon_and_verified": true
+  }
+}
