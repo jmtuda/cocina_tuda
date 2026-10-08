@@ -1,0 +1,221 @@
+{
+  "verified_at": "2026-10-08T15:31:10+02:00",
+  "repository_commit": "62ede2dbcf24e7511d62fc0f1cf019474627c5e5",
+  "source": {
+    "project_id": "calm-butterfly-64933476",
+    "database": "cocina_tuda",
+    "postgres_version": "16.15 (9355089)",
+    "access": "REPEATABLE READ READ ONLY, followed by ROLLBACK",
+    "tables": 17,
+    "counts": {
+      "recipes": 85,
+      "recipe_ingredients": 675,
+      "recipe_steps": 471,
+      "import_confirmations": 85
+    }
+  },
+  "backup": {
+    "format": "PostgreSQL custom archive",
+    "client_version": "16.15",
+    "relative_private_location": "cocina_tuda_neon/20261008T083625Z/cocina_tuda.dump",
+    "outside_repository": true,
+    "bytes": 116935,
+    "sha256": "458742e8f112bff02cfe3e2a17964398ae82fcccc67dd6a7c5c2215b8e38fb51",
+    "read_back_and_checksum_verified": true,
+    "table_data_entries_verified": 17,
+    "exported_from_read_only_snapshot": true,
+    "directory_mode": "700",
+    "file_mode": "600",
+    "encrypted": false
+  },
+  "restore": {
+    "temporary_project_name": "cocina-tuda-recovery-pg16-20261008",
+    "temporary_project_id": "wandering-truth-63298880",
+    "branch_id": "br-misty-resonance-b17wrna1",
+    "database": "cocina_tuda_restore",
+    "region": "aws-eu-central-1",
+    "plan_verified_in_console": "Free",
+    "empty_target_verified_before_write": true,
+    "target_postgres_version": "16.15 (9355089)",
+    "tls": {
+      "encrypted": true,
+      "authorized": true,
+      "protocol": "TLSv1.3"
+    },
+    "client_version": "16.15",
+    "options": [
+      "--single-transaction",
+      "--exit-on-error",
+      "--no-owner",
+      "--no-acl"
+    ],
+    "exit_code": 0,
+    "all_rows_match_source_baseline": true,
+    "schema_checks": {
+      "columns": true,
+      "constraints": true,
+      "indexes": true,
+      "functions": true,
+      "extensions": true
+    },
+    "migration_records_match": true,
+    "migration_count": 6,
+    "migration_checksums_match_repository": true,
+    "original_owners_and_grants_restored": false
+  },
+  "source_preservation": {
+    "all_row_fingerprints_unchanged_during_restore": true,
+    "schema_unchanged_during_restore": true,
+    "application_environment_unchanged_during_restore": true,
+    "comparison_baseline_taken_after_export_before_restore": true,
+    "export_snapshot_baseline_not_persisted_before_session_restart": true
+  },
+  "row_verification": {
+    "serialization": "PostgreSQL row_to_json(t)::text, sorted by the same full-row text COLLATE \"C\"; UTF-8 rows joined with one LF byte (0a), no trailing LF; SHA-256 of empty bytes for empty tables.",
+    "tables": {
+      "_prisma_migrations": {
+        "source_rows": 6,
+        "recovered_rows": 6,
+        "source_sha256": "4d10cf2014f7e4fdf9f6458bbfa1b5ef678e2f4da547e2f3a826ed6afd58a959",
+        "recovered_sha256": "4d10cf2014f7e4fdf9f6458bbfa1b5ef678e2f4da547e2f3a826ed6afd58a959",
+        "source_after_restore_sha256": "4d10cf2014f7e4fdf9f6458bbfa1b5ef678e2f4da547e2f3a826ed6afd58a959"
+      },
+      "categories": {
+        "source_rows": 15,
+        "recovered_rows": 15,
+        "source_sha256": "d781ba4459393d22a0b911f8e4131312935ead0f5b640e77b97c9c39881acb04",
+        "recovered_sha256": "d781ba4459393d22a0b911f8e4131312935ead0f5b640e77b97c9c39881acb04",
+        "source_after_restore_sha256": "d781ba4459393d22a0b911f8e4131312935ead0f5b640e77b97c9c39881acb04"
+      },
+      "import_confirmations": {
+        "source_rows": 85,
+        "recovered_rows": 85,
+        "source_sha256": "addd2e81a2cb00086473fe6af8d8baeda8fd3c225486f8a95311775aeeade2ed",
+        "recovered_sha256": "addd2e81a2cb00086473fe6af8d8baeda8fd3c225486f8a95311775aeeade2ed",
+        "source_after_restore_sha256": "addd2e81a2cb00086473fe6af8d8baeda8fd3c225486f8a95311775aeeade2ed"
+      },
+      "ingredient_variants": {
+        "source_rows": 104,
+        "recovered_rows": 104,
+        "source_sha256": "8d18e0e68a38cf6256794d41756d680d7c19643337e6855a446f99a97b9780da",
+        "recovered_sha256": "8d18e0e68a38cf6256794d41756d680d7c19643337e6855a446f99a97b9780da",
+        "source_after_restore_sha256": "8d18e0e68a38cf6256794d41756d680d7c19643337e6855a446f99a97b9780da"
+      },
+      "ingredients": {
+        "source_rows": 111,
+        "recovered_rows": 111,
+        "source_sha256": "cce3fde072bcfed29c515836399c00672d58ff0e47f432da812f88f73f6d3178",
+        "recovered_sha256": "cce3fde072bcfed29c515836399c00672d58ff0e47f432da812f88f73f6d3178",
+        "source_after_restore_sha256": "cce3fde072bcfed29c515836399c00672d58ff0e47f432da812f88f73f6d3178"
+      },
+      "planned_meals": {
+        "source_rows": 0,
+        "recovered_rows": 0,
+        "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "recovered_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_after_restore_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "recipe_categories": {
+        "source_rows": 85,
+        "recovered_rows": 85,
+        "source_sha256": "d1ae13cfea33bdda8659cd58c5bade3bbc7a4cd175dbfccfb04f766d8143d746",
+        "recovered_sha256": "d1ae13cfea33bdda8659cd58c5bade3bbc7a4cd175dbfccfb04f766d8143d746",
+        "source_after_restore_sha256": "d1ae13cfea33bdda8659cd58c5bade3bbc7a4cd175dbfccfb04f766d8143d746"
+      },
+      "recipe_ingredients": {
+        "source_rows": 675,
+        "recovered_rows": 675,
+        "source_sha256": "a65321310c09c9e1c0629dd686066d4fc89d96d2ed081f12a19495cd56a14a76",
+        "recovered_sha256": "a65321310c09c9e1c0629dd686066d4fc89d96d2ed081f12a19495cd56a14a76",
+        "source_after_restore_sha256": "a65321310c09c9e1c0629dd686066d4fc89d96d2ed081f12a19495cd56a14a76"
+      },
+      "recipe_steps": {
+        "source_rows": 471,
+        "recovered_rows": 471,
+        "source_sha256": "de2ef2af32fa7214f3a8b1a3c211e26cc4d1599030c258c9ba173ff957490f48",
+        "recovered_sha256": "de2ef2af32fa7214f3a8b1a3c211e26cc4d1599030c258c9ba173ff957490f48",
+        "source_after_restore_sha256": "de2ef2af32fa7214f3a8b1a3c211e26cc4d1599030c258c9ba173ff957490f48"
+      },
+      "recipe_tags": {
+        "source_rows": 0,
+        "recovered_rows": 0,
+        "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "recovered_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_after_restore_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "recipes": {
+        "source_rows": 85,
+        "recovered_rows": 85,
+        "source_sha256": "88354e1fac4d9e6a976262d5f121e996007baad7ae7a7c22dc3067e000e832ea",
+        "recovered_sha256": "88354e1fac4d9e6a976262d5f121e996007baad7ae7a7c22dc3067e000e832ea",
+        "source_after_restore_sha256": "88354e1fac4d9e6a976262d5f121e996007baad7ae7a7c22dc3067e000e832ea"
+      },
+      "shopping_item_sources": {
+        "source_rows": 2,
+        "recovered_rows": 2,
+        "source_sha256": "c6c8a88345d2e8d2747ded5f9fe3046ca2e029c6b3ed1f314b53f6906c3e57d7",
+        "recovered_sha256": "c6c8a88345d2e8d2747ded5f9fe3046ca2e029c6b3ed1f314b53f6906c3e57d7",
+        "source_after_restore_sha256": "c6c8a88345d2e8d2747ded5f9fe3046ca2e029c6b3ed1f314b53f6906c3e57d7"
+      },
+      "shopping_items": {
+        "source_rows": 3,
+        "recovered_rows": 3,
+        "source_sha256": "77ddcddfe1fc1d4f064be64ed2944bcebcbbd3071e3c93cb34c85a1a52129af0",
+        "recovered_sha256": "77ddcddfe1fc1d4f064be64ed2944bcebcbbd3071e3c93cb34c85a1a52129af0",
+        "source_after_restore_sha256": "77ddcddfe1fc1d4f064be64ed2944bcebcbbd3071e3c93cb34c85a1a52129af0"
+      },
+      "shopping_list_sources": {
+        "source_rows": 2,
+        "recovered_rows": 2,
+        "source_sha256": "d4841c466d05348c7d58867cf35cb80a267c46f4d3d9bbd2fb2db19e11741cf2",
+        "recovered_sha256": "d4841c466d05348c7d58867cf35cb80a267c46f4d3d9bbd2fb2db19e11741cf2",
+        "source_after_restore_sha256": "d4841c466d05348c7d58867cf35cb80a267c46f4d3d9bbd2fb2db19e11741cf2"
+      },
+      "shopping_lists": {
+        "source_rows": 2,
+        "recovered_rows": 2,
+        "source_sha256": "f24e3650e4e2c32364e9700899052f474468ff6ff681936950fcabaf0c261304",
+        "recovered_sha256": "f24e3650e4e2c32364e9700899052f474468ff6ff681936950fcabaf0c261304",
+        "source_after_restore_sha256": "f24e3650e4e2c32364e9700899052f474468ff6ff681936950fcabaf0c261304"
+      },
+      "tags": {
+        "source_rows": 3,
+        "recovered_rows": 3,
+        "source_sha256": "fe4059570fafd10635f46129a7a3ca905a32bb181a23fb1d3b2148af42cd2d7e",
+        "recovered_sha256": "fe4059570fafd10635f46129a7a3ca905a32bb181a23fb1d3b2148af42cd2d7e",
+        "source_after_restore_sha256": "fe4059570fafd10635f46129a7a3ca905a32bb181a23fb1d3b2148af42cd2d7e"
+      },
+      "units": {
+        "source_rows": 28,
+        "recovered_rows": 28,
+        "source_sha256": "c55ca2f7b01c66fdba53bcf1823ac8d4392be9fa49e40cdbd19bf45e72f372ce",
+        "recovered_sha256": "c55ca2f7b01c66fdba53bcf1823ac8d4392be9fa49e40cdbd19bf45e72f372ce",
+        "source_after_restore_sha256": "c55ca2f7b01c66fdba53bcf1823ac8d4392be9fa49e40cdbd19bf45e72f372ce"
+      }
+    }
+  },
+  "cleanup": {
+    "temporary_project_deleted_after_success": true,
+    "exact_project_lookup_after_deletion": "project not found",
+    "historical_project_present_after_deletion": true,
+    "test_project_present_after_deletion": true,
+    "saved_backup_checksum_reverified_after_cleanup": true
+  },
+  "safety": {
+    "historical_backups_accessed": false,
+    "historical_backups_modified": false,
+    "source_restoration_or_migrations": false,
+    "test_database_used_for_restore": false,
+    "credentials_persisted": false,
+    "paid_services_activated": false,
+    "local_postgres_or_docker_started": false,
+    "shell_profile_modified": false
+  },
+  "limitations": [
+    "Database application backup, not account/password/provider configuration recovery.",
+    "Source owners and grants are excluded from restoration; destination role owns restored objects.",
+    "Checksum verifies integrity relative to the recorded hash, not authenticity or encryption.",
+    "No periodic backup schedule, retention cleanup, encryption or second location configured.",
+    "This manifest is timestamped evidence, not a dynamic backup status."
+  ]
+}
