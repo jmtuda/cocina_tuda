@@ -82,8 +82,20 @@ Las seis migraciones acumuladas cubren biblioteca, catálogo y clasificación, b
 Las comprobaciones específicas de búsqueda, planificación y compras sobre PostgreSQL se ejecutan contra una base de pruebas desechable ya migrada. Estas pruebas truncan tablas; nunca deben apuntar a la base del propietario. Sin `TEST_POSTGRES_URL` se omiten:
 
 ```bash
-DATABASE_URL="postgresql://..." TEST_POSTGRES_URL="$DATABASE_URL" pnpm --filter @cocina-tuda/api test:postgres
-DATABASE_URL="postgresql://..." pnpm --filter @cocina-tuda/api benchmark:search
+(
+  # Solo una conexión cuyo endpoint se haya verificado como el proyecto de pruebas.
+  export DATABASE_URL="postgresql://.../cocina_tuda_test?sslmode=verify-full"
+  export TEST_POSTGRES_URL="$DATABASE_URL"
+  pnpm --filter @cocina-tuda/api test:postgres --testTimeout=30000
+)
 ```
 
-El benchmark reemplaza los datos de la base indicada para generar su dataset reproducible; no debe apuntar a una base compartida.
+El subshell limita estas variables al comando de pruebas y no cambia la conexión habitual de la aplicación. No guardes `TEST_POSTGRES_URL` en `apps/api/.env`. El proyecto independiente `cocina-tuda-tests-pg16` se verificó en Neon Free el 8 de octubre de 2026: PostgreSQL 16, seis migraciones y las 20 pruebas PostgreSQL correctas. Sus credenciales se usaron solo en memoria; no se guardaron localmente. La evidencia está en `docs/postgres-test-verification.json`.
+
+El parámetro `--testTimeout=30000` se añade al tramo HTTP e2e del script; los repositorios mantienen su límite habitual. En Neon, dos recorridos HTTP superaron los 5 segundos predeterminados. La ejecución sin este ajuste falló; con el límite de 30 segundos pasaron las mismas aserciones, sin modificar código ni pruebas. El límite no es una garantía de rendimiento de la aplicación.
+
+El benchmark es una operación independiente, no ejecutada durante esta verificación. Reemplaza los datos de la base indicada para generar su dataset reproducible; no debe apuntar a una base compartida:
+
+```bash
+DATABASE_URL="postgresql://.../cocina_tuda_test?sslmode=verify-full" pnpm --filter @cocina-tuda/api benchmark:search
+```
