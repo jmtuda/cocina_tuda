@@ -19,6 +19,7 @@ Para continuar el desarrollo: [`AGENTS.md`](AGENTS.md) y [`docs/PROJECT_STATUS.m
 - Sprint 5: finalizado.
 - Sprint 6: finalizado.
 - Funcionalidades: catálogos, clasificación, búsqueda, mantenimiento e importación de recetas, planificación semanal y listas de compra editables disponibles.
+- Alojamiento privado: web y API en Vercel Hobby, consulta autenticada de la biblioteca verificada el 9 de octubre de 2026; IA y escrituras históricas no probadas en Vercel.
 
 Los cambios de alcance o arquitectura deberán actualizar la documentación correspondiente antes de implementarse.
 
@@ -43,7 +44,7 @@ export GEMINI_IMPORT_MODEL="gemini-3.5-flash-lite"
 pnpm --filter @cocina-tuda/api db:migrate
 ```
 
-La API y Prisma CLI cargan `apps/api/.env` al ejecutarse desde ese paquete, como hacen los comandos pnpm anteriores. También pueden recibir variables exportadas; estas tienen prioridad sobre el archivo. Guarda las credenciales únicamente en el archivo local ignorado por Git, con permisos `600`, nunca en la documentación ni en el cliente web.
+La API y Prisma CLI cargan `apps/api/.env` al ejecutarse desde ese paquete, como hacen los comandos pnpm anteriores. También pueden recibir variables exportadas; estas tienen prioridad sobre el archivo. Para el arranque local, guarda las credenciales en el archivo ignorado por Git, con permisos `600`, nunca en la documentación ni en el cliente web. En Vercel, la conexión histórica se guarda exclusivamente como secreto de producción del proyecto API.
 
 La instancia personal se ha copiado y verificado en Neon Free, PostgreSQL 16, región Frankfurt. `apps/api/.env` configura su conexión TLS. No vuelvas a importar el XLSX ni a ejecutar migraciones para repetir esa transferencia; consulta `docs/PROJECT_STATUS.md`. La base local se conserva como respaldo previo al cambio y no se sincroniza automáticamente con Neon.
 
@@ -110,11 +111,13 @@ La recuperación se probó con `pg_restore` 16.15 en una transacción sobre una 
 
 Esta copia recupera la base de aplicación, no las cuentas, contraseñas, propietarios/grants originales ni la configuración de Neon. La restauración usa `--no-owner --no-acl` y los objetos quedan bajo el rol del destino. Un checksum acredita integridad del archivo, no autenticidad ni cifrado. No se ha configurado una copia periódica automática: quedan por acordar frecuencia, retención, cifrado y una segunda ubicación. No restaurar nunca sobre la base real ni reutilizar sus backups como fixtures de pruebas.
 
-## Preparación de Vercel privado
+## Publicación privada en Vercel
 
-El despliegue autorizado usa dos proyectos Hobby del mismo equipo, con raíces `apps/web` y `apps/api`, conectados a GitHub y a `main`. Ambos requieren **Vercel Authentication → All Deployments** antes de conectar los datos. No es un sitio público ni incorpora cuentas propias: ver [ADR 0002](docs/adr/0002-despliegue-privado-vercel.md). La configuración no acredita por sí misma una publicación verificada.
+La web está en `https://cocina-tuda.vercel.app` y la API en `https://cocina-tuda-api.vercel.app`, en dos proyectos Hobby del mismo equipo con raíces `apps/web` y `apps/api`, conectados a GitHub y a `main`. Ambos requieren **Vercel Authentication → All Deployments**, configurado antes de conectar los datos. No es un sitio público ni incorpora cuentas propias: ver [ADR 0002](docs/adr/0002-despliegue-privado-vercel.md).
 
-En el proyecto web, definir `API_INTERNAL_URL` solo en producción, como origen HTTPS de la API sin path ni barra final. No definir `NEXT_PUBLIC_API_URL`: el navegador usa `/api/v1`. No añadir `DATABASE_URL`, claves IA ni secretos de bypass a la web. En el proyecto API, configurar la conexión histórica de Neon únicamente en producción, después de verificar el rechazo anónimo; no guardar `TEST_POSTGRES_URL` ni ejecutar migraciones al desplegar. Instalación con `pnpm install --frozen-lockfile`; la web usa su script `build` y NestJS su preset nativo. Verificar Node 24 o posterior compatible y las protecciones reales del proveedor.
+El 9 de octubre de 2026 se verificaron la sesión autorizada, health 200, listado paginado con total 85 y detalle 200. Se comprobaron 16 peticiones anónimas en ocho dominios/aliases de producción y preview: todas redirigieron al login; una preview autenticada rechazó el acceso a recetas con 503. Las huellas de las filas completas de las 17 tablas históricas coincidieron antes y después. No se probaron escrituras históricas ni IA. Evidencia y límites: [`docs/vercel-private-deployment-verification.json`](docs/vercel-private-deployment-verification.json).
+
+En el proyecto web, definir `API_INTERNAL_URL` solo en producción, como origen HTTPS de la API sin path ni barra final. No definir `NEXT_PUBLIC_API_URL`: el navegador usa `/api/v1`. No añadir `DATABASE_URL`, claves IA ni secretos de bypass a la web. En el proyecto API, configurar la conexión histórica de Neon únicamente en producción, después de verificar el rechazo anónimo; no guardar `TEST_POSTGRES_URL` ni ejecutar migraciones al desplegar. Instalación con `pnpm install --frozen-lockfile`; la web usa su script `build` y NestJS su preset nativo. La entrada Nest llama `void bootstrap()` sin `await` a nivel de módulo: el runtime de Vercel intercepta el listener antes de completar esa importación. Verificar Node 24 o posterior compatible y las protecciones reales del proveedor.
 
 En la API, Trusted Sources debe admitir únicamente `cocina-tuda` de **production → production**. La web obtiene OIDC en el servidor para cada petición; no transmite tokens al navegador. Previews rechazan el proxy y no reciben la conexión histórica. Fuera de Vercel se conserva el rewrite local a `127.0.0.1:3001`. Si falta configuración o identidad del servidor, el proxy falla cerrado.
 

@@ -1,0 +1,316 @@
+{
+  "observed_at_utc": "2026-10-09T06:10:43Z",
+  "repository": "jmtuda/cocina_tuda",
+  "verified_code_commit": "698184dfff216cbd66cb9ed41fb35fc181af4d24",
+  "preparation_pr": 38,
+  "bootstrap_fix_pr": 39,
+  "main_ci_run": 37891571831,
+  "plan_observed": "Hobby",
+  "deployment_protection": "Vercel Authentication: All Deployments",
+  "web": {
+    "project": "cocina-tuda",
+    "production_origin": "https://cocina-tuda.vercel.app",
+    "verified_deployment_id": "3CEDDzZKrXJaKGfL88rJeEnSeFqW",
+    "build": "Ready"
+  },
+  "api": {
+    "project": "cocina-tuda-api",
+    "production_origin": "https://cocina-tuda-api.vercel.app",
+    "verified_deployment_id": "4CaAzSrT2XsK7QirMvWEDgEmQBeS",
+    "build": "Ready"
+  },
+  "configuration": {
+    "DATABASE_URL": {
+      "project": "cocina-tuda-api",
+      "type": "Secret",
+      "environments": ["production"]
+    },
+    "API_INTERNAL_URL": {
+      "project": "cocina-tuda",
+      "type": "Config (server-only)",
+      "environments": ["production"]
+    },
+    "trusted_source": {
+      "caller_project": "cocina-tuda",
+      "caller_environment": "production",
+      "receiver_environment": "production"
+    }
+  },
+  "authorized_read_only_smoke": {
+    "web_login_session": "existing native browser session",
+    "health_status": 200,
+    "recipes_status": 200,
+    "recipe_total": 85,
+    "first_page_items": 20,
+    "recipe_detail_status": 200,
+    "detail_has_ingredients": true,
+    "detail_has_steps": true,
+    "catalog_initial_reads_status": 200,
+    "static_asset_count": 7,
+    "static_assets_all_status_200": true,
+    "database_uri_found_in_checked_client_assets": false,
+    "server_oidc_code_found_in_checked_client_assets": false
+  },
+  "anonymous_checks": [
+    {
+      "origin": "https://cocina-tuda-3gkxi5lc8-jmtuda.vercel.app",
+      "path": "/",
+      "status": 302,
+      "gated": true
+    },
+    {
+      "origin": "https://cocina-tuda-3gkxi5lc8-jmtuda.vercel.app",
+      "path": "/api/v1/recipes",
+      "status": 302,
+      "gated": true
+    },
+    {
+      "origin": "https://cocina-tuda-871acwsen-jmtuda.vercel.app",
+      "path": "/",
+      "status": 302,
+      "gated": true
+    },
+    {
+      "origin": "https://cocina-tuda-871acwsen-jmtuda.vercel.app",
+      "path": "/api/v1/recipes",
+      "status": 302,
+      "gated": true
+    },
+    {
+      "origin": "https://cocina-tuda-api-git-main-jmtuda.vercel.app",
+      "path": "/",
+      "status": 302,
+      "gated": true
+    },
+    {
+      "origin": "https://cocina-tuda-api-git-main-jmtuda.vercel.app",
+      "path": "/api/v1/recipes",
+      "status": 302,
+      "gated": true
+    },
+    {
+      "origin": "https://cocina-tuda-api.vercel.app",
+      "path": "/",
+      "status": 302,
+      "gated": true
+    },
+    {
+      "origin": "https://cocina-tuda-api.vercel.app",
+      "path": "/api/v1/recipes",
+      "status": 302,
+      "gated": true
+    },
+    {
+      "origin": "https://cocina-tuda-d01x0oq9e-jmtuda.vercel.app",
+      "path": "/",
+      "status": 302,
+      "gated": true
+    },
+    {
+      "origin": "https://cocina-tuda-d01x0oq9e-jmtuda.vercel.app",
+      "path": "/api/v1/recipes",
+      "status": 302,
+      "gated": true
+    },
+    {
+      "origin": "https://cocina-tuda-git-fix-vercel-nest-bootstrap-jmtuda.vercel.app",
+      "path": "/",
+      "status": 302,
+      "gated": true
+    },
+    {
+      "origin": "https://cocina-tuda-git-fix-vercel-nest-bootstrap-jmtuda.vercel.app",
+      "path": "/api/v1/recipes",
+      "status": 302,
+      "gated": true
+    },
+    {
+      "origin": "https://cocina-tuda-git-main-jmtuda.vercel.app",
+      "path": "/",
+      "status": 302,
+      "gated": true
+    },
+    {
+      "origin": "https://cocina-tuda-git-main-jmtuda.vercel.app",
+      "path": "/api/v1/recipes",
+      "status": 302,
+      "gated": true
+    },
+    {
+      "origin": "https://cocina-tuda.vercel.app",
+      "path": "/",
+      "status": 302,
+      "gated": true
+    },
+    {
+      "origin": "https://cocina-tuda.vercel.app",
+      "path": "/api/v1/recipes",
+      "status": 302,
+      "gated": true
+    }
+  ],
+  "anonymous_domain_count": 8,
+  "anonymous_request_count": 16,
+  "forged_oidc_header": {
+    "status": 302,
+    "accepted": false
+  },
+  "authorized_preview": {
+    "origin": "https://cocina-tuda-git-fix-vercel-nest-bootstrap-jmtuda.vercel.app",
+    "recipes_status": 503,
+    "historical_library_returned": false
+  },
+  "historical_integrity": {
+    "audit_mode": "REPEATABLE READ READ ONLY, ROLLBACK",
+    "before_tables": {
+      "_prisma_migrations": {
+        "count": 6,
+        "sha256": "4d10cf2014f7e4fdf9f6458bbfa1b5ef678e2f4da547e2f3a826ed6afd58a959"
+      },
+      "categories": {
+        "count": 15,
+        "sha256": "d781ba4459393d22a0b911f8e4131312935ead0f5b640e77b97c9c39881acb04"
+      },
+      "import_confirmations": {
+        "count": 85,
+        "sha256": "addd2e81a2cb00086473fe6af8d8baeda8fd3c225486f8a95311775aeeade2ed"
+      },
+      "ingredient_variants": {
+        "count": 104,
+        "sha256": "8d18e0e68a38cf6256794d41756d680d7c19643337e6855a446f99a97b9780da"
+      },
+      "ingredients": {
+        "count": 111,
+        "sha256": "cce3fde072bcfed29c515836399c00672d58ff0e47f432da812f88f73f6d3178"
+      },
+      "planned_meals": {
+        "count": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "recipe_categories": {
+        "count": 85,
+        "sha256": "d1ae13cfea33bdda8659cd58c5bade3bbc7a4cd175dbfccfb04f766d8143d746"
+      },
+      "recipe_ingredients": {
+        "count": 675,
+        "sha256": "a65321310c09c9e1c0629dd686066d4fc89d96d2ed081f12a19495cd56a14a76"
+      },
+      "recipe_steps": {
+        "count": 471,
+        "sha256": "de2ef2af32fa7214f3a8b1a3c211e26cc4d1599030c258c9ba173ff957490f48"
+      },
+      "recipe_tags": {
+        "count": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "recipes": {
+        "count": 85,
+        "sha256": "88354e1fac4d9e6a976262d5f121e996007baad7ae7a7c22dc3067e000e832ea"
+      },
+      "shopping_item_sources": {
+        "count": 2,
+        "sha256": "c6c8a88345d2e8d2747ded5f9fe3046ca2e029c6b3ed1f314b53f6906c3e57d7"
+      },
+      "shopping_items": {
+        "count": 3,
+        "sha256": "77ddcddfe1fc1d4f064be64ed2944bcebcbbd3071e3c93cb34c85a1a52129af0"
+      },
+      "shopping_list_sources": {
+        "count": 2,
+        "sha256": "d4841c466d05348c7d58867cf35cb80a267c46f4d3d9bbd2fb2db19e11741cf2"
+      },
+      "shopping_lists": {
+        "count": 2,
+        "sha256": "f24e3650e4e2c32364e9700899052f474468ff6ff681936950fcabaf0c261304"
+      },
+      "tags": {
+        "count": 3,
+        "sha256": "fe4059570fafd10635f46129a7a3ca905a32bb181a23fb1d3b2148af42cd2d7e"
+      },
+      "units": {
+        "count": 28,
+        "sha256": "c55ca2f7b01c66fdba53bcf1823ac8d4392be9fa49e40cdbd19bf45e72f372ce"
+      }
+    },
+    "after_tables": {
+      "_prisma_migrations": {
+        "count": 6,
+        "sha256": "4d10cf2014f7e4fdf9f6458bbfa1b5ef678e2f4da547e2f3a826ed6afd58a959"
+      },
+      "categories": {
+        "count": 15,
+        "sha256": "d781ba4459393d22a0b911f8e4131312935ead0f5b640e77b97c9c39881acb04"
+      },
+      "import_confirmations": {
+        "count": 85,
+        "sha256": "addd2e81a2cb00086473fe6af8d8baeda8fd3c225486f8a95311775aeeade2ed"
+      },
+      "ingredient_variants": {
+        "count": 104,
+        "sha256": "8d18e0e68a38cf6256794d41756d680d7c19643337e6855a446f99a97b9780da"
+      },
+      "ingredients": {
+        "count": 111,
+        "sha256": "cce3fde072bcfed29c515836399c00672d58ff0e47f432da812f88f73f6d3178"
+      },
+      "planned_meals": {
+        "count": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "recipe_categories": {
+        "count": 85,
+        "sha256": "d1ae13cfea33bdda8659cd58c5bade3bbc7a4cd175dbfccfb04f766d8143d746"
+      },
+      "recipe_ingredients": {
+        "count": 675,
+        "sha256": "a65321310c09c9e1c0629dd686066d4fc89d96d2ed081f12a19495cd56a14a76"
+      },
+      "recipe_steps": {
+        "count": 471,
+        "sha256": "de2ef2af32fa7214f3a8b1a3c211e26cc4d1599030c258c9ba173ff957490f48"
+      },
+      "recipe_tags": {
+        "count": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "recipes": {
+        "count": 85,
+        "sha256": "88354e1fac4d9e6a976262d5f121e996007baad7ae7a7c22dc3067e000e832ea"
+      },
+      "shopping_item_sources": {
+        "count": 2,
+        "sha256": "c6c8a88345d2e8d2747ded5f9fe3046ca2e029c6b3ed1f314b53f6906c3e57d7"
+      },
+      "shopping_items": {
+        "count": 3,
+        "sha256": "77ddcddfe1fc1d4f064be64ed2944bcebcbbd3071e3c93cb34c85a1a52129af0"
+      },
+      "shopping_list_sources": {
+        "count": 2,
+        "sha256": "d4841c466d05348c7d58867cf35cb80a267c46f4d3d9bbd2fb2db19e11741cf2"
+      },
+      "shopping_lists": {
+        "count": 2,
+        "sha256": "f24e3650e4e2c32364e9700899052f474468ff6ff681936950fcabaf0c261304"
+      },
+      "tags": {
+        "count": 3,
+        "sha256": "fe4059570fafd10635f46129a7a3ca905a32bb181a23fb1d3b2148af42cd2d7e"
+      },
+      "units": {
+        "count": 28,
+        "sha256": "c55ca2f7b01c66fdba53bcf1823ac8d4392be9fa49e40cdbd19bf45e72f372ce"
+      }
+    },
+    "all_17_table_row_hashes_equal": true
+  },
+  "scope_and_limitations": [
+    "Verification used GET requests only; no historical migrations, benchmark, destructive tests or mutation smoke.",
+    "No new paid services or AI provider requests were activated.",
+    "The preview app fail-closed response was checked; no temporary endpoint was introduced to expose an OIDC token or force a signed preview-token request to production.",
+    "Static bundle inspection and matching row hashes apply to the recorded snapshot, not all future deployments or edits.",
+    "Application authentication and multiuser isolation remain absent; privacy relies on Vercel protection.",
+    "AI imports have not been configured or tested on Vercel.",
+    "Authorized historical edits, planning and shopping mutations were not exercised during deployment."
+  ]
+}
