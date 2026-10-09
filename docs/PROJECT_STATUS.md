@@ -1,6 +1,6 @@
 # Estado del proyecto y traspaso a Hermes
 
-Fecha de revisión: 8 de octubre de 2026. El traspaso inicial contrastó `origin/main` en `6ce24b3911dfd4cafb91ed756a60badff4beefd0`; antes de la transferencia a Neon se comprobó el checkout limpio y sincronizado en `18e723b5e4cd6595974be422c0a2a34a7661a288`. La configuración y la evidencia de transferencia se integraron mediante la PR #34 en `c12be78df5c3021b97e0a175e194111af57013da`, base limpia y sincronizada de la validación PostgreSQL independiente descrita abajo. Las credenciales históricas permanecen exclusivamente en el archivo local ignorado por Git; las de pruebas se usaron solo en memoria. Este documento registra hechos observados; no convierte conversaciones en evidencia de implementación.
+Fecha de revisión: 9 de octubre de 2026. El traspaso inicial contrastó `origin/main` en `6ce24b3911dfd4cafb91ed756a60badff4beefd0`; antes de la transferencia a Neon se comprobó el checkout limpio y sincronizado en `18e723b5e4cd6595974be422c0a2a34a7661a288`. La configuración y la evidencia de transferencia se integraron mediante la PR #34 en `c12be78df5c3021b97e0a175e194111af57013da`, base limpia y sincronizada de la validación PostgreSQL independiente descrita abajo. La conexión histórica permanece fuera de Git: archivo local ignorado y, desde el 9 de octubre, secreto de producción del proyecto API en Vercel; nunca en la web ni en previews. Las credenciales de pruebas se usaron solo en memoria. Este documento registra hechos observados; no convierte conversaciones en evidencia de implementación.
 
 ## Estado real y último trabajo
 
@@ -110,6 +110,14 @@ Entorno local: Node 24.7.0 y pnpm 11.19.0; dependencias existentes. Lint, tipado
 - Instalación local offline con lockfile congelado abortada por confirmación de reemplazo de dependencias sin terminal; no se sustituyeron las dependencias. La instalación limpia queda cubierta por CI del PR.
 
 No quedan fallos observados en las verificaciones locales ejecutables tras la corrección. Las pruebas omitidas no equivalen a validación de persistencia ni a evidencia de la carga histórica. El resultado de CI del commit final se consulta en GitHub; esta sección no presupone una ejecución futura.
+
+## Publicación privada Vercel — 9 de octubre de 2026
+
+- La preparación se integró mediante PR #38 en `cfd1ab372abe975af19d6cccd68bf254024e9f55`. CI de main `37889947718` correcta, incluyendo PostgreSQL efímero; ambos despliegues reportaron éxito de construcción.
+- Proyectos existentes Hobby: `cocina-tuda` y `cocina-tuda-api`. `DATABASE_URL` se guardó como Secret exclusivamente en producción API, y `API_INTERNAL_URL` como configuración de servidor exclusivamente en producción web. No se activaron servicios de pago ni se ejecutaron migraciones históricas.
+- Comprobación anónima: GET a `/`, `/api/v1/health` y `/api/v1/recipes` en los dos dominios canónicos devolvió 302 hacia el login de Vercel, sin acceso a la aplicación. La sesión autorizada abrió la web, pero el proxy devolvió 502: la invocación API registró 500 `INTERNAL_FUNCTION_INVOCATION_FAILED`. Un build exitoso no acredita funcionamiento.
+- Causa reproducida: el runtime Node de Vercel intercepta `http.Server.listen()` sin llamar al callback y espera a que termine la importación del módulo. El `await bootstrap()` a nivel de módulo esperaba a su vez el `app.listen()`, bloqueando esa importación. Se sustituye únicamente la llamada superior por `void bootstrap()`, manteniendo la espera interna de Nest. Referencias primarias: documentación de NestJS en Vercel y `packages/node/src/serverless-functions/serverless-handler.mts` del repositorio público de Vercel.
+- Regresión rojo→verde en `main.spec.ts`: importación termina aunque el listener interceptado siga pendiente. Las tres pruebas de bootstrap y la suite API (61 pruebas, 9 PostgreSQL omitidas localmente), 2 HTTP e2e (11 PostgreSQL omitidas), formato, lint, tipado y build pasaron. Una simulación del interceptor sobre la API compilada real devolvió health 200, sin consultar PostgreSQL ni cargar el archivo histórico. La verificación posterior en Vercel y la lectura real de recetas siguen pendientes.
 
 ## Siguiente tarea recomendada para Hermes
 

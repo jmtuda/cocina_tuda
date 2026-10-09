@@ -46,6 +46,33 @@ describe('API bootstrap environment', () => {
     }
   });
 
+  it('allows runtime import to finish while intercepted listen is pending', async () => {
+    vi.stubEnv('DOTENV_CONFIG_PATH', '/dev/null');
+    vi.stubEnv('PORT', '49154');
+    let releaseListen = () => {};
+    const listening = new Promise<void>((resolve) => {
+      releaseListen = resolve;
+    });
+    app.listen.mockReturnValueOnce(listening);
+    const loading = import('./main.js');
+
+    try {
+      await vi.waitFor(() => {
+        expect(app.listen).toHaveBeenCalledWith('49154');
+      });
+      const outcome = await Promise.race([
+        loading.then(() => 'loaded'),
+        new Promise<string>((resolve) => {
+          setTimeout(() => resolve('blocked'), 100);
+        }),
+      ]);
+      expect(outcome).toBe('loaded');
+    } finally {
+      releaseListen();
+      await loading;
+    }
+  });
+
   it('preserves configuration explicitly supplied by the process', async () => {
     const directory = mkdtempSync(join(process.cwd(), '.env.bootstrap-test-'));
     const path = join(directory, '.env');

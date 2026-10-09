@@ -22,4 +22,6 @@ async function bootstrap() {
   SwaggerModule.setup('api/v1/docs', app, document);
   await app.listen(process.env.PORT ?? 3001);
 }
-await bootstrap();
+// Vercel imports this module before restarting the intercepted HTTP listener.
+// Awaiting bootstrap here would block that import on app.listen().
+void bootstrap();
