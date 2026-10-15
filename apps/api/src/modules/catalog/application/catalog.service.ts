@@ -65,6 +65,55 @@ export class CatalogService {
     return this.repository.listIngredients();
   }
 
+  async updateIngredient(id: string, rawName: string) {
+    const name = new CatalogName(rawName);
+    try {
+      return await this.repository.updateIngredient(
+        id,
+        name.value,
+        name.normalized,
+      );
+    } catch (error) {
+      this.handleUpdateError(error);
+    }
+  }
+
+  async updateVariant(ingredientId: string, id: string, rawName: string) {
+    const name = new CatalogName(rawName);
+    try {
+      return await this.repository.updateVariant(
+        ingredientId,
+        id,
+        name.value,
+        name.normalized,
+      );
+    } catch (error) {
+      this.handleUpdateError(error);
+    }
+  }
+
+  async updateUnit(id: string, rawName: string, abbreviation: string) {
+    const name = new CatalogName(rawName);
+    if (!abbreviation.trim())
+      throw new BadRequestException('La abreviatura es obligatoria');
+    try {
+      return await this.repository.updateUnit(
+        id,
+        name.value,
+        abbreviation.trim(),
+        name.normalized,
+      );
+    } catch (error) {
+      this.handleUpdateError(error);
+    }
+  }
+
+  private handleUpdateError(error: unknown): never {
+    if (this.errorCode(error) === 'P2025')
+      throw new NotFoundException('Elemento no encontrado');
+    this.handleConflict(error, 'Ya existe un elemento con ese nombre');
+  }
+
   listUnits() {
     return this.repository.listUnits();
   }

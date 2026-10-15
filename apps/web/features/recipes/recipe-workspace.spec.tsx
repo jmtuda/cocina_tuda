@@ -24,6 +24,75 @@ const categories = [{ id: "category-1", name: "Italiana" }];
 const tags = [{ id: "tag-1", name: "Rápida" }];
 
 describe("RecipeWorkspace", () => {
+  it("keeps multiple filters in a compact dropdown and clears the query immediately", async () => {
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockImplementation(async (input) => {
+        const url = String(input);
+        const data = url.includes("/recipes?")
+          ? { items: [], totalPages: 2 }
+          : url.endsWith("/ingredients")
+            ? ingredients
+            : url.endsWith("/units")
+              ? units
+              : url.endsWith("/categories")
+                ? categories
+                : tags;
+        return new Response(JSON.stringify(data));
+      });
+    vi.stubGlobal("fetch", fetchMock);
+    const user = userEvent.setup();
+    render(<RecipeWorkspace />);
+    await screen.findByText("Biblioteca lista.");
+    expect(
+      screen.queryByRole("checkbox", { name: "Tomate" }),
+    ).not.toBeInTheDocument();
+    await user.click(
+      screen.getByRole("button", { name: /Ingredientes \(todos\)/ }),
+    );
+    await user.click(screen.getByRole("checkbox", { name: "Tomate" }));
+    await user.click(screen.getByRole("checkbox", { name: "Albahaca" }));
+    await user.keyboard("{Escape}");
+    expect(
+      screen.getByRole("button", { name: /Ingredientes \(todos\)/ }),
+    ).toHaveFocus();
+    expect(
+      screen.queryByRole("checkbox", { name: "Tomate" }),
+    ).not.toBeInTheDocument();
+    await user.type(screen.getByLabelText("Buscar"), "sopa");
+    await user.selectOptions(screen.getByLabelText("Estado"), "ARCHIVED");
+    for (const [label, option] of [
+      [/^Categorías/, "Italiana"],
+      [/^Etiquetas/, "Rápida"],
+      [/^Variantes/, "Tomate: Chérry"],
+    ] as const) {
+      await user.click(screen.getByRole("button", { name: label }));
+      await user.click(screen.getByRole("checkbox", { name: option }));
+      await user.keyboard("{Escape}");
+    }
+    await user.click(screen.getByRole("button", { name: "Aplicar filtros" }));
+    expect(String(fetchMock.mock.calls.at(-1)?.[0])).toContain(
+      "ingredient=ingredient-1%2Cingredient-2",
+    );
+    const applied = new URL(
+      String(fetchMock.mock.calls.at(-1)?.[0]),
+      "http://local",
+    ).searchParams;
+    expect(Object.fromEntries(applied)).toMatchObject({
+      status: "ARCHIVED",
+      q: "sopa",
+      category: "category-1",
+      tag: "tag-1",
+      variant: "variant-1",
+    });
+    await user.click(screen.getByRole("button", { name: "Siguiente" }));
+    await user.click(screen.getByRole("button", { name: "Borrar filtros" }));
+    expect(String(fetchMock.mock.calls.at(-1)?.[0])).toBe(
+      "/api/v1/recipes?page=1&pageSize=20&status=ACTIVE",
+    );
+    expect(screen.getByLabelText("Buscar")).toHaveValue("");
+    expect(screen.getByLabelText("Estado")).toHaveValue("ACTIVE");
+  });
   afterEach(() => {
     cleanup();
     vi.restoreAllMocks();
@@ -187,8 +256,14 @@ describe("RecipeWorkspace", () => {
     const user = userEvent.setup();
     render(<RecipeWorkspace />);
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(5));
-    await user.type(screen.getByLabelText("Nuevo ingrediente"), "Patata");
-    await user.click(screen.getAllByRole("button", { name: "Agregar" })[0]);
+    expect(
+      screen.queryByLabelText("Nombre de catálogo"),
+    ).not.toBeInTheDocument();
+    await user.click(
+      screen.getByRole("button", { name: "Gestionar catálogos" }),
+    );
+    await user.type(screen.getByLabelText("Nombre de catálogo"), "Patata");
+    await user.click(screen.getByRole("button", { name: "Guardar catálogo" }));
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(10));
     expect(String(fetchMock.mock.calls[5]?.[0])).toMatch(

@@ -128,4 +128,69 @@ No quedan fallos observados en las verificaciones locales ejecutables tras la co
 
 Publicación privada y consulta de la biblioteca verificadas, con proyectos Hobby separados, login requerido, secreto histórico solo en producción API y proxy OIDC exclusivamente producción a producción. El desarrollo local conserva su proxy anterior; la decisión está en [ADR 0002](adr/0002-despliegue-privado-vercel.md). El propietario puede usar la web con su sesión autorizada de Vercel. Las mutaciones sobre la biblioteca histórica no se probaron durante el despliegue; la importación IA no se configuró ni se probó. El producto sigue sin autenticación ni aislamiento multiusuario propios: no retirar la protección del proveedor ni abrirlo anónimamente.
 
-La entrega documental de la recuperación quedó integrada mediante PR #37 en `b2080d6f7c5ab51ec4f51768a458490a5fc45abf`, con `validate` correcto en el PR (ejecución `37786729187`) y en `main` (`37787027318`), checkout limpio y sincronizado. La publicación privada posterior quedó verificada en la evidencia indicada; no hay una nueva tarea funcional autorizada. También quedan por acordar frecuencia, retención, cifrado y una segunda ubicación para los backups nuevos de Neon; no programar ni contratar servicios sin autorización ni implementar B-020/B-021 automáticamente.
+La entrega documental de la recuperación quedó integrada mediante PR #37 en `b2080d6f7c5ab51ec4f51768a458490a5fc45abf`, con `validate` correcto en el PR (ejecución `37786729187`) y en `main` (`37787027318`), checkout limpio y sincronizado. La publicación privada posterior quedó verificada en la evidencia indicada. La tarea local autorizada posteriormente se registra a continuación. También quedan por acordar frecuencia, retención, cifrado y una segunda ubicación para los backups nuevos de Neon; no programar ni contratar servicios sin autorización ni implementar B-020/B-021 automáticamente.
+
+## Interfaz compacta y edición unificada — 15 de octubre de 2026, sólo local
+
+Alcance autorizado: encabezamiento de biblioteca compacto sin branding/subtítulos repetidos; filtros alineados de una línea manteniendo multiselección y AND/CSV; limpieza inmediata a Activas/página 1; sección Crear receta independiente; editor compartido y gestor único de catálogos bajo demanda. Rama local `task/library-interface`, desde `10f7b790964830768d637413fdec479d7da55767`. Sin commits, push, PR ni publicación; la publicación privada vigente no cambia.
+
+Implementado:
+
+- Biblioteca con un título, filtros desplegables con búsqueda/checkboxes, resumen, teclado, Escape, cierre exterior y retorno de foco. Borrar filtros construye explícitamente una consulta limpia sin reutilizar criterios del cierre anterior.
+- Crear y editar usan el mismo formulario; cantidades como strings (incluido `0` y `125.500`), ausencia vacía en el editor y omitida en el payload conforme al DTO existente. Detalle modal, cancelación, archivo/reactivación y acceso a biblioteca tras crear conservados.
+- Filas de ingredientes alineadas y clasificaciones compactas. Gestor inline fuera del formulario de receta, sin segundo focus trap ni listados permanentes: Nuevo/Editar para los cinco tipos, nombre y abreviatura de unidad; variante siempre con su base y sin reasignación al renombrar. La actualización de catálogos no reinicializa el borrador ni sus IDs. Se retiran los botones dispersos de eliminación de clasificaciones; no se añaden permisos de borrado.
+- PATCH reales para ingredientes, variantes anidadas y unidades: DTO/UUID validados, CatalogName, Prisma update por ID (variante también por ingrediente), conflictos P2002→409 y ausencias P2025→404. Sin migraciones, esquema ni cliente generado nuevos.
+
+Verificación local ejecutada secuencialmente, sin instalaciones ni dependencias nuevas:
+
+- Baseline: web 76 correctas; API 61 correctas y 9 PostgreSQL omitidas. Ciclos rojo→verde observados para navegación separada, multiselección/limpieza, apertura del gestor, servicio/repositorio PATCH, rutas HTTP PATCH y acceso a biblioteca tras crear. Una regresión adicional detectó que Enter en la búsqueda del selector enviaba el formulario de receta; corregida tras observar su fallo.
+- Web: 85 pruebas correctas en 12 archivos. Incluyen filtros combinados y URL limpia, teclado/Escape/click exterior/Tab, creación/edición de los cinco tipos, conflictos, borradores en creación y edición, cantidades cero/decimal/ausente, campos completos, cancelación, archivo/reactivación y modal.
+- API: 70 correctas, 9 PostgreSQL omitidas; HTTP e2e generales: 2 correctas y 11 PostgreSQL omitidas. PATCH HTTP usa Nest con repositorio DI controlado; Prisma se comprueba mediante doble del cliente, no una DB real.
+- Lint, typecheck y builds web/API correctos. Caché y TMP de comandos bajo `node_modules/.cache/verification`; tests con `--no-experimental-webstorage` añadido a NODE_OPTIONS, y procesos API con DATABASE_URL/TEST_POSTGRES_URL vacíos y dotenv de prueba vacío. Las omisiones no acreditan persistencia PostgreSQL.
+
+Pendiente: revisión visual manual del propietario (móvil/escritorio, alineación, recortes y contraste), y verificación futura de persistencia en una base desechable autorizada antes de publicar. No se abrió navegador/headless ni se arrancaron servidores persistentes/API real; no se consultaron catálogos históricos, credenciales, Neon, backups ni proveedores IA. No se ejecutaron migraciones, seed, benchmark ni pruebas PostgreSQL. Los artefactos de build son locales e ignorados (`apps/web/.next`, `apps/api/dist`).
+
+### Seguimiento local: respuestas concurrentes y preparación de revisión conectada
+
+El propietario confirma revisión visual exclusivamente manual y autoriza conectar esta versión local a su biblioteca real de Neon. Comprende que los guardados manuales que haga modificarán Neon. La autorización no incluye escrituras del agente, pruebas contra esa DB, migraciones, seed ni SQL destructivo. El arranque y la comprobación GET por la sesión padre siguen pendientes; esta sesión no ha arrancado la API real ni conectado a Neon.
+
+- Regresión rojo→verde: la petición más reciente de biblioteca prevalece aunque una consulta filtrada anterior termine después de Borrar filtros. Se protegen datos, paginación y errores antiguos.
+- Regresión rojo→verde: tras guardar catálogo se consume el ID y se pasa a Editar con la misma entidad/base/datos. Un fallo posterior de recarga informa que ya está guardado, bloquea un nuevo write y ofrece «Reintentar recarga» exclusivamente GET. Durante la petición se deshabilitan controles/cierre del gestor; Escape no lo cierra. Se conserva el borrador de receta y se avisa del impacto global de los cambios, sin convertir cantidades.
+- Aplicar/Borrar usan una clase específica con dirección horizontal y wrap, también bajo 440 px; no se cambia la dirección de los demás paneles.
+- Lanzador temporal ignorado: `node_modules/.cache/verification/local-preview-api.mjs`. Importarlo no carga Nest/dotenv ni arranca nada; sólo `--run` carga Nest existente desde `apps/api/package.json` y el `dist/main.js`. Envuelve únicamente la aplicación devuelta por factory.create: listen fuerza `127.0.0.1`, preserva puerto/callback, y CORS permite exclusivamente los orígenes web de puerto 3100 indicados abajo y peticiones sin Origin. No modifica `main.ts` ni configuración publicada.
+- Test Node independiente con factory fake: `node --test node_modules/.cache/verification/local-preview-api.test.mjs`, 1 correcto; CORS permitido/rechazado, host, puerto y callback comprobados. No ejecutado con `--run`.
+- Verificación posterior: web 88 correctas en 14 archivos; API 70 correctas/9 PostgreSQL omitidas; HTTP e2e generales 2 correctas/11 PostgreSQL omitidas. Lint, typecheck y builds web/API correctos, secuenciales y con los guardas de tests anteriores. Manifiestos/lockfile/Prisma (esquema, migraciones y generado), `main.ts` y `next.config.ts` sin diferencias frente a HEAD; SHA-256 de manifiestos, lock y esquema calculados. No hay instalación, commit, push ni publicación.
+
+Orden de arranque previsto para el padre, no ejecutado aquí. En terminal API:
+
+```sh
+R=/Users/Tuda/Documents/proyectos_hermes/cocina_tuda
+cd "$R/apps/api"
+env -u DATABASE_URL -u TEST_POSTGRES_URL \
+  TMPDIR="$R/node_modules/.cache/verification/tmp" \
+  npm_config_cache="$R/node_modules/.cache/verification/cache" \
+  COREPACK_ENABLE_NETWORK=0 NEXT_TELEMETRY_DISABLED=1 TURBO_TELEMETRY_DISABLED=1 \
+  DOTENV_CONFIG_PATH="$R/apps/api/.env" DOTENV_CONFIG_QUIET=true PORT=3001 \
+  node "$R/node_modules/.cache/verification/local-preview-api.mjs" --run
+```
+
+Comprobar GET de health y listado sin imprimir recetas/credenciales; sólo después iniciar la web en otra terminal:
+
+```sh
+R=/Users/Tuda/Documents/proyectos_hermes/cocina_tuda
+cd "$R"
+env TMPDIR="$R/node_modules/.cache/verification/tmp" \
+  npm_config_cache="$R/node_modules/.cache/verification/cache" \
+  COREPACK_ENABLE_NETWORK=0 NEXT_TELEMETRY_DISABLED=1 TURBO_TELEMETRY_DISABLED=1 \
+  pnpm --filter @cocina-tuda/web exec next dev -H 127.0.0.1 -p 3100
+```
+
+Abrir manualmente `http://127.0.0.1:3100`. El rewrite local conserva `127.0.0.1:3001`; CORS admite `http://127.0.0.1:3100` y `http://localhost:3100`, no otros orígenes ni wildcard. No usar el puerto 3000 ni detener procesos ajenos. Los archivos temporales no forman parte de Git y pueden desaparecer al limpiar node_modules; no son un mecanismo de despliegue. La publicación vigente permanece sin cambios y no se acredita ninguna escritura real en PostgreSQL por esta preparación.
+
+### Aprobación e integración — 15 de octubre de 2026
+
+El propietario evaluó la interfaz local, confirmó su aprobación y autorizó commit, integración en GitHub y despliegue de web y API. Se verificó por GET que la biblioteca local carga con la configuración existente. La rama de trabajo parte del mismo commit que `origin/main`, `10f7b790964830768d637413fdec479d7da55767`; los cambios funcionales permanecen sin cambios de esquema, migraciones, dependencias o configuración de protección.
+
+Verificación previa a la integración: lint y typecheck de web/API correctos; web 88 pruebas correctas y API 70 correctas con 9 PostgreSQL omitidas. Los procesos de pruebas deshabilitan DATABASE_URL/TEST_POSTGRES_URL y dotenv real. Las pruebas de persistencia deben completarse en la base desechable del job `validate` de GitHub antes de integrar. La autorización no incluye escrituras de prueba sobre la biblioteca histórica.
+
+La publicación se realizará mediante PR a `main`, con `validate` correcto e historial lineal. Después se comprobará que ambos despliegues de producción corresponden al commit integrado, conservando Vercel Authentication y la conexión de datos exclusivamente en producción.

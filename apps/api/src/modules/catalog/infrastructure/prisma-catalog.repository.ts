@@ -37,6 +37,50 @@ export class PrismaCatalogRepository implements CatalogRepository {
     });
   }
 
+  updateIngredient(id: string, name: string, normalizedName: string) {
+    return this.prisma.getDb().ingredient.update({
+      where: { id },
+      data: { name, normalizedName },
+      select: { id: true, name: true, normalizedName: true },
+    });
+  }
+
+  updateVariant(
+    ingredientId: string,
+    id: string,
+    name: string,
+    normalizedName: string,
+  ) {
+    return this.prisma.getDb().ingredientVariant.update({
+      where: { id, ingredientId },
+      data: { name, normalizedName },
+      select: {
+        id: true,
+        ingredientId: true,
+        name: true,
+        normalizedName: true,
+      },
+    });
+  }
+
+  updateUnit(
+    id: string,
+    name: string,
+    abbreviation: string,
+    normalizedName: string,
+  ) {
+    return this.prisma.getDb().unit.update({
+      where: { id },
+      data: { name, abbreviation, normalizedName },
+      select: {
+        id: true,
+        name: true,
+        abbreviation: true,
+        normalizedName: true,
+      },
+    });
+  }
+
   listIngredients() {
     return this.prisma.getDb().ingredient.findMany({
       orderBy: { normalizedName: 'asc' },

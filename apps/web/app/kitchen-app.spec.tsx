@@ -30,6 +30,13 @@ describe("KitchenApp", () => {
     expect(
       screen.getByRole("heading", { name: "Biblioteca de recetas" }),
     ).toBeVisible();
+    expect(screen.queryByLabelText("Nombre")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Tu cocina, bien organizada"),
+    ).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Crear receta" }));
+    expect(screen.getByLabelText("Nombre")).toBeVisible();
+    expect(screen.queryByLabelText("Buscar")).not.toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Plan semanal" }));
     expect(screen.getAllByRole("main")).toHaveLength(1);
     expect(screen.getByRole("heading", { name: "Plan semanal" })).toBeVisible();
