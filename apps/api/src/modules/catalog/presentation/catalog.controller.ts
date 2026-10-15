@@ -5,6 +5,7 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  Patch,
 } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { CatalogService } from '../application/catalog.service.js';
@@ -20,6 +21,35 @@ import {
 @Controller('catalog')
 export class CatalogController {
   constructor(private readonly catalog: CatalogService) {}
+
+  @Patch('ingredients/:id')
+  @ApiOkResponse({ type: CatalogItemDto })
+  updateIngredient(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Body() body: CreateNamedCatalogItemDto,
+  ) {
+    return this.catalog.updateIngredient(id, body.name);
+  }
+
+  @Patch('ingredients/:ingredientId/variants/:id')
+  @ApiOkResponse({ type: IngredientVariantResponseDto })
+  updateVariant(
+    @Param('ingredientId', new ParseUUIDPipe({ version: '4' }))
+    ingredientId: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Body() body: CreateNamedCatalogItemDto,
+  ) {
+    return this.catalog.updateVariant(ingredientId, id, body.name);
+  }
+
+  @Patch('units/:id')
+  @ApiOkResponse({ type: UnitResponseDto })
+  updateUnit(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Body() body: CreateUnitDto,
+  ) {
+    return this.catalog.updateUnit(id, body.name, body.abbreviation);
+  }
 
   @Get('ingredients')
   @ApiOkResponse({ type: [IngredientResponseDto] })

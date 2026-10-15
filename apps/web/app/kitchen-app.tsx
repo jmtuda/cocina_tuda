@@ -9,6 +9,7 @@ import { apiFetch } from "../lib/api";
 
 const areas = [
   { id: "library", label: "Biblioteca" },
+  { id: "create", label: "Crear receta" },
   { id: "import", label: "Importar" },
   { id: "planning", label: "Plan semanal" },
   { id: "shopping", label: "Lista de compra" },
@@ -43,15 +44,6 @@ export function KitchenApp() {
   return (
     <div className="app-frame">
       <header className="app-header">
-        <div className="brand">
-          <span className="brand-mark" aria-hidden="true">
-            CT
-          </span>
-          <div>
-            <strong>Cocina Tuda</strong>
-            <span>Tu cocina, bien organizada</span>
-          </div>
-        </div>
         <nav className="app-nav" aria-label="Secciones principales">
           {areas.map((item) => (
             <button
@@ -82,7 +74,13 @@ export function KitchenApp() {
       )}
 
       <main className="app-main">
-        {area === "library" && <RecipeWorkspace />}
+        {(area === "library" || area === "create") && (
+          <RecipeWorkspace
+            key={area}
+            mode={area}
+            onLibrary={() => setArea("library")}
+          />
+        )}
         {area === "import" && <ImportWorkspace />}
         {area === "planning" && <PlanningWorkspace />}
         {area === "shopping" && <ShoppingWorkspace />}

@@ -3,6 +3,8 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { apiFetch, apiUrl, responseError } from "../../lib/api";
 import { RecipeModal } from "./recipe-modal";
+import { MultiSelect } from "./compact-multi-select";
+import { CatalogManager } from "./catalog-manager";
 
 type Named = { id: string; name: string };
 type Variant = Named & { ingredientId: string };
@@ -50,10 +52,14 @@ const emptyIngredient = (): IngredientDraft => ({
   optional: false,
   observations: "",
 });
-const selected = (event: React.ChangeEvent<HTMLSelectElement>) =>
-  Array.from(event.target.selectedOptions, (option) => option.value);
 
-export function RecipeWorkspace() {
+export function RecipeWorkspace({
+  mode = "library",
+  onLibrary,
+}: {
+  mode?: "library" | "create";
+  onLibrary?(): void;
+}) {
   const [detail, setDetail] = useState<RecipeDetail | null>(null);
   const [editing, setEditing] = useState(false);
   const editButton = useRef<HTMLButtonElement>(null);
@@ -89,6 +95,7 @@ export function RecipeWorkspace() {
   const [variantFilter, setVariantFilter] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const latestRecipeRequest = useRef(0);
   const [message, setMessage] = useState("Cargando tu biblioteca…");
 
   const safely = (action: () => Promise<void>) =>
@@ -116,64 +123,38 @@ export function RecipeWorkspace() {
     setMessage("Catálogos actualizados.");
   }
 
-  async function addItem(path: string, payload: object) {
-    const response = await apiFetch(`${apiUrl}/${path}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    if (!response.ok)
-      throw new Error(await responseError(response, "No se pudo guardar"));
-    await refreshCatalogs();
-  }
-
-  async function addFormItem(path: string, form: FormData) {
-    await addItem(path, Object.fromEntries(form.entries()));
-  }
-
-  async function changeClassification(
-    kind: "categories" | "tags",
-    item: Named,
-    remove = false,
-  ) {
-    const nextName = remove
-      ? undefined
-      : window.prompt("Nuevo nombre", item.name);
-    if (!remove && !nextName) return;
-    const response = await apiFetch(
-      `${apiUrl}/classifications/${kind}/${item.id}`,
-      {
-        method: remove ? "DELETE" : "PATCH",
-        headers: { "Content-Type": "application/json" },
-        ...(nextName ? { body: JSON.stringify({ name: nextName }) } : {}),
-      },
-    );
-    if (!response.ok)
-      throw new Error(await responseError(response, "No se pudo modificar"));
-    await refreshCatalogs();
-  }
-
-  async function loadRecipes(nextPage = page) {
-    const params = new URLSearchParams({
-      page: String(nextPage),
-      pageSize: "20",
-      status: statusFilter,
-    });
-    if (categoryFilter.length) params.set("category", categoryFilter.join(","));
-    if (tagFilter.length) params.set("tag", tagFilter.join(","));
-    if (searchText.trim()) params.set("q", searchText.trim());
-    if (ingredientFilter.length)
-      params.set("ingredient", ingredientFilter.join(","));
-    if (variantFilter.length) params.set("variant", variantFilter.join(","));
-    const response = await apiFetch(`${apiUrl}/recipes?${params}`);
-    if (!response.ok) throw new Error("No se pudo cargar la biblioteca");
-    const result = (await response.json()) as {
-      items: Summary[];
-      totalPages: number;
-    };
-    setRecipes(result.items);
-    setTotalPages(Math.max(1, result.totalPages));
-    setPage(nextPage);
+  async function loadRecipes(nextPage = page, clear = false) {
+    const request = ++latestRecipeRequest.current;
+    try {
+      const params = new URLSearchParams({
+        page: String(nextPage),
+        pageSize: "20",
+        status: clear ? "ACTIVE" : statusFilter,
+      });
+      if (!clear) {
+        if (categoryFilter.length)
+          params.set("category", categoryFilter.join(","));
+        if (tagFilter.length) params.set("tag", tagFilter.join(","));
+        if (searchText.trim()) params.set("q", searchText.trim());
+        if (ingredientFilter.length)
+          params.set("ingredient", ingredientFilter.join(","));
+        if (variantFilter.length)
+          params.set("variant", variantFilter.join(","));
+      }
+      const response = await apiFetch(`${apiUrl}/recipes?${params}`);
+      if (request !== latestRecipeRequest.current) return;
+      if (!response.ok) throw new Error("No se pudo cargar la biblioteca");
+      const result = (await response.json()) as {
+        items: Summary[];
+        totalPages: number;
+      };
+      if (request !== latestRecipeRequest.current) return;
+      setRecipes(result.items);
+      setTotalPages(Math.max(1, result.totalPages));
+      setPage(nextPage);
+    } catch (error) {
+      if (request === latestRecipeRequest.current) throw error;
+    }
   }
 
   async function openRecipe(id: string) {
@@ -309,217 +290,127 @@ export function RecipeWorkspace() {
     );
 
   return (
-    <div className="shell workspace">
+    <div className="shell workspace library-workspace">
       <header>
-        <span className="eyebrow">Cocina Tuda</span>
-        <h1>Biblioteca de recetas</h1>
-        <p>Navega, clasifica y mantén tus recetas.</p>
+        <h1>{mode === "library" ? "Biblioteca de recetas" : "Crear receta"}</h1>
       </header>
 
-      <section className="panel recipe">
-        <div className="panel-title">
-          <h2>Biblioteca</h2>
-          <button onClick={() => void safely(() => loadRecipes(1))}>
-            Aplicar filtros
-          </button>
-        </div>
-        <div className="row">
-          <label>
-            Buscar
-            <input
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-            />
-          </label>
-          <label>
-            Estado
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <option value="ACTIVE">Activas</option>
-              <option value="ARCHIVED">Archivadas</option>
-              <option value="ACTIVE,ARCHIVED">Todas</option>
-            </select>
-          </label>
-          <MultiSelect
-            label="Categorías"
-            value={categoryFilter}
-            items={categories}
-            onChange={setCategoryFilter}
-          />
-          <MultiSelect
-            label="Etiquetas"
-            value={tagFilter}
-            items={tags}
-            onChange={setTagFilter}
-          />
-          <MultiSelect
-            label="Ingredientes (todos)"
-            value={ingredientFilter}
-            items={ingredients}
-            onChange={setIngredientFilter}
-          />
-          <MultiSelect
-            label="Variantes (todas)"
-            value={variantFilter}
-            items={ingredients.flatMap((ingredient) =>
-              ingredient.variants.map((variant) => ({
-                ...variant,
-                name: `${ingredient.name}: ${variant.name}`,
-              })),
-            )}
-            onChange={setVariantFilter}
-          />
-        </div>
-        <div className="library-list">
-          {recipes.length === 0 && <p>No hay recetas para estos criterios.</p>}
-          {recipes.map((recipe) => (
-            <button
-              className="recipe-card"
-              key={recipe.id}
-              onClick={() => void safely(() => openRecipe(recipe.id))}
-            >
-              <strong>{recipe.name}</strong>
-              <span>
-                {recipe.status === "ARCHIVED" ? "Archivada" : "Activa"}
-              </span>
+      {mode === "library" && (
+        <section className="panel recipe">
+          <div className="panel-title library-filter-actions">
+            <button onClick={() => void safely(() => loadRecipes(1))}>
+              Aplicar filtros
             </button>
-          ))}
-        </div>
-        <div>
-          <button
-            disabled={page <= 1}
-            onClick={() => void safely(() => loadRecipes(page - 1))}
-          >
-            Anterior
-          </button>{" "}
-          <span>
-            {page} / {totalPages}
-          </span>{" "}
-          <button
-            disabled={page >= totalPages}
-            onClick={() => void safely(() => loadRecipes(page + 1))}
-          >
-            Siguiente
-          </button>
-        </div>
-      </section>
+            <button
+              className="quiet"
+              onClick={() => {
+                setSearchText("");
+                setCategoryFilter([]);
+                setTagFilter([]);
+                setIngredientFilter([]);
+                setVariantFilter([]);
+                setStatusFilter("ACTIVE");
+                void safely(() => loadRecipes(1, true));
+              }}
+            >
+              Borrar filtros
+            </button>
+          </div>
+          <div className="library-filter-grid">
+            <label>
+              Buscar
+              <input
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+              />
+            </label>
+            <label>
+              Estado
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="ACTIVE">Activas</option>
+                <option value="ARCHIVED">Archivadas</option>
+                <option value="ACTIVE,ARCHIVED">Todas</option>
+              </select>
+            </label>
+            <MultiSelect
+              label="Categorías"
+              value={categoryFilter}
+              items={categories}
+              onChange={setCategoryFilter}
+            />
+            <MultiSelect
+              label="Etiquetas"
+              value={tagFilter}
+              items={tags}
+              onChange={setTagFilter}
+            />
+            <MultiSelect
+              label="Ingredientes (todos)"
+              value={ingredientFilter}
+              items={ingredients}
+              onChange={setIngredientFilter}
+            />
+            <MultiSelect
+              label="Variantes (todas)"
+              value={variantFilter}
+              items={ingredients.flatMap((ingredient) =>
+                ingredient.variants.map((variant) => ({
+                  ...variant,
+                  name: `${ingredient.name}: ${variant.name}`,
+                })),
+              )}
+              onChange={setVariantFilter}
+            />
+          </div>
+          <div className="library-list">
+            {recipes.length === 0 && (
+              <p>No hay recetas para estos criterios.</p>
+            )}
+            {recipes.map((recipe) => (
+              <button
+                className="recipe-card"
+                key={recipe.id}
+                onClick={() => void safely(() => openRecipe(recipe.id))}
+              >
+                <strong>{recipe.name}</strong>
+                <span>
+                  {recipe.status === "ARCHIVED" ? "Archivada" : "Activa"}
+                </span>
+              </button>
+            ))}
+          </div>
+          <div>
+            <button
+              disabled={page <= 1}
+              onClick={() => void safely(() => loadRecipes(page - 1))}
+            >
+              Anterior
+            </button>{" "}
+            <span>
+              {page} / {totalPages}
+            </span>{" "}
+            <button
+              disabled={page >= totalPages}
+              onClick={() => void safely(() => loadRecipes(page + 1))}
+            >
+              Siguiente
+            </button>
+          </div>
+        </section>
+      )}
 
-      <section className="panel catalogs">
-        <div>
-          <h2>Catálogos</h2>
-          <p>Ingredientes, unidades y clasificaciones disponibles.</p>
-        </div>
-        <form
-          action={(form) =>
-            safely(() => addFormItem("catalog/ingredients", form))
-          }
-        >
-          <label>
-            Nuevo ingrediente
-            <input name="name" required />
-          </label>
-          <button>Agregar</button>
-        </form>
-        <form
-          action={(form) => safely(() => addFormItem("catalog/units", form))}
-        >
-          <label>
-            Nueva unidad
-            <input name="name" required />
-          </label>
-          <label>
-            Abreviatura
-            <input name="abbreviation" required />
-          </label>
-          <button>Agregar</button>
-        </form>
-        <form
-          action={(form) => {
-            const ingredientId = String(form.get("ingredientId") ?? "");
-            form.delete("ingredientId");
-            return safely(() =>
-              addFormItem(`catalog/ingredients/${ingredientId}/variants`, form),
-            );
-          }}
-        >
-          <label>
-            Ingrediente
-            <select name="ingredientId" required>
-              <option value="">Selecciona</option>
-              {ingredients.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Nueva variante
-            <input name="name" required />
-          </label>
-          <button>Agregar</button>
-        </form>
-        <form
-          action={(form) =>
-            safely(() => addFormItem("classifications/categories", form))
-          }
-        >
-          <label>
-            Nueva categoría
-            <input name="name" required />
-          </label>
-          <button>Agregar</button>
-        </form>
-        <form
-          action={(form) =>
-            safely(() => addFormItem("classifications/tags", form))
-          }
-        >
-          <label>
-            Nueva etiqueta
-            <input name="name" required />
-          </label>
-          <button>Agregar</button>
-        </form>
-      </section>
-
-      <section className="panel classification-lists">
-        <div>
-          <h3>Ingredientes</h3>
-          {ingredients.map((item) => (
-            <p key={item.id}>
-              {item.name}
-              {item.variants.length
-                ? `: ${item.variants.map((variant) => variant.name).join(", ")}`
-                : ""}
-            </p>
-          ))}
-        </div>
-        <div>
-          <h3>Unidades</h3>
-          {units.map((item) => (
-            <p key={item.id}>
-              {item.name} ({item.abbreviation})
-            </p>
-          ))}
-        </div>
-        <ClassificationList
-          title="Categorías"
-          kind="categories"
-          items={categories}
-          safely={safely}
-          change={changeClassification}
+      {!detail && mode === "library" && (
+        <CatalogManager
+          ingredients={ingredients}
+          units={units}
+          categories={categories}
+          tags={tags}
+          refresh={refreshCatalogs}
         />
-        <ClassificationList
-          title="Etiquetas"
-          kind="tags"
-          items={tags}
-          safely={safely}
-          change={changeClassification}
-        />
-      </section>
+      )}
 
       <RecipeModal
         active={!!detail}
@@ -593,6 +484,9 @@ export function RecipeWorkspace() {
               </aside>
             )}
             <div className="recipe-actions">
+              {mode === "create" && onLibrary && (
+                <button onClick={onLibrary}>Ver en biblioteca</button>
+              )}
               <button
                 ref={editButton}
                 className="primary"
@@ -611,267 +505,278 @@ export function RecipeWorkspace() {
             </div>
           </>
         )}
-        {(!detail || editing) && (
-          <form
-            className="panel recipe"
-            onSubmit={(event) => void safely(() => saveRecipe(event))}
-          >
-            <div className="panel-title">
-              <h2>{recipeId ? "Editar receta" : "Crear receta"}</h2>
-              {recipeId && (
-                <button
-                  type="button"
-                  className="quiet"
-                  onClick={() =>
-                    void safely(() => setArchived(recipeStatus === "ACTIVE"))
-                  }
-                >
-                  {recipeStatus === "ACTIVE" ? "Archivar" : "Reactivar"}
-                </button>
-              )}
-            </div>
-            <label>
-              Nombre
-              <input
-                value={name}
-                autoFocus={!!detail}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
-            </label>
-            <label>
-              Descripción
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </label>
-            <div className="row">
-              <label>
-                Autor
-                <input
-                  value={author}
-                  onChange={(e) => setAuthor(e.target.value)}
-                />
-              </label>
-              <label>
-                Raciones
-                <input
-                  type="number"
-                  min="1"
-                  value={servings}
-                  onChange={(e) => setServings(e.target.value)}
-                />
-              </label>
-              <label>
-                Dificultad
-                <input
-                  value={difficulty}
-                  onChange={(e) => setDifficulty(e.target.value)}
-                />
-              </label>
-            </div>
-            <label>
-              Notas
-              <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-              />
-            </label>
-
-            <section>
+        {((mode === "create" && !detail) || editing) && (
+          <>
+            <CatalogManager
+              ingredients={ingredients}
+              units={units}
+              categories={categories}
+              tags={tags}
+              refresh={refreshCatalogs}
+            />
+            <form
+              className="panel recipe recipe-editor"
+              onSubmit={(event) => void safely(() => saveRecipe(event))}
+            >
               <div className="panel-title">
-                <h3>Pasos</h3>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setSteps((current) => [...current, { text: "" }])
-                  }
-                >
-                  Añadir paso
-                </button>
+                <h2>{recipeId ? "Editar receta" : "Crear receta"}</h2>
+                {recipeId && (
+                  <button
+                    type="button"
+                    className="quiet"
+                    onClick={() =>
+                      void safely(() => setArchived(recipeStatus === "ACTIVE"))
+                    }
+                  >
+                    {recipeStatus === "ACTIVE" ? "Archivar" : "Reactivar"}
+                  </button>
+                )}
               </div>
-              {steps.map((item, index) => (
-                <div className="row" key={index}>
-                  <label>
-                    Paso {index + 1}
-                    <textarea
-                      value={item.text}
-                      onChange={(e) => updateStep(index, e.target.value)}
-                      required
-                    />
-                  </label>
+              <label>
+                Nombre
+                <input
+                  value={name}
+                  autoFocus={!!detail}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+              </label>
+              <label>
+                Descripción
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+              </label>
+              <div className="row">
+                <label>
+                  Autor
+                  <input
+                    value={author}
+                    onChange={(e) => setAuthor(e.target.value)}
+                  />
+                </label>
+                <label>
+                  Raciones
+                  <input
+                    type="number"
+                    min="1"
+                    value={servings}
+                    onChange={(e) => setServings(e.target.value)}
+                  />
+                </label>
+                <label>
+                  Dificultad
+                  <input
+                    value={difficulty}
+                    onChange={(e) => setDifficulty(e.target.value)}
+                  />
+                </label>
+              </div>
+              <label>
+                Notas
+                <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                />
+              </label>
+
+              <section>
+                <div className="panel-title">
+                  <h3>Pasos</h3>
                   <button
                     type="button"
                     onClick={() =>
-                      setSteps((current) =>
-                        current.filter((_, itemIndex) => itemIndex !== index),
-                      )
+                      setSteps((current) => [...current, { text: "" }])
                     }
                   >
-                    Eliminar paso
+                    Añadir paso
                   </button>
                 </div>
-              ))}
-            </section>
-
-            <section>
-              <div className="panel-title">
-                <h3>Ingredientes de receta</h3>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setRecipeIngredients((current) => [
-                      ...current,
-                      emptyIngredient(),
-                    ])
-                  }
-                >
-                  Añadir ingrediente
-                </button>
-              </div>
-              {recipeIngredients.map((item, index) => {
-                const variants =
-                  ingredients.find(
-                    (ingredient) => ingredient.id === item.ingredientId,
-                  )?.variants ?? [];
-                return (
+                {steps.map((item, index) => (
                   <div className="row" key={index}>
                     <label>
-                      Ingrediente {index + 1}
-                      <select
-                        value={item.ingredientId}
-                        onChange={(e) =>
-                          updateRecipeIngredient(index, {
-                            ingredientId: e.target.value,
-                            variantId: "",
-                          })
-                        }
+                      Paso {index + 1}
+                      <textarea
+                        value={item.text}
+                        onChange={(e) => updateStep(index, e.target.value)}
                         required
-                      >
-                        <option value="">Selecciona</option>
-                        {ingredients.map((ingredient) => (
-                          <option key={ingredient.id} value={ingredient.id}>
-                            {ingredient.name}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                    <label>
-                      Variante
-                      <select
-                        value={item.variantId}
-                        onChange={(e) =>
-                          updateRecipeIngredient(index, {
-                            variantId: e.target.value,
-                          })
-                        }
-                      >
-                        <option value="">Sin variante</option>
-                        {variants.map((variant) => (
-                          <option key={variant.id} value={variant.id}>
-                            {variant.name}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                    <label>
-                      Cantidad
-                      <input
-                        value={item.quantity}
-                        onChange={(e) =>
-                          updateRecipeIngredient(index, {
-                            quantity: e.target.value,
-                          })
-                        }
-                      />
-                    </label>
-                    <label>
-                      Unidad
-                      <select
-                        value={item.unitId}
-                        onChange={(e) =>
-                          updateRecipeIngredient(index, {
-                            unitId: e.target.value,
-                          })
-                        }
-                      >
-                        <option value="">Sin unidad</option>
-                        {units.map((unit) => (
-                          <option key={unit.id} value={unit.id}>
-                            {unit.abbreviation}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                    <label>
-                      Opcional
-                      <input
-                        type="checkbox"
-                        checked={item.optional}
-                        onChange={(e) =>
-                          updateRecipeIngredient(index, {
-                            optional: e.target.checked,
-                          })
-                        }
-                      />
-                    </label>
-                    <label>
-                      Observaciones
-                      <input
-                        value={item.observations}
-                        onChange={(e) =>
-                          updateRecipeIngredient(index, {
-                            observations: e.target.value,
-                          })
-                        }
                       />
                     </label>
                     <button
                       type="button"
                       onClick={() =>
-                        setRecipeIngredients((current) =>
+                        setSteps((current) =>
                           current.filter((_, itemIndex) => itemIndex !== index),
                         )
                       }
                     >
-                      Eliminar ingrediente
+                      Eliminar paso
                     </button>
                   </div>
-                );
-              })}
-            </section>
+                ))}
+              </section>
 
-            <div className="row">
-              <MultiSelect
-                label="Categorías de receta"
-                value={categoryIds}
-                items={categories}
-                onChange={setCategoryIds}
-              />
-              <MultiSelect
-                label="Etiquetas de receta"
-                value={tagIds}
-                items={tags}
-                onChange={setTagIds}
-              />
-            </div>
-            <button className="primary">
-              {recipeId ? "Guardar cambios" : "Crear receta"}
-            </button>
-            {detail && (
-              <button
-                type="button"
-                className="quiet"
-                onClick={() => {
-                  fillEditor(detail);
-                  setEditing(false);
-                }}
-              >
-                Cancelar edición
+              <section>
+                <div className="panel-title">
+                  <h3>Ingredientes de receta</h3>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setRecipeIngredients((current) => [
+                        ...current,
+                        emptyIngredient(),
+                      ])
+                    }
+                  >
+                    Añadir ingrediente
+                  </button>
+                </div>
+                {recipeIngredients.map((item, index) => {
+                  const variants =
+                    ingredients.find(
+                      (ingredient) => ingredient.id === item.ingredientId,
+                    )?.variants ?? [];
+                  return (
+                    <div className="recipe-ingredient-row" key={index}>
+                      <label>
+                        Ingrediente {index + 1}
+                        <select
+                          value={item.ingredientId}
+                          onChange={(e) =>
+                            updateRecipeIngredient(index, {
+                              ingredientId: e.target.value,
+                              variantId: "",
+                            })
+                          }
+                          required
+                        >
+                          <option value="">Selecciona</option>
+                          {ingredients.map((ingredient) => (
+                            <option key={ingredient.id} value={ingredient.id}>
+                              {ingredient.name}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label>
+                        Variante
+                        <select
+                          value={item.variantId}
+                          onChange={(e) =>
+                            updateRecipeIngredient(index, {
+                              variantId: e.target.value,
+                            })
+                          }
+                        >
+                          <option value="">Sin variante</option>
+                          {variants.map((variant) => (
+                            <option key={variant.id} value={variant.id}>
+                              {variant.name}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label>
+                        Cantidad
+                        <input
+                          value={item.quantity}
+                          onChange={(e) =>
+                            updateRecipeIngredient(index, {
+                              quantity: e.target.value,
+                            })
+                          }
+                        />
+                      </label>
+                      <label>
+                        Unidad
+                        <select
+                          value={item.unitId}
+                          onChange={(e) =>
+                            updateRecipeIngredient(index, {
+                              unitId: e.target.value,
+                            })
+                          }
+                        >
+                          <option value="">Sin unidad</option>
+                          {units.map((unit) => (
+                            <option key={unit.id} value={unit.id}>
+                              {unit.abbreviation}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label>
+                        Opcional
+                        <input
+                          type="checkbox"
+                          checked={item.optional}
+                          onChange={(e) =>
+                            updateRecipeIngredient(index, {
+                              optional: e.target.checked,
+                            })
+                          }
+                        />
+                      </label>
+                      <label>
+                        Observaciones
+                        <input
+                          value={item.observations}
+                          onChange={(e) =>
+                            updateRecipeIngredient(index, {
+                              observations: e.target.value,
+                            })
+                          }
+                        />
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setRecipeIngredients((current) =>
+                            current.filter(
+                              (_, itemIndex) => itemIndex !== index,
+                            ),
+                          )
+                        }
+                      >
+                        Eliminar ingrediente
+                      </button>
+                    </div>
+                  );
+                })}
+              </section>
+
+              <div className="row">
+                <MultiSelect
+                  label="Categorías de receta"
+                  value={categoryIds}
+                  items={categories}
+                  onChange={setCategoryIds}
+                />
+                <MultiSelect
+                  label="Etiquetas de receta"
+                  value={tagIds}
+                  items={tags}
+                  onChange={setTagIds}
+                />
+              </div>
+              <button className="primary">
+                {recipeId ? "Guardar cambios" : "Crear receta"}
               </button>
-            )}
-          </form>
+              {detail && (
+                <button
+                  type="button"
+                  className="quiet"
+                  onClick={() => {
+                    fillEditor(detail);
+                    setEditing(false);
+                  }}
+                >
+                  Cancelar edición
+                </button>
+              )}
+            </form>
+          </>
         )}
         {detail && (
           <p className="status" role="status">
@@ -884,70 +789,6 @@ export function RecipeWorkspace() {
           {message}
         </p>
       )}
-    </div>
-  );
-}
-
-function MultiSelect({
-  label,
-  value,
-  items,
-  onChange,
-}: {
-  label: string;
-  value: string[];
-  items: Named[];
-  onChange(value: string[]): void;
-}) {
-  return (
-    <label>
-      {label}
-      <select
-        multiple
-        value={value}
-        onChange={(event) => onChange(selected(event))}
-      >
-        {items.map((item) => (
-          <option key={item.id} value={item.id}>
-            {item.name}
-          </option>
-        ))}
-      </select>
-    </label>
-  );
-}
-
-function ClassificationList({
-  title,
-  kind,
-  items,
-  safely,
-  change,
-}: {
-  title: string;
-  kind: "categories" | "tags";
-  items: Named[];
-  safely(action: () => Promise<void>): void;
-  change(
-    kind: "categories" | "tags",
-    item: Named,
-    remove?: boolean,
-  ): Promise<void>;
-}) {
-  return (
-    <div>
-      <h3>{title}</h3>
-      {items.map((item) => (
-        <p key={item.id}>
-          {item.name}{" "}
-          <button onClick={() => void safely(() => change(kind, item))}>
-            Renombrar
-          </button>{" "}
-          <button onClick={() => void safely(() => change(kind, item, true))}>
-            Eliminar
-          </button>
-        </p>
-      ))}
     </div>
   );
 }

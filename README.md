@@ -56,6 +56,8 @@ Durante la revisión, cada referencia muestra lo detectado por IA y su estado. P
 
 ## Desarrollo
 
+La biblioteca usa filtros compactos con selección múltiple: abre el desplegable, busca y marca opciones; «Aplicar filtros» consulta y «Borrar filtros» restablece Activas y la primera página inmediatamente. «Crear receta» es una sección independiente con el mismo editor que la edición del detalle. «Gestionar catálogos» abre un único formulario Nuevo/Editar para ingredientes, variantes, unidades, categorías y etiquetas, también durante la creación/edición sin perder el borrador. Las cantidades siguen siendo decimales libres, no conversiones ni escalado. El propietario aprobó la revisión local y autorizó su integración y publicación el 15 de octubre de 2026.
+
 Ejecutar API y web simultáneamente:
 
 ```bash
