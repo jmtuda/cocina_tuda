@@ -130,6 +130,94 @@ function harness(interpreted: unknown = raw) {
 }
 
 describe('ImportService', () => {
+  it('preserves proposal Mambo data and provider review issues without writing', async () => {
+    const steps = [
+      {
+        text: 'Cocinar',
+        mambo: { speed: 0, temperature: 100, ct: 6, durationSeconds: 240 },
+      },
+    ];
+    const { service, recipes } = harness({
+      ...raw,
+      steps,
+      issues: ['Asociación dudosa: revisar'],
+    });
+    const result = await service.propose(
+      { kind: 'text', text: 'source' },
+      true,
+    );
+    expect(result.proposal.steps).toEqual(steps);
+    expect(result.proposal.issues).toContain('Asociación dudosa: revisar');
+    expect(recipes.create).not.toHaveBeenCalled();
+  });
+
+  it('maps reviewed mixed steps with zero, omitted and explicitly removed configuration', async () => {
+    const { service, recipes } = harness();
+    const steps = [
+      'Legacy',
+      {
+        text: 'Cocinar',
+        mambo: {
+          speed: 0,
+          temperature: 0,
+          ct: 0,
+          durationSeconds: 0,
+          observations: 'Sin calor',
+        },
+      },
+      { text: 'Reposar', mambo: null },
+      { text: 'Servir' },
+    ];
+    await service.confirm({
+      importId: 'mambo-reviewed',
+      name: 'Sopa',
+      steps,
+      ingredients: [],
+      categories: [],
+      tags: [],
+    });
+    expect(recipes.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        steps: [
+          { position: 0, text: 'Legacy' },
+          {
+            position: 1,
+            text: 'Cocinar',
+            mambo: {
+              speed: 0,
+              temperature: 0,
+              ct: 0,
+              durationSeconds: 0,
+              observations: 'Sin calor',
+            },
+          },
+          { position: 2, text: 'Reposar', mambo: null },
+          { position: 3, text: 'Servir', mambo: undefined },
+        ],
+      }),
+    );
+  });
+
+  it('rejects invalid Mambo before confirmation writes and on provider proposals', async () => {
+    const steps = [{ text: 'Cocinar', mambo: { speed: -1 } }];
+    const { service, recipes, catalog } = harness({ ...raw, steps });
+    await expect(
+      service.propose({ kind: 'text', text: 'source' }, true),
+    ).rejects.toBeInstanceOf(BadGatewayException);
+    expect(() =>
+      service.confirm({
+        importId: 'invalid-mambo',
+        name: 'Sopa',
+        steps,
+        ingredients: [],
+        categories: [],
+        tags: [],
+      }),
+    ).toThrow(BadRequestException);
+    expect(recipes.create).not.toHaveBeenCalled();
+    expect(catalog.createIngredient).not.toHaveBeenCalled();
+  });
+
   it.each(['variant', 'unit'] as const)(
     'requires explicit resolution of a normalized %s collision',
     async (kind) => {

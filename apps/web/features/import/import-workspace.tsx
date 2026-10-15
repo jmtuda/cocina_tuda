@@ -2,6 +2,14 @@
 
 import { FormEvent, useEffect, useId, useState } from "react";
 import { apiFetch, apiUrl } from "../../lib/api";
+import {
+  MamboEditor,
+  mamboPayload,
+  stepDraft,
+  validMambo,
+  type StepDraft,
+  type RecipeStep,
+} from "../recipes/mambo";
 
 const storageKey = "cocina-tuda-import-draft-v2";
 
@@ -33,7 +41,7 @@ type Proposal = {
   servings: number | null;
   difficulty: string | null;
   notes: string | null;
-  steps: string[];
+  steps: Array<string | RecipeStep>;
   ingredients: ProposedIngredient[];
   categories: Array<{ name: string; resolution: Resolution }>;
   tags: Array<{ name: string; resolution: Resolution }>;
@@ -64,6 +72,7 @@ type Draft = Omit<
   | "servings"
   | "difficulty"
   | "notes"
+  | "steps"
   | "ingredients"
   | "categories"
   | "tags"
@@ -75,6 +84,7 @@ type Draft = Omit<
   servings: string;
   difficulty: string;
   notes: string;
+  steps: StepDraft[];
   ingredients: IngredientDraft[];
   categories: RefDraft[];
   tags: RefDraft[];
@@ -122,6 +132,7 @@ const draftFromProposal = (importId: string, proposal: Proposal): Draft => ({
   servings: proposal.servings?.toString() ?? "",
   difficulty: proposal.difficulty ?? "",
   notes: proposal.notes ?? "",
+  steps: proposal.steps.map(stepDraft),
   ingredients: proposal.ingredients.map((item) => ({
     ingredient: refFromResolution(item.ingredientResolution),
     variant: refFromResolution(item.variantResolution),
@@ -145,7 +156,15 @@ export function ImportWorkspace() {
     const saved = window.localStorage.getItem(storageKey);
     if (!saved) return null;
     try {
-      return JSON.parse(saved) as Draft;
+      const restored = JSON.parse(saved) as Omit<Draft, "steps"> & {
+        steps: Array<string | StepDraft>;
+      };
+      return {
+        ...restored,
+        steps: restored.steps.map((item) =>
+          typeof item === "string" ? { text: item } : item,
+        ),
+      };
     } catch {
       window.localStorage.removeItem(storageKey);
       return null;
@@ -245,7 +264,11 @@ export function ImportWorkspace() {
           servings: draft.servings ? Number(draft.servings) : null,
           difficulty: draft.difficulty || null,
           notes: draft.notes || null,
-          steps: draft.steps,
+          steps: draft.steps.map((item) =>
+            item.mambo
+              ? { text: item.text, mambo: mamboPayload(item.mambo) }
+              : item.text,
+          ),
           ingredients: draft.ingredients.map((item) => ({
             ingredient: referencePayload(item.ingredient),
             variant: referencePayload(item.variant),
@@ -600,17 +623,63 @@ function ReviewForm({
                 Paso {index + 1}
                 <textarea
                   rows={3}
-                  value={step}
+                  value={step.text}
                   onChange={(e) =>
                     setDraft({
                       ...draft,
                       steps: draft.steps.map((item, i) =>
-                        i === index ? e.target.value : item,
+                        i === index ? { ...item, text: e.target.value } : item,
                       ),
                     })
                   }
                 />
               </label>
+              <div id={`import-mambo-${index}`} tabIndex={-1}>
+                <MamboEditor
+                  step={index + 1}
+                  value={step.mambo}
+                  onChange={(mambo) =>
+                    setDraft({
+                      ...draft,
+                      steps: draft.steps.map((item, i) =>
+                        i === index ? { ...item, mambo } : item,
+                      ),
+                    })
+                  }
+                />
+              </div>
+              {step.mambo && (
+                <label>
+                  Asociar Mambo del paso {index + 1} a
+                  <select
+                    aria-label={`Asociar Mambo del paso ${index + 1} a`}
+                    value={index}
+                    onChange={(event) => {
+                      const target = Number(event.target.value);
+                      setDraft({
+                        ...draft,
+                        steps: draft.steps.map((item, i) =>
+                          i === target
+                            ? { ...item, mambo: step.mambo }
+                            : i === index
+                              ? { ...item, mambo: draft.steps[target].mambo }
+                              : item,
+                        ),
+                      });
+                    }}
+                  >
+                    {draft.steps.map((item, i) => (
+                      <option key={i} value={i}>
+                        Paso {i + 1}: {item.text.slice(0, 70)}
+                      </option>
+                    ))}
+                  </select>
+                  <small>
+                    Si el destino ya tiene Mambo se intercambian las
+                    configuraciones.
+                  </small>
+                </label>
+              )}
               <button
                 type="button"
                 className="secondary"
@@ -628,7 +697,9 @@ function ReviewForm({
           <button
             type="button"
             className="secondary"
-            onClick={() => setDraft({ ...draft, steps: [...draft.steps, ""] })}
+            onClick={() =>
+              setDraft({ ...draft, steps: [...draft.steps, { text: "" }] })
+            }
           >
             Añadir paso
           </button>
@@ -1028,6 +1099,13 @@ function reviewPending(
   const pending: Array<{ id: string; message: string }> = [];
   if (!draft.name.trim())
     pending.push({ id: "import-name", message: "Nombre obligatorio." });
+  draft.steps.forEach((step, index) => {
+    if (!validMambo(step.mambo))
+      pending.push({
+        id: `import-mambo-${index}`,
+        message: `Revisa Mambo del paso ${index + 1}: enteros no negativos y duración en segundos enteros.`,
+      });
+  });
   if (
     draft.servings &&
     (!Number.isInteger(Number(draft.servings)) || Number(draft.servings) < 1)

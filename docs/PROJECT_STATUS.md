@@ -194,3 +194,36 @@ El propietario evaluó la interfaz local, confirmó su aprobación y autorizó c
 Verificación previa a la integración: lint y typecheck de web/API correctos; web 88 pruebas correctas y API 70 correctas con 9 PostgreSQL omitidas. Los procesos de pruebas deshabilitan DATABASE_URL/TEST_POSTGRES_URL y dotenv real. Las pruebas de persistencia deben completarse en la base desechable del job `validate` de GitHub antes de integrar. La autorización no incluye escrituras de prueba sobre la biblioteca histórica.
 
 La publicación se realizará mediante PR a `main`, con `validate` correcto e historial lineal. Después se comprobará que ambos despliegues de producción corresponden al commit integrado, conservando Vercel Authentication y la conexión de datos exclusivamente en producción.
+
+## Mambo opcional por paso — 15 de octubre de 2026, solo local
+
+Ampliación autorizada para revisión sobre `efbc4e6`: configuración única y opcional por paso, con velocidad, temperatura, CT, duración en segundos y observaciones del robot. El cero explícito se conserva; campos nulos/ausentes y configuración vacía no se muestran. Crear/editar permiten añadir, cambiar y quitar Mambo sin añadir numeración; se preserva al editar otros datos. Biblioteca y detalle desde planificación lo muestran dentro del paso. Tras la revisión del propietario, la consulta usa el formato compacto «Vel. 1 · 100 °C · CT 6 · 4 m», sin prefijo Mambo, etiquetas de temperatura/tiempo ni botón de conversión. Los tiempos fraccionarios en minutos se muestran con segundos restantes: 90 segundos → 1 m 30 s. La entrada de datos conserva las dos unidades.
+
+La séptima migración `20261015120000_recipe_step_mambo` añade cinco columnas anulables y restricciones de no negatividad. No convierte texto ni modifica recetas existentes. API/cliente Prisma, Gemini/OpenAI, validación de respuesta, confirmación y revisión están adaptados; el usuario puede reasociar configuraciones, intercambiándolas si ambos pasos ya tienen Mambo. Se conservan los pasos de texto y borradores antiguos. Contrato, uso y plan de publicación en [`mambo.md`](mambo.md).
+
+Verificación ejecutada exclusivamente con datos sintéticos:
+
+- PostgreSQL 16.14 en contenedor local efímero `postgres:16`, enlazado a `127.0.0.1:55439`. Conexiones de pruebas explícitas y dotenv histórico deshabilitado; ninguna conexión con Neon. Siete migraciones aplicadas por Prisma sobre base vacía.
+- Contenedor detenido y eliminado al finalizar; no queda una base de pruebas persistente ni se han alterado procesos previos de la aplicación.
+- En otra base del mismo contenedor, aplicación de las seis migraciones previas, alta de un paso sintético con texto Mambo y aplicación de la séptima: ID, receta, posición y texto idénticos; los cinco campos nuevos nulos, sin conversión.
+- `test:postgres`: 10 pruebas de repositorios y 13 HTTP e2e correctas, ninguna omitida. Roundtrip, metadatos/texto editados, retirada, ceros, nulos/vacíos, valores inválidos, confirmación antigua/nueva e idempotencia.
+- API general: 259 correctas y 10 PostgreSQL omitidas; HTTP general: 2 correctas y 13 PostgreSQL omitidas. Los casos omitidos en estas suites generales sí se ejecutaron por separado contra el contenedor.
+- Web: 95 correctas, incluidos crear, editar, quitar, conservar datos, reasociar importaciones, detalle desde planificación y conversiones de tiempo. Lint, typecheck y builds web/API correctos, ejecutados secuencialmente. Los adaptadores IA se probaron con respuestas controladas, sin llamadas externas ni envío de fuentes privadas.
+
+Se conserva el cambio local previo de `AGENTS.md` sin editarlo. No se ha hecho commit, push, PR, integración ni despliegue; no se ha aplicado la migración en Neon ni convertido recetas históricas. Pendientes: revisión visual del propietario en base desechable, prueba consentida real de ambos proveedores con fuente sintética, aprobación y CI antes de publicar, copia recuperable y migración de producción expresamente autorizadas y despliegue coordinado. Las recetas históricas se adaptarán individualmente con revisión humana; no reimportar ni convertir en lote. No conectar esta API nueva a la base histórica sin la séptima migración.
+
+### Ajuste de presentación Mambo — 15 de octubre de 2026
+
+Se elimina el botón de consulta en segundos. El resumen muestra minutos enteros y segundos restantes (90 s → 1 m 30 s) y se compacta a «Vel. 1 · 100 °C · CT 6 · 4 m». No cambia el editor de unidades, el almacenamiento ni los datos históricos.
+
+### Publicación autorizada y adaptación histórica aditiva — 15 de octubre de 2026
+
+El propietario aprueba el cambio y autoriza commit, GitHub, integración y actualización del despliegue, así como adaptar los pasos de su base actual sin eliminar los antiguos. Esta autorización posterior sustituye la restricción de solo-local y no-conversión del apartado anterior, únicamente para esta operación puntual. Se conserva `AGENTS.md` local sin incluirlo en el commit.
+
+- Destino comprobado: Neon, base `cocina_tuda`, rama `br-morning-rain-b1ixq8dj`, PostgreSQL 16.15 y TLS cliente con certificado validado. Seis checksums de migraciones previas coincidentes antes de escribir.
+- Copia privada `pg_dump` custom de 117861 bytes, SHA-256 `35391369c28375d865343b430315e9391b6ad6873ebea4060f7f2c1f5492c9bd`, guardada en `.private-backups/mambo-20261015/`, excluida localmente de Git, permisos 700/600, no cifrada. Restauración sobre otra base local desechable correcta: huellas completas de las 17 tablas coincidentes, incluida la tabla de migraciones. No se inspeccionaron ni modificaron otros backups.
+- Migración Mambo y adaptación ensayadas primero sobre esa restauración. Después se aplicó únicamente la séptima migración en Neon y se añadieron 45 configuraciones en 19 recetas en una transacción con bloqueo de tablas: 44 líneas independientes al paso culinario anterior y un bloque inline al mismo paso. Los seis tiempos sin unidad se dejaron sin duración estructurada y se copiaron a observaciones del robot para revisión, sin inferir unidades.
+- Verificación posterior al commit DB: 85 recetas y 472 pasos conservados; ningún paso eliminado, creado, renumerado ni reescrito. Huellas de todas las columnas antiguas de las 16 tablas de aplicación idénticas antes/después; solo cambiaron las columnas Mambo nuevas. Cada configuración se releyó tras confirmar. No se sobrescribieron configuraciones existentes y repetir el plan no propone nuevas escrituras.
+- Sin pruebas, seed ni benchmark sobre Neon, sin envío de recetas a IA y sin importador/conversor histórico permanente. Scripts puntuales, plan y trazabilidad privados archivados junto al backup ignorado. Evidencia pública sin texto ni credenciales: [`mambo-production-verification.json`](mambo-production-verification.json).
+
+La publicación de código usa PR protegida desde `feat/mambo-step-configuration`, `validate` obligatorio, integración squash sin bypass y despliegues Git de los dos proyectos existentes. El estado efectivo de CI y producción se contrasta con el commit integrado en GitHub/Vercel, no con un build local. Queda revisión manual del propietario para retirar los pasos antiguos redundantes y resolver las seis duraciones sin unidad. Las llamadas IA reales no quedan acreditadas por esta operación ni se han modificado secretos o protecciones de Vercel.

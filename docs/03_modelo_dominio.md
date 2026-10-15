@@ -1,6 +1,6 @@
 # Cocina Tuda — Modelo de dominio
 
-**Versión:** 2.4
+**Versión:** 2.5
 **Estado:** Aprobado
 **Responsable:** Project Manager
 
@@ -25,6 +25,10 @@ Reglas:
 ### Paso
 
 Pertenece a una receta y contiene orden y texto. El orden es único dentro de esa receta.
+
+Puede contener una única configuración Mambo opcional, subordinada al paso y nunca numerada como otro paso: velocidad, temperatura en °C, CT, duración en segundos y observaciones del robot. Todos sus campos son opcionales; cero es un valor conocido y no equivale a ausencia. Los parámetros numéricos son enteros no negativos; no se presupone un límite de hardware ni se ejecuta el robot. Una configuración sin ningún dato se considera ausente.
+
+La interfaz permite introducir tiempo en segundos o minutos, conservando segundos enteros en el contrato. La consulta muestra minutos enteros y el resto de segundos (90 segundos → 1 m 30 s), sin botón de conversión. La importación propone asociar líneas de parámetros al paso culinario anterior y exige revisión humana; el usuario puede corregir valores y asociación. No se convierten recetas históricas automáticamente.
 
 ### Ingrediente
 

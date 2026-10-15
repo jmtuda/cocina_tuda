@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { MamboConfigurationDto } from './recipe.dto.js';
 
 export class NamedReferenceDto {
   @ApiProperty({ format: 'uuid' }) id!: string;
@@ -13,6 +14,8 @@ export class RecipeStepResponseDto {
   @ApiProperty({ format: 'uuid' }) id!: string;
   @ApiProperty() position!: number;
   @ApiProperty() text!: string;
+  @ApiProperty({ type: MamboConfigurationDto, nullable: true })
+  mambo!: MamboConfigurationDto | null;
 }
 
 export class RecipeIngredientResponseDto {

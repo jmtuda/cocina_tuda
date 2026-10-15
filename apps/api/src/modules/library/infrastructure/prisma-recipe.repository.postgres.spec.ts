@@ -2,6 +2,8 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PrismaService } from '../../../infrastructure/prisma/prisma.service.js';
 import { PrismaSearchRepository } from '../../search/infrastructure/prisma-search.repository.js';
 import type { RecipeSearchQuery } from '../../search/application/search.repository.js';
+import { PrismaRecipeRepository } from './prisma-recipe.repository.js';
+import type { RecipeInput } from '../domain/recipe.js';
 
 const databaseUrl = process.env['TEST_POSTGRES_URL'];
 const postgres = databaseUrl ? describe : describe.skip;
@@ -108,6 +110,70 @@ postgres('recipe search on PostgreSQL', () => {
   });
 
   afterAll(async () => prisma?.$disconnect());
+
+  it('roundtrips optional Mambo configuration, zeros, edits and removal on PostgreSQL', async () => {
+    const recipes = new PrismaRecipeRepository(prisma);
+    const input: RecipeInput = {
+      name: 'Mambo roundtrip',
+      description: 'Conservar descripción',
+      ingredients: [
+        {
+          position: 0,
+          ingredientId: basilId,
+          quantity: '0.125',
+          optional: true,
+        },
+      ],
+      steps: [
+        {
+          position: 0,
+          text: 'Cocinar',
+          mambo: {
+            speed: 0,
+            temperature: 120,
+            ct: 0,
+            durationSeconds: 2147483647,
+            observations: 'Vapor',
+          },
+        },
+        { position: 1, text: 'Servir', mambo: { observations: '  ' } },
+      ],
+    };
+    const created = await recipes.create(input);
+    try {
+      expect(created.steps[0]?.mambo).toEqual(input.steps[0]?.mambo);
+      expect(created.steps[1]?.mambo).toBeNull();
+      expect((await recipes.findById(created.id))?.steps).toEqual(
+        created.steps,
+      );
+      input.steps[0].mambo = { temperature: 0, observations: 'Editado' };
+      const edited = await recipes.update(created.id, input);
+      expect(edited?.steps[0]?.mambo).toEqual({
+        speed: null,
+        temperature: 0,
+        ct: null,
+        durationSeconds: null,
+        observations: 'Editado',
+      });
+      expect(edited?.description).toBe(input.description);
+      expect(edited?.ingredients[0]).toMatchObject({
+        ingredientId: basilId,
+        quantity: '0.125',
+        optional: true,
+      });
+      input.steps[0].mambo = null;
+      await recipes.update(created.id, input);
+      expect(
+        (await recipes.findById(created.id))?.steps.map((step) => step.mambo),
+      ).toEqual([null, null]);
+      delete input.steps[0].mambo;
+      expect(
+        (await recipes.update(created.id, input))?.steps[0]?.mambo,
+      ).toBeNull();
+    } finally {
+      await prisma.recipe.delete({ where: { id: created.id } });
+    }
+  });
 
   it('matches every accent-insensitive token across different searchable fields', async () => {
     const result = (await repository.search(

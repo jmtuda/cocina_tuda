@@ -1,3 +1,39 @@
+import type { MamboConfiguration } from '../../library/domain/recipe.js';
+
+export type ImportRecipeStep =
+  string | { text: string; mambo?: MamboConfiguration | null };
+
+export function isImportRecipeStep(value: unknown): value is ImportRecipeStep {
+  if (typeof value === 'string') return true;
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const step = value as Record<string, unknown>;
+  if (typeof step.text !== 'string') return false;
+  if (Object.keys(step).some((key) => !['text', 'mambo'].includes(key)))
+    return false;
+  if (step.mambo == null) return true;
+  if (typeof step.mambo !== 'object' || Array.isArray(step.mambo)) return false;
+  return Object.entries(step.mambo).every(([key, item]) => {
+    if (
+      ![
+        'speed',
+        'temperature',
+        'ct',
+        'durationSeconds',
+        'observations',
+      ].includes(key)
+    )
+      return false;
+    if (item == null) return true;
+    if (key === 'observations') return typeof item === 'string';
+    return (
+      typeof item === 'number' &&
+      Number.isInteger(item) &&
+      item >= 0 &&
+      item <= 2147483647
+    );
+  });
+}
+
 export type ImportSource =
   | { kind: 'text'; text: string }
   | {
@@ -33,7 +69,8 @@ export type RawRecipeProposal = {
   servings: number | null;
   difficulty: string | null;
   notes: string | null;
-  steps: string[];
+  steps: ImportRecipeStep[];
+  issues?: string[];
   ingredients: RawIngredientProposal[];
   categories: string[];
   tags: string[];
@@ -86,7 +123,7 @@ export type ConfirmedRecipeImport = {
   servings?: number | null;
   difficulty?: string | null;
   notes?: string | null;
-  steps: string[];
+  steps: ImportRecipeStep[];
   ingredients: ConfirmedIngredient[];
   categories: ConfirmedReference[];
   tags: ConfirmedReference[];

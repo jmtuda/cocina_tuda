@@ -1,4 +1,48 @@
-export type RecipeStepInput = { position: number; text: string };
+export type MamboConfiguration = {
+  speed?: number | null;
+  temperature?: number | null;
+  ct?: number | null;
+  durationSeconds?: number | null;
+  observations?: string | null;
+};
+
+export type RecipeStepInput = {
+  position: number;
+  text: string;
+  mambo?: MamboConfiguration | null;
+};
+
+export function normalizeMambo(
+  input?: MamboConfiguration | null,
+): MamboConfiguration | null {
+  if (input == null) return null;
+  if (typeof input !== 'object' || Array.isArray(input)) {
+    throw new Error('Mambo configuration must be an object');
+  }
+  const result: MamboConfiguration = {};
+  for (const key of [
+    'speed',
+    'temperature',
+    'ct',
+    'durationSeconds',
+  ] as const) {
+    const value = input[key];
+    if (
+      value != null &&
+      (!Number.isInteger(value) || value < 0 || value > 2147483647)
+    ) {
+      throw new Error(
+        `Mambo ${key} must be an integer between 0 and 2147483647`,
+      );
+    }
+    result[key] = value ?? null;
+  }
+  if (input.observations != null && typeof input.observations !== 'string') {
+    throw new Error('Mambo observations must be a string');
+  }
+  result.observations = input.observations?.trim() || null;
+  return Object.values(result).every((value) => value === null) ? null : result;
+}
 export type RecipeIngredientInput = {
   position: number;
   ingredientId: string;
@@ -46,7 +90,14 @@ export class RecipeDraft {
         );
       }
     }
-    this.value = { ...input, name };
+    this.value = {
+      ...input,
+      name,
+      steps: input.steps.map((step) => ({
+        ...step,
+        mambo: normalizeMambo(step.mambo),
+      })),
+    };
   }
 
   private assertUniquePositions(

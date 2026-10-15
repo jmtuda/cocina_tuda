@@ -28,10 +28,18 @@ export type AggregateRecipeStep = {
 
 export type RecipeStepAvgAggregateOutputType = {
   position: number | null;
+  mamboSpeed: number | null;
+  mamboTemperature: number | null;
+  mamboCt: number | null;
+  mamboDurationSeconds: number | null;
 };
 
 export type RecipeStepSumAggregateOutputType = {
   position: number | null;
+  mamboSpeed: number | null;
+  mamboTemperature: number | null;
+  mamboCt: number | null;
+  mamboDurationSeconds: number | null;
 };
 
 export type RecipeStepMinAggregateOutputType = {
@@ -39,6 +47,11 @@ export type RecipeStepMinAggregateOutputType = {
   recipeId: string | null;
   position: number | null;
   text: string | null;
+  mamboSpeed: number | null;
+  mamboTemperature: number | null;
+  mamboCt: number | null;
+  mamboDurationSeconds: number | null;
+  mamboObservations: string | null;
 };
 
 export type RecipeStepMaxAggregateOutputType = {
@@ -46,6 +59,11 @@ export type RecipeStepMaxAggregateOutputType = {
   recipeId: string | null;
   position: number | null;
   text: string | null;
+  mamboSpeed: number | null;
+  mamboTemperature: number | null;
+  mamboCt: number | null;
+  mamboDurationSeconds: number | null;
+  mamboObservations: string | null;
 };
 
 export type RecipeStepCountAggregateOutputType = {
@@ -53,15 +71,28 @@ export type RecipeStepCountAggregateOutputType = {
   recipeId: number;
   position: number;
   text: number;
+  mamboSpeed: number;
+  mamboTemperature: number;
+  mamboCt: number;
+  mamboDurationSeconds: number;
+  mamboObservations: number;
   _all: number;
 };
 
 export type RecipeStepAvgAggregateInputType = {
   position?: true;
+  mamboSpeed?: true;
+  mamboTemperature?: true;
+  mamboCt?: true;
+  mamboDurationSeconds?: true;
 };
 
 export type RecipeStepSumAggregateInputType = {
   position?: true;
+  mamboSpeed?: true;
+  mamboTemperature?: true;
+  mamboCt?: true;
+  mamboDurationSeconds?: true;
 };
 
 export type RecipeStepMinAggregateInputType = {
@@ -69,6 +100,11 @@ export type RecipeStepMinAggregateInputType = {
   recipeId?: true;
   position?: true;
   text?: true;
+  mamboSpeed?: true;
+  mamboTemperature?: true;
+  mamboCt?: true;
+  mamboDurationSeconds?: true;
+  mamboObservations?: true;
 };
 
 export type RecipeStepMaxAggregateInputType = {
@@ -76,6 +112,11 @@ export type RecipeStepMaxAggregateInputType = {
   recipeId?: true;
   position?: true;
   text?: true;
+  mamboSpeed?: true;
+  mamboTemperature?: true;
+  mamboCt?: true;
+  mamboDurationSeconds?: true;
+  mamboObservations?: true;
 };
 
 export type RecipeStepCountAggregateInputType = {
@@ -83,6 +124,11 @@ export type RecipeStepCountAggregateInputType = {
   recipeId?: true;
   position?: true;
   text?: true;
+  mamboSpeed?: true;
+  mamboTemperature?: true;
+  mamboCt?: true;
+  mamboDurationSeconds?: true;
+  mamboObservations?: true;
   _all?: true;
 };
 
@@ -184,6 +230,11 @@ export type RecipeStepGroupByOutputType = {
   recipeId: string;
   position: number;
   text: string;
+  mamboSpeed: number | null;
+  mamboTemperature: number | null;
+  mamboCt: number | null;
+  mamboDurationSeconds: number | null;
+  mamboObservations: string | null;
   _count: RecipeStepCountAggregateOutputType | null;
   _avg: RecipeStepAvgAggregateOutputType | null;
   _sum: RecipeStepSumAggregateOutputType | null;
@@ -212,6 +263,11 @@ export type RecipeStepWhereInput = {
   recipeId?: Prisma.UuidFilter<'RecipeStep'> | string;
   position?: Prisma.IntFilter<'RecipeStep'> | number;
   text?: Prisma.StringFilter<'RecipeStep'> | string;
+  mamboSpeed?: Prisma.IntNullableFilter<'RecipeStep'> | number | null;
+  mamboTemperature?: Prisma.IntNullableFilter<'RecipeStep'> | number | null;
+  mamboCt?: Prisma.IntNullableFilter<'RecipeStep'> | number | null;
+  mamboDurationSeconds?: Prisma.IntNullableFilter<'RecipeStep'> | number | null;
+  mamboObservations?: Prisma.StringNullableFilter<'RecipeStep'> | string | null;
   recipe?: Prisma.XOR<
     Prisma.RecipeScalarRelationFilter,
     Prisma.RecipeWhereInput
@@ -223,6 +279,11 @@ export type RecipeStepOrderByWithRelationInput = {
   recipeId?: Prisma.SortOrder;
   position?: Prisma.SortOrder;
   text?: Prisma.SortOrder;
+  mamboSpeed?: Prisma.SortOrderInput | Prisma.SortOrder;
+  mamboTemperature?: Prisma.SortOrderInput | Prisma.SortOrder;
+  mamboCt?: Prisma.SortOrderInput | Prisma.SortOrder;
+  mamboDurationSeconds?: Prisma.SortOrderInput | Prisma.SortOrder;
+  mamboObservations?: Prisma.SortOrderInput | Prisma.SortOrder;
   recipe?: Prisma.RecipeOrderByWithRelationInput;
 };
 
@@ -236,6 +297,13 @@ export type RecipeStepWhereUniqueInput = Prisma.AtLeast<
     recipeId?: Prisma.UuidFilter<'RecipeStep'> | string;
     position?: Prisma.IntFilter<'RecipeStep'> | number;
     text?: Prisma.StringFilter<'RecipeStep'> | string;
+    mamboSpeed?: Prisma.IntNullableFilter<'RecipeStep'> | number | null;
+    mamboTemperature?: Prisma.IntNullableFilter<'RecipeStep'> | number | null;
+    mamboCt?: Prisma.IntNullableFilter<'RecipeStep'> | number | null;
+    mamboDurationSeconds?:
+      Prisma.IntNullableFilter<'RecipeStep'> | number | null;
+    mamboObservations?:
+      Prisma.StringNullableFilter<'RecipeStep'> | string | null;
     recipe?: Prisma.XOR<
       Prisma.RecipeScalarRelationFilter,
       Prisma.RecipeWhereInput
@@ -249,6 +317,11 @@ export type RecipeStepOrderByWithAggregationInput = {
   recipeId?: Prisma.SortOrder;
   position?: Prisma.SortOrder;
   text?: Prisma.SortOrder;
+  mamboSpeed?: Prisma.SortOrderInput | Prisma.SortOrder;
+  mamboTemperature?: Prisma.SortOrderInput | Prisma.SortOrder;
+  mamboCt?: Prisma.SortOrderInput | Prisma.SortOrder;
+  mamboDurationSeconds?: Prisma.SortOrderInput | Prisma.SortOrder;
+  mamboObservations?: Prisma.SortOrderInput | Prisma.SortOrder;
   _count?: Prisma.RecipeStepCountOrderByAggregateInput;
   _avg?: Prisma.RecipeStepAvgOrderByAggregateInput;
   _max?: Prisma.RecipeStepMaxOrderByAggregateInput;
@@ -268,12 +341,27 @@ export type RecipeStepScalarWhereWithAggregatesInput = {
   recipeId?: Prisma.UuidWithAggregatesFilter<'RecipeStep'> | string;
   position?: Prisma.IntWithAggregatesFilter<'RecipeStep'> | number;
   text?: Prisma.StringWithAggregatesFilter<'RecipeStep'> | string;
+  mamboSpeed?:
+    Prisma.IntNullableWithAggregatesFilter<'RecipeStep'> | number | null;
+  mamboTemperature?:
+    Prisma.IntNullableWithAggregatesFilter<'RecipeStep'> | number | null;
+  mamboCt?:
+    Prisma.IntNullableWithAggregatesFilter<'RecipeStep'> | number | null;
+  mamboDurationSeconds?:
+    Prisma.IntNullableWithAggregatesFilter<'RecipeStep'> | number | null;
+  mamboObservations?:
+    Prisma.StringNullableWithAggregatesFilter<'RecipeStep'> | string | null;
 };
 
 export type RecipeStepCreateInput = {
   id?: string;
   position: number;
   text: string;
+  mamboSpeed?: number | null;
+  mamboTemperature?: number | null;
+  mamboCt?: number | null;
+  mamboDurationSeconds?: number | null;
+  mamboObservations?: string | null;
   recipe: Prisma.RecipeCreateNestedOneWithoutStepsInput;
 };
 
@@ -282,12 +370,25 @@ export type RecipeStepUncheckedCreateInput = {
   recipeId: string;
   position: number;
   text: string;
+  mamboSpeed?: number | null;
+  mamboTemperature?: number | null;
+  mamboCt?: number | null;
+  mamboDurationSeconds?: number | null;
+  mamboObservations?: string | null;
 };
 
 export type RecipeStepUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   position?: Prisma.IntFieldUpdateOperationsInput | number;
   text?: Prisma.StringFieldUpdateOperationsInput | string;
+  mamboSpeed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  mamboTemperature?:
+    Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  mamboCt?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  mamboDurationSeconds?:
+    Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  mamboObservations?:
+    Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   recipe?: Prisma.RecipeUpdateOneRequiredWithoutStepsNestedInput;
 };
 
@@ -296,6 +397,14 @@ export type RecipeStepUncheckedUpdateInput = {
   recipeId?: Prisma.StringFieldUpdateOperationsInput | string;
   position?: Prisma.IntFieldUpdateOperationsInput | number;
   text?: Prisma.StringFieldUpdateOperationsInput | string;
+  mamboSpeed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  mamboTemperature?:
+    Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  mamboCt?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  mamboDurationSeconds?:
+    Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  mamboObservations?:
+    Prisma.NullableStringFieldUpdateOperationsInput | string | null;
 };
 
 export type RecipeStepCreateManyInput = {
@@ -303,12 +412,25 @@ export type RecipeStepCreateManyInput = {
   recipeId: string;
   position: number;
   text: string;
+  mamboSpeed?: number | null;
+  mamboTemperature?: number | null;
+  mamboCt?: number | null;
+  mamboDurationSeconds?: number | null;
+  mamboObservations?: string | null;
 };
 
 export type RecipeStepUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   position?: Prisma.IntFieldUpdateOperationsInput | number;
   text?: Prisma.StringFieldUpdateOperationsInput | string;
+  mamboSpeed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  mamboTemperature?:
+    Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  mamboCt?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  mamboDurationSeconds?:
+    Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  mamboObservations?:
+    Prisma.NullableStringFieldUpdateOperationsInput | string | null;
 };
 
 export type RecipeStepUncheckedUpdateManyInput = {
@@ -316,6 +438,14 @@ export type RecipeStepUncheckedUpdateManyInput = {
   recipeId?: Prisma.StringFieldUpdateOperationsInput | string;
   position?: Prisma.IntFieldUpdateOperationsInput | number;
   text?: Prisma.StringFieldUpdateOperationsInput | string;
+  mamboSpeed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  mamboTemperature?:
+    Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  mamboCt?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  mamboDurationSeconds?:
+    Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  mamboObservations?:
+    Prisma.NullableStringFieldUpdateOperationsInput | string | null;
 };
 
 export type RecipeStepListRelationFilter = {
@@ -338,10 +468,19 @@ export type RecipeStepCountOrderByAggregateInput = {
   recipeId?: Prisma.SortOrder;
   position?: Prisma.SortOrder;
   text?: Prisma.SortOrder;
+  mamboSpeed?: Prisma.SortOrder;
+  mamboTemperature?: Prisma.SortOrder;
+  mamboCt?: Prisma.SortOrder;
+  mamboDurationSeconds?: Prisma.SortOrder;
+  mamboObservations?: Prisma.SortOrder;
 };
 
 export type RecipeStepAvgOrderByAggregateInput = {
   position?: Prisma.SortOrder;
+  mamboSpeed?: Prisma.SortOrder;
+  mamboTemperature?: Prisma.SortOrder;
+  mamboCt?: Prisma.SortOrder;
+  mamboDurationSeconds?: Prisma.SortOrder;
 };
 
 export type RecipeStepMaxOrderByAggregateInput = {
@@ -349,6 +488,11 @@ export type RecipeStepMaxOrderByAggregateInput = {
   recipeId?: Prisma.SortOrder;
   position?: Prisma.SortOrder;
   text?: Prisma.SortOrder;
+  mamboSpeed?: Prisma.SortOrder;
+  mamboTemperature?: Prisma.SortOrder;
+  mamboCt?: Prisma.SortOrder;
+  mamboDurationSeconds?: Prisma.SortOrder;
+  mamboObservations?: Prisma.SortOrder;
 };
 
 export type RecipeStepMinOrderByAggregateInput = {
@@ -356,10 +500,19 @@ export type RecipeStepMinOrderByAggregateInput = {
   recipeId?: Prisma.SortOrder;
   position?: Prisma.SortOrder;
   text?: Prisma.SortOrder;
+  mamboSpeed?: Prisma.SortOrder;
+  mamboTemperature?: Prisma.SortOrder;
+  mamboCt?: Prisma.SortOrder;
+  mamboDurationSeconds?: Prisma.SortOrder;
+  mamboObservations?: Prisma.SortOrder;
 };
 
 export type RecipeStepSumOrderByAggregateInput = {
   position?: Prisma.SortOrder;
+  mamboSpeed?: Prisma.SortOrder;
+  mamboTemperature?: Prisma.SortOrder;
+  mamboCt?: Prisma.SortOrder;
+  mamboDurationSeconds?: Prisma.SortOrder;
 };
 
 export type RecipeStepCreateNestedManyWithoutRecipeInput = {
@@ -462,12 +615,22 @@ export type RecipeStepCreateWithoutRecipeInput = {
   id?: string;
   position: number;
   text: string;
+  mamboSpeed?: number | null;
+  mamboTemperature?: number | null;
+  mamboCt?: number | null;
+  mamboDurationSeconds?: number | null;
+  mamboObservations?: string | null;
 };
 
 export type RecipeStepUncheckedCreateWithoutRecipeInput = {
   id?: string;
   position: number;
   text: string;
+  mamboSpeed?: number | null;
+  mamboTemperature?: number | null;
+  mamboCt?: number | null;
+  mamboDurationSeconds?: number | null;
+  mamboObservations?: string | null;
 };
 
 export type RecipeStepCreateOrConnectWithoutRecipeInput = {
@@ -521,30 +684,64 @@ export type RecipeStepScalarWhereInput = {
   recipeId?: Prisma.UuidFilter<'RecipeStep'> | string;
   position?: Prisma.IntFilter<'RecipeStep'> | number;
   text?: Prisma.StringFilter<'RecipeStep'> | string;
+  mamboSpeed?: Prisma.IntNullableFilter<'RecipeStep'> | number | null;
+  mamboTemperature?: Prisma.IntNullableFilter<'RecipeStep'> | number | null;
+  mamboCt?: Prisma.IntNullableFilter<'RecipeStep'> | number | null;
+  mamboDurationSeconds?: Prisma.IntNullableFilter<'RecipeStep'> | number | null;
+  mamboObservations?: Prisma.StringNullableFilter<'RecipeStep'> | string | null;
 };
 
 export type RecipeStepCreateManyRecipeInput = {
   id?: string;
   position: number;
   text: string;
+  mamboSpeed?: number | null;
+  mamboTemperature?: number | null;
+  mamboCt?: number | null;
+  mamboDurationSeconds?: number | null;
+  mamboObservations?: string | null;
 };
 
 export type RecipeStepUpdateWithoutRecipeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   position?: Prisma.IntFieldUpdateOperationsInput | number;
   text?: Prisma.StringFieldUpdateOperationsInput | string;
+  mamboSpeed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  mamboTemperature?:
+    Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  mamboCt?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  mamboDurationSeconds?:
+    Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  mamboObservations?:
+    Prisma.NullableStringFieldUpdateOperationsInput | string | null;
 };
 
 export type RecipeStepUncheckedUpdateWithoutRecipeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   position?: Prisma.IntFieldUpdateOperationsInput | number;
   text?: Prisma.StringFieldUpdateOperationsInput | string;
+  mamboSpeed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  mamboTemperature?:
+    Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  mamboCt?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  mamboDurationSeconds?:
+    Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  mamboObservations?:
+    Prisma.NullableStringFieldUpdateOperationsInput | string | null;
 };
 
 export type RecipeStepUncheckedUpdateManyWithoutRecipeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   position?: Prisma.IntFieldUpdateOperationsInput | number;
   text?: Prisma.StringFieldUpdateOperationsInput | string;
+  mamboSpeed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  mamboTemperature?:
+    Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  mamboCt?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  mamboDurationSeconds?:
+    Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  mamboObservations?:
+    Prisma.NullableStringFieldUpdateOperationsInput | string | null;
 };
 
 export type RecipeStepSelect<
@@ -556,6 +753,11 @@ export type RecipeStepSelect<
     recipeId?: boolean;
     position?: boolean;
     text?: boolean;
+    mamboSpeed?: boolean;
+    mamboTemperature?: boolean;
+    mamboCt?: boolean;
+    mamboDurationSeconds?: boolean;
+    mamboObservations?: boolean;
     recipe?: boolean | Prisma.RecipeDefaultArgs<ExtArgs>;
   },
   ExtArgs['result']['recipeStep']
@@ -570,6 +772,11 @@ export type RecipeStepSelectCreateManyAndReturn<
     recipeId?: boolean;
     position?: boolean;
     text?: boolean;
+    mamboSpeed?: boolean;
+    mamboTemperature?: boolean;
+    mamboCt?: boolean;
+    mamboDurationSeconds?: boolean;
+    mamboObservations?: boolean;
     recipe?: boolean | Prisma.RecipeDefaultArgs<ExtArgs>;
   },
   ExtArgs['result']['recipeStep']
@@ -584,6 +791,11 @@ export type RecipeStepSelectUpdateManyAndReturn<
     recipeId?: boolean;
     position?: boolean;
     text?: boolean;
+    mamboSpeed?: boolean;
+    mamboTemperature?: boolean;
+    mamboCt?: boolean;
+    mamboDurationSeconds?: boolean;
+    mamboObservations?: boolean;
     recipe?: boolean | Prisma.RecipeDefaultArgs<ExtArgs>;
   },
   ExtArgs['result']['recipeStep']
@@ -594,13 +806,26 @@ export type RecipeStepSelectScalar = {
   recipeId?: boolean;
   position?: boolean;
   text?: boolean;
+  mamboSpeed?: boolean;
+  mamboTemperature?: boolean;
+  mamboCt?: boolean;
+  mamboDurationSeconds?: boolean;
+  mamboObservations?: boolean;
 };
 
 export type RecipeStepOmit<
   ExtArgs extends runtime.Types.Extensions.InternalArgs =
     runtime.Types.Extensions.DefaultArgs,
 > = runtime.Types.Extensions.GetOmit<
-  'id' | 'recipeId' | 'position' | 'text',
+  | 'id'
+  | 'recipeId'
+  | 'position'
+  | 'text'
+  | 'mamboSpeed'
+  | 'mamboTemperature'
+  | 'mamboCt'
+  | 'mamboDurationSeconds'
+  | 'mamboObservations',
   ExtArgs['result']['recipeStep']
 >;
 export type RecipeStepInclude<
@@ -636,6 +861,11 @@ export type $RecipeStepPayload<
       recipeId: string;
       position: number;
       text: string;
+      mamboSpeed: number | null;
+      mamboTemperature: number | null;
+      mamboCt: number | null;
+      mamboDurationSeconds: number | null;
+      mamboObservations: string | null;
     },
     ExtArgs['result']['recipeStep']
   >;
@@ -1240,6 +1470,11 @@ export interface RecipeStepFieldRefs {
   readonly recipeId: Prisma.FieldRef<'RecipeStep', 'String'>;
   readonly position: Prisma.FieldRef<'RecipeStep', 'Int'>;
   readonly text: Prisma.FieldRef<'RecipeStep', 'String'>;
+  readonly mamboSpeed: Prisma.FieldRef<'RecipeStep', 'Int'>;
+  readonly mamboTemperature: Prisma.FieldRef<'RecipeStep', 'Int'>;
+  readonly mamboCt: Prisma.FieldRef<'RecipeStep', 'Int'>;
+  readonly mamboDurationSeconds: Prisma.FieldRef<'RecipeStep', 'Int'>;
+  readonly mamboObservations: Prisma.FieldRef<'RecipeStep', 'String'>;
 }
 
 // Custom InputTypes
