@@ -1000,6 +1000,29 @@ fieldset {
 .recipe-editor .row {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
+.recipe-step-editor {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.mambo-editor {
+  min-width: 0;
+  margin: 0.7rem 0;
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+}
+.mambo-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
+  gap: 0.6rem;
+}
+.mambo-summary {
+  margin: 0.5rem 0;
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--line);
+  font-size: 0.9rem;
+  white-space: pre-wrap;
+}
 .recipe-editor input:not([type="checkbox"]),
 .recipe-editor select {
   min-height: 2.75rem;

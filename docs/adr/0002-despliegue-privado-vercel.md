@@ -25,7 +25,7 @@ No usar la modalidad multi-service para esta entrega: comparte las variables del
 
 - Comprobar la protección guardada en ambos proyectos y el rechazo de peticiones anónimas antes de añadir la conexión de Neon.
 - Verificar por separado build, health de la API, assets de la web y listado/detalle autenticados. No considerar un build o HTTP 200 como prueba de persistencia o de todas las funciones.
-- No ejecutar migraciones ni pruebas destructivas en producción. CI continúa usando PostgreSQL efímero.
+- No ejecutar migraciones automáticamente al desplegar ni pruebas destructivas en producción. Una migración de producción requiere autorización expresa, destino verificado y copia recuperable antes de ejecutarla de forma coordinada. CI continúa usando PostgreSQL efímero. La autorización puntual de Mambo y su evidencia están en `../mambo-production-verification.json`.
 - Vercel Functions limita el cuerpo de petición y respuesta a 4,5 MB; esto también limita las importaciones codificadas en JSON/base64, aunque el extractor local acepte 10 MiB. No se amplía almacenamiento ni se altera el dominio para evitar ese límite.
 - La importación IA requiere configurar y autorizar por separado el proveedor y sus condiciones/coste; no se certifica usando respuestas simuladas.
 - Si el perímetro deja de estar disponible en Hobby, detener el despliegue; nunca degradar a acceso público ni contratar otro plan automáticamente.

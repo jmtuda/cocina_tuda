@@ -46,3 +46,5 @@ Un conflicto no se resuelve interpretando silenciosamente un documento inferior:
 Las decisiones arquitectónicas duraderas se registrarán en `adr/` cuando sean aprobadas.
 
 La publicación privada tiene su decisión en [ADR 0002](adr/0002-despliegue-privado-vercel.md) y una instantánea verificable, con límites explícitos, en [`vercel-private-deployment-verification.json`](vercel-private-deployment-verification.json).
+
+La configuración opcional Mambo por paso, su contrato de importación, el orden de publicación y la adaptación histórica autorizada se describen en [`mambo.md`](mambo.md). La migración y las 45 configuraciones añadidas sin borrar pasos están verificadas en [`mambo-production-verification.json`](mambo-production-verification.json); los despliegues se verifican contra su commit en GitHub/Vercel.

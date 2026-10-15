@@ -4,6 +4,7 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import type { RecipeInterpreter } from '../application/recipe-interpreter.js';
+import { parseRecipeProposal } from './parse-recipe-proposal.js';
 import type {
   InterpreterInput,
   RawRecipeProposal,
@@ -64,15 +65,15 @@ export class GeminiRecipeInterpreter implements RecipeInterpreter {
     };
 
     const response = await this.request(apiKey, model, body, true);
-    const output = response.candidates?.[0]?.content?.parts
-      ?.map((part) => part.text ?? '')
-      .join('');
-    if (!output)
-      throw new BadGatewayException(
-        'El proveedor devolvió una respuesta vacía',
-      );
     try {
-      return JSON.parse(output) as RawRecipeProposal;
+      const output = response.candidates?.[0]?.content?.parts
+        ?.map((part) => part.text ?? '')
+        .join('');
+      if (!output)
+        throw new BadGatewayException(
+          'El proveedor devolvió una respuesta vacía',
+        );
+      return parseRecipeProposal(output);
     } catch {
       throw new BadGatewayException(
         'El proveedor devolvió una respuesta inválida',
@@ -126,6 +127,12 @@ export class GeminiRecipeInterpreter implements RecipeInterpreter {
       }
       throw new BadGatewayException('El proveedor no pudo procesar la fuente');
     }
-    return (await response.json()) as GeminiResponse;
+    try {
+      return (await response.json()) as GeminiResponse;
+    } catch {
+      throw new BadGatewayException(
+        'El proveedor devolvió una respuesta inválida',
+      );
+    }
   }
 }

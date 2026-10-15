@@ -12,7 +12,12 @@ import {
   IsUUID,
   Min,
   ValidateNested,
+  ValidateBy,
 } from 'class-validator';
+import {
+  isImportRecipeStep,
+  type ImportRecipeStep,
+} from '../domain/import-proposal.js';
 
 export class ImportSourceDto {
   @ApiProperty({ enum: ['text', 'file'] })
@@ -91,10 +96,67 @@ export class ConfirmImportDto {
   difficulty?: string | null;
   @ApiPropertyOptional({ nullable: true }) @IsOptional() @IsString() notes?:
     string | null;
-  @ApiProperty({ type: [String] })
+  @ApiProperty({
+    type: 'array',
+    items: {
+      oneOf: [
+        { type: 'string' },
+        {
+          type: 'object',
+          required: ['text'],
+          additionalProperties: false,
+          properties: {
+            text: { type: 'string' },
+            mambo: {
+              type: 'object',
+              nullable: true,
+              additionalProperties: false,
+              properties: {
+                speed: {
+                  type: 'integer',
+                  minimum: 0,
+                  maximum: 2147483647,
+                  nullable: true,
+                },
+                temperature: {
+                  type: 'integer',
+                  minimum: 0,
+                  maximum: 2147483647,
+                  nullable: true,
+                },
+                ct: {
+                  type: 'integer',
+                  minimum: 0,
+                  maximum: 2147483647,
+                  nullable: true,
+                },
+                durationSeconds: {
+                  type: 'integer',
+                  minimum: 0,
+                  maximum: 2147483647,
+                  nullable: true,
+                },
+                observations: { type: 'string', nullable: true },
+              },
+            },
+          },
+        },
+      ],
+    },
+  })
   @IsArray()
-  @IsString({ each: true })
-  steps!: string[];
+  @ValidateBy(
+    {
+      name: 'importRecipeStep',
+      validator: {
+        validate: isImportRecipeStep,
+        defaultMessage: () =>
+          'Cada paso debe ser texto o un objeto con text y configuración Mambo válida',
+      },
+    },
+    { each: true },
+  )
+  steps!: ImportRecipeStep[];
   @ApiProperty({ type: [ConfirmedIngredientDto] })
   @IsArray()
   @ValidateNested({ each: true })

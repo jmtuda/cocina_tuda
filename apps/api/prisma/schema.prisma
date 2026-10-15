@@ -127,11 +127,16 @@ model ShoppingItemSource {
 }
 
 model RecipeStep {
-  id       String @id @default(uuid()) @db.Uuid
-  recipeId String @map("recipe_id") @db.Uuid
-  position Int
-  text     String
-  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  id                   String  @id @default(uuid()) @db.Uuid
+  recipeId             String  @map("recipe_id") @db.Uuid
+  position             Int
+  text                 String
+  mamboSpeed           Int?    @map("mambo_speed")
+  mamboTemperature     Int?    @map("mambo_temperature")
+  mamboCt              Int?    @map("mambo_ct")
+  mamboDurationSeconds Int?    @map("mambo_duration_seconds")
+  mamboObservations    String? @map("mambo_observations")
+  recipe               Recipe  @relation(fields: [recipeId], references: [id], onDelete: Cascade)
 
   @@unique([recipeId, position])
   @@map("recipe_steps")

@@ -80,7 +80,7 @@ pnpm test:e2e
 pnpm build
 ```
 
-Las seis migraciones acumuladas cubren biblioteca, catálogo y clasificación, búsqueda, planificación, compras e idempotencia de confirmación de importaciones.
+Las siete migraciones acumuladas cubren biblioteca, catálogo y clasificación, búsqueda, planificación, compras, idempotencia de confirmación de importaciones y configuración Mambo opcional por paso. La séptima se aplicó a Neon con autorización y copia restaurada verificada. Se añadieron 45 configuraciones históricas en 19 recetas sin borrar ni modificar los pasos antiguos; seis tiempos sin unidad requieren revisión manual. Consulta [`docs/mambo.md`](docs/mambo.md) para contrato, revisión, evidencia y orden de publicación.
 
 Las comprobaciones específicas de búsqueda, planificación y compras sobre PostgreSQL se ejecutan contra una base de pruebas desechable ya migrada. Estas pruebas truncan tablas; nunca deben apuntar a la base del propietario. Sin `TEST_POSTGRES_URL` se omiten:
 

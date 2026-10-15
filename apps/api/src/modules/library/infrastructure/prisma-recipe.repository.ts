@@ -5,6 +5,8 @@ import type {
   RecipeRepository,
 } from '../application/recipe.repository.js';
 import type { RecipeInput } from '../domain/recipe.js';
+import { normalizeMambo } from '../domain/recipe.js';
+import type { RecipeStep } from '../../../generated/prisma/client.js';
 import { normalizeName } from '../../catalog/domain/catalog.js';
 
 export const recipeInclude = {
@@ -20,7 +22,7 @@ export const recipeInclude = {
 type PersistedRecipe = Awaited<
   ReturnType<PrismaService['recipe']['findUniqueOrThrow']>
 > & {
-  steps: Array<{ id: string; position: number; text: string }>;
+  steps: RecipeStep[];
   ingredients: Array<{
     id: string;
     position: number;
@@ -51,10 +53,17 @@ export function toRecipeRecord(recipe: PersistedRecipe): RecipeRecord {
     createdAt: recipe.createdAt,
     updatedAt: recipe.updatedAt,
     archivedAt: recipe.archivedAt,
-    steps: recipe.steps.map(({ id, position, text }) => ({
-      id,
-      position,
-      text,
+    steps: recipe.steps.map((step) => ({
+      id: step.id,
+      position: step.position,
+      text: step.text,
+      mambo: normalizeMambo({
+        speed: step.mamboSpeed,
+        temperature: step.mamboTemperature,
+        ct: step.mamboCt,
+        durationSeconds: step.mamboDurationSeconds,
+        observations: step.mamboObservations,
+      }),
     })),
     ingredients: recipe.ingredients.map((item) => ({
       id: item.id,
@@ -167,7 +176,20 @@ export class PrismaRecipeRepository implements RecipeRepository {
       servings: input.servings,
       difficulty: input.difficulty,
       notes: input.notes,
-      steps: { create: input.steps },
+      steps: {
+        create: input.steps.map(({ position, text, mambo }) => {
+          const configuration = normalizeMambo(mambo);
+          return {
+            position,
+            text,
+            mamboSpeed: configuration?.speed ?? null,
+            mamboTemperature: configuration?.temperature ?? null,
+            mamboCt: configuration?.ct ?? null,
+            mamboDurationSeconds: configuration?.durationSeconds ?? null,
+            mamboObservations: configuration?.observations ?? null,
+          };
+        }),
+      },
       ingredients: { create: input.ingredients },
       categories: {
         create: (input.categoryIds ?? []).map((categoryId) => ({ categoryId })),

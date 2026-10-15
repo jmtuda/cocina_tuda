@@ -5,12 +5,21 @@ import { apiFetch, apiUrl, responseError } from "../../lib/api";
 import { RecipeModal } from "./recipe-modal";
 import { MultiSelect } from "./compact-multi-select";
 import { CatalogManager } from "./catalog-manager";
+import {
+  MamboEditor,
+  MamboSummary,
+  mamboPayload,
+  stepDraft,
+  validMambo,
+  type StepDraft,
+  type RecipeStep,
+} from "./mambo";
 
 type Named = { id: string; name: string };
 type Variant = Named & { ingredientId: string };
 type Ingredient = Named & { variants: Variant[] };
 type Unit = Named & { abbreviation: string };
-type StepDraft = { text: string };
+
 type IngredientDraft = {
   ingredientId: string;
   variantId: string;
@@ -30,7 +39,7 @@ type RecipeDetail = Summary & {
   servings: number | null;
   difficulty: string | null;
   notes: string | null;
-  steps: Array<{ text: string }>;
+  steps: RecipeStep[];
   ingredients: Array<{
     ingredientId: string;
     variantId: string | null;
@@ -176,7 +185,7 @@ export function RecipeWorkspace({
     setServings(recipe.servings?.toString() ?? "");
     setDifficulty(recipe.difficulty ?? "");
     setNotes(recipe.notes ?? "");
-    setSteps(recipe.steps.map(({ text }) => ({ text })));
+    setSteps(recipe.steps.map(stepDraft));
     setRecipeIngredients(
       recipe.ingredients.map((item) => ({
         ingredientId: item.ingredientId,
@@ -209,6 +218,8 @@ export function RecipeWorkspace({
 
   async function saveRecipe(event: FormEvent) {
     event.preventDefault();
+    if (steps.some((item) => !validMambo(item.mambo)))
+      throw new Error("Revisa los valores de Mambo antes de guardar.");
     const payload = {
       name,
       description: description || null,
@@ -216,7 +227,11 @@ export function RecipeWorkspace({
       servings: servings ? Number(servings) : null,
       difficulty: difficulty || null,
       notes: notes || null,
-      steps: steps.map((item, position) => ({ position, text: item.text })),
+      steps: steps.map((item, position) => ({
+        position,
+        text: item.text,
+        ...(item.mambo ? { mambo: mamboPayload(item.mambo) } : {}),
+      })),
       ingredients: recipeIngredients.map((item, position) => ({
         position,
         ingredientId: item.ingredientId,
@@ -277,7 +292,9 @@ export function RecipeWorkspace({
 
   const updateStep = (index: number, text: string) =>
     setSteps((current) =>
-      current.map((item, itemIndex) => (itemIndex === index ? { text } : item)),
+      current.map((item, itemIndex) =>
+        itemIndex === index ? { ...item, text } : item,
+      ),
     );
   const updateRecipeIngredient = (
     index: number,
@@ -472,7 +489,10 @@ export function RecipeWorkspace({
                 <h3>Pasos</h3>
                 <ol className="recipe-steps">
                   {detail.steps.map((step, index) => (
-                    <li key={index}>{step.text}</li>
+                    <li key={index}>
+                      {step.text}
+                      <MamboSummary value={step.mambo} />
+                    </li>
                   ))}
                 </ol>
               </section>
@@ -594,7 +614,7 @@ export function RecipeWorkspace({
                   </button>
                 </div>
                 {steps.map((item, index) => (
-                  <div className="row" key={index}>
+                  <div className="recipe-step-editor" key={index}>
                     <label>
                       Paso {index + 1}
                       <textarea
@@ -613,6 +633,17 @@ export function RecipeWorkspace({
                     >
                       Eliminar paso
                     </button>
+                    <MamboEditor
+                      step={index + 1}
+                      value={item.mambo}
+                      onChange={(mambo) =>
+                        setSteps((current) =>
+                          current.map((step, i) =>
+                            i === index ? { ...step, mambo } : step,
+                          ),
+                        )
+                      }
+                    />
                   </div>
                 ))}
               </section>

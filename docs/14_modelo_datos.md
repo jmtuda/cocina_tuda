@@ -1,6 +1,6 @@
 # Cocina Tuda — Modelo de datos
 
-**Versión:** 2.4
+**Versión:** 2.5
 **Estado:** Aprobado
 **Responsable:** Arquitecto Técnico
 
@@ -13,7 +13,7 @@ Describe la traducción persistente vigente de `03_modelo_dominio.md` y separa e
 | Tabla                   | Datos principales                                                                                                                  |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
 | `recipes`               | id, name, description?, author?, servings?, difficulty?, notes?, status, created_at, updated_at, archived_at?                      |
-| `recipe_steps`          | id, recipe_id, position, text                                                                                                      |
+| `recipe_steps`          | id, recipe_id, position, text, mambo_speed?, mambo_temperature?, mambo_ct?, mambo_duration_seconds?, mambo_observations?           |
 | `ingredients`           | id, name, normalized_name, created_at, updated_at                                                                                  |
 | `ingredient_variants`   | id, ingredient_id, name, normalized_name                                                                                           |
 | `units`                 | id, name, abbreviation, normalized_name                                                                                            |
@@ -34,6 +34,7 @@ No existen tablas para fuentes o propuestas de importación, usuarios, grupos de
 ## 3. Relaciones y restricciones
 
 - `recipe_steps.position` es único por receta.
+- La configuración Mambo es única por paso mediante cinco columnas anulables, sin nueva entidad ni paso adicional. `NULL` es ausencia; `0` se conserva. Velocidad, temperatura, CT y duración son `INTEGER` no negativos (máximo técnico 2147483647), con restricciones `CHECK`. La duración se persiste en segundos. Una configuración vacía se normaliza a ausencia en la aplicación.
 - Ingredientes, unidades, categorías y etiquetas tienen nombre normalizado único.
 - Una variante tiene nombre normalizado único dentro de su ingrediente.
 - Si `recipe_ingredients.variant_id` existe, la aplicación y la base de datos deben garantizar que pertenece al ingrediente indicado.
@@ -61,6 +62,8 @@ Las recetas usan archivo lógico. Archivarlas no elimina sus planificaciones y e
 ## 6. Migraciones e índices
 
 El esquema se modifica mediante migraciones reproducibles. Los índices adicionales se incorporan a partir de consultas reales y mediciones, además de claves y restricciones necesarias para integridad.
+
+La séptima migración, `20261015120000_recipe_step_mambo`, añade únicamente columnas opcionales y restricciones a `recipe_steps`. No cambia texto, posición ni datos históricos; no requiere backfill. Aplicada a Neon con autorización expresa, copia y restauración verificadas. La posterior adaptación puntual autorizada añadió solo configuración Mambo y conservó todos los pasos antiguos. Procedimiento y evidencia: `mambo.md` y `mambo-production-verification.json`.
 
 ## 7. Conceptos no persistidos
 

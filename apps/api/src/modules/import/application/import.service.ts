@@ -16,6 +16,7 @@ import {
 } from './recipe-interpreter.js';
 import { SOURCE_EXTRACTOR, type SourceExtractor } from './source-extractor.js';
 import { UNIT_OF_WORK, type UnitOfWork } from './unit-of-work.js';
+import { isImportRecipeStep } from '../domain/import-proposal.js';
 import type {
   ConfirmedIngredient,
   ConfirmedRecipeImport,
@@ -80,7 +81,11 @@ export class ImportService {
           servings: input.servings,
           difficulty: input.difficulty,
           notes: input.notes,
-          steps: input.steps.map((text, position) => ({ position, text })),
+          steps: input.steps.map((step, position) =>
+            typeof step === 'string'
+              ? { position, text: step }
+              : { position, text: step.text, mambo: step.mambo },
+          ),
           ingredients,
           categoryIds,
           tagIds,
@@ -120,6 +125,7 @@ export class ImportService {
       };
     });
     const issues = [
+      ...(raw.issues ?? []),
       ...(!raw.name?.trim() ? ['La propuesta no contiene nombre'] : []),
       ...resolvedIngredients.flatMap((item, index) =>
         item.ingredientResolution.status === 'unresolved' ||
@@ -267,6 +273,10 @@ export class ImportService {
   }
 
   private validateConfirmation(input: ConfirmedRecipeImport) {
+    if (!Array.isArray(input.steps) || !input.steps.every(isImportRecipeStep))
+      throw new BadRequestException(
+        'Los pasos o la configuración Mambo no son válidos',
+      );
     if (!input.name?.trim())
       throw new BadRequestException('El nombre es obligatorio');
     for (const item of input.ingredients) {
@@ -299,7 +309,10 @@ export class ImportService {
     const raw = value as Partial<RawRecipeProposal>;
     if (
       !Array.isArray(raw.steps) ||
-      !raw.steps.every((item) => typeof item === 'string') ||
+      !raw.steps.every(isImportRecipeStep) ||
+      (raw.issues !== undefined &&
+        (!Array.isArray(raw.issues) ||
+          !raw.issues.every((item) => typeof item === 'string'))) ||
       !Array.isArray(raw.ingredients) ||
       !Array.isArray(raw.categories) ||
       !raw.categories.every((item) => typeof item === 'string') ||

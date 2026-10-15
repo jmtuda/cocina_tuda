@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { apiFetch, apiUrl, responseError } from "../../lib/api";
+import { MamboSummary, type RecipeStep } from "../recipes/mambo";
 
 type RecipeSummary = {
   id: string;
@@ -17,7 +18,7 @@ type PlannedMeal = {
 };
 type RecipeDetail = RecipeSummary & {
   description: string | null;
-  steps: Array<{ id: string; text: string }>;
+  steps: Array<RecipeStep & { id: string }>;
 };
 
 const pad = (value: number) => String(value).padStart(2, "0");
@@ -306,7 +307,10 @@ export function PlanningWorkspace() {
           {detail.description && <p>{detail.description}</p>}
           <ol>
             {detail.steps.map((step) => (
-              <li key={step.id}>{step.text}</li>
+              <li key={step.id}>
+                {step.text}
+                <MamboSummary value={step.mambo} />
+              </li>
             ))}
           </ol>
         </section>

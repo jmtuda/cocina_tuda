@@ -1834,6 +1834,11 @@ export const RecipeStepScalarFieldEnum = {
   recipeId: 'recipeId',
   position: 'position',
   text: 'text',
+  mamboSpeed: 'mamboSpeed',
+  mamboTemperature: 'mamboTemperature',
+  mamboCt: 'mamboCt',
+  mamboDurationSeconds: 'mamboDurationSeconds',
+  mamboObservations: 'mamboObservations',
 } as const;
 
 export type RecipeStepScalarFieldEnum =

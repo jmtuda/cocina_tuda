@@ -10,13 +10,74 @@ import {
   IsUUID,
   Matches,
   Min,
+  Max,
   ValidateNested,
   ArrayUnique,
 } from 'class-validator';
 
+export class MamboConfigurationDto {
+  @ApiPropertyOptional({
+    type: Number,
+    nullable: true,
+    minimum: 0,
+    maximum: 2147483647,
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(2147483647)
+  speed?: number | null;
+
+  @ApiPropertyOptional({
+    type: Number,
+    nullable: true,
+    minimum: 0,
+    maximum: 2147483647,
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(2147483647)
+  temperature?: number | null;
+
+  @ApiPropertyOptional({
+    type: Number,
+    nullable: true,
+    minimum: 0,
+    maximum: 2147483647,
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(2147483647)
+  ct?: number | null;
+
+  @ApiPropertyOptional({
+    type: Number,
+    nullable: true,
+    minimum: 0,
+    maximum: 2147483647,
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(2147483647)
+  durationSeconds?: number | null;
+
+  @ApiPropertyOptional({ type: String, nullable: true })
+  @IsOptional()
+  @IsString()
+  observations?: string | null;
+}
+
 export class RecipeStepDto {
   @ApiProperty({ example: 0 }) @IsInt() @Min(0) position!: number;
   @ApiProperty() @IsString() @IsNotEmpty() text!: string;
+  @ApiPropertyOptional({ type: MamboConfigurationDto, nullable: true })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => MamboConfigurationDto)
+  mambo?: MamboConfigurationDto | null;
 }
 
 export class RecipeIngredientDto {

@@ -1,0 +1,64 @@
+{
+  "scope": "Authorized one-off Mambo migration and additive historical adaptation",
+  "date": "2026-10-15",
+  "source": {
+    "project_id": "calm-butterfly-64933476",
+    "branch_id": "br-morning-rain-b1ixq8dj",
+    "database": "cocina_tuda",
+    "postgresql": "16.15",
+    "client_tls_certificate_verified": true,
+    "note": "Neon terminates client TLS at its proxy; pg_stat_ssl on the backend is not evidence of client transport encryption."
+  },
+  "backup": {
+    "format": "pg_dump custom, PostgreSQL 16",
+    "sha256": "35391369c28375d865343b430315e9391b6ad6873ebea4060f7f2c1f5492c9bd",
+    "bytes": 117861,
+    "location": "Private ignored repository-local backup directory, not uploaded",
+    "permissions": "directory 700, files 600",
+    "encrypted": false,
+    "restored_to_disposable_local_database": true,
+    "full_row_fingerprints_matched_for_all_17_tables_including_migration_ledger": true
+  },
+  "migration": {
+    "name": "20261015120000_recipe_step_mambo",
+    "applied_migrations_before": 6,
+    "applied_migrations_after": 7,
+    "previous_migration_checksums_verified": true,
+    "legacy_data_preserved_after_migration": true
+  },
+  "adaptation": {
+    "rehearsed_on_restored_copy_before_production": true,
+    "transactional": true,
+    "application_tables_locked_during_update": true,
+    "configurations_added": 45,
+    "recipes_affected": 19,
+    "standalone_parameter_lines_attached_to_preceding_cooking_step": 44,
+    "inline_parameter_block_attached_to_same_step": 1,
+    "times_without_unit_left_unset_and_preserved_in_robot_observations": 6,
+    "existing_configurations_overwritten": 0,
+    "steps_before": 472,
+    "steps_after": 472,
+    "steps_deleted": 0,
+    "steps_created": 0,
+    "original_step_ids_recipe_ids_positions_and_text_unchanged": true,
+    "full_legacy_rows_unchanged_in_all_16_application_tables": true,
+    "only_new_mambo_columns_updated": true,
+    "postcommit_exact_target_readback_verified": true,
+    "repeat_plan_has_no_new_writes": true,
+    "private_source_sent_to_ai": false,
+    "permanent_conversion_endpoint_or_importer_added": false
+  },
+  "deployment": {
+    "method": "Protected GitHub PR, validate required, squash merge, Git-connected Vercel projects",
+    "web_project": "cocina-tuda",
+    "api_project": "cocina-tuda-api",
+    "status_source_of_truth": "GitHub deployment statuses for the final merged commit",
+    "protection_must_remain_enabled": true
+  },
+  "manual_follow_up": [
+    "Owner may remove redundant original parameter steps manually after reviewing each recipe.",
+    "Review the six robot observations containing a time without an explicit unit; no unit was inferred.",
+    "Other free-text or ambiguous instructions were left intact.",
+    "Real Gemini/OpenAI requests are not certified by controlled adapter tests."
+  ]
+}

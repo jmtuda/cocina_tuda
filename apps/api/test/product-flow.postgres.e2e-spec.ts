@@ -6,6 +6,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { AppModule } from '../src/app.module.js';
 import { PrismaService } from '../src/infrastructure/prisma/prisma.service.js';
 import { RECIPE_INTERPRETER } from '../src/modules/import/application/recipe-interpreter.js';
+import type { MamboConfiguration } from '../src/modules/library/domain/recipe.js';
 
 type RecipeBody = {
   id: string;
@@ -15,7 +16,11 @@ type RecipeBody = {
   servings: number | null;
   difficulty: string | null;
   notes: string | null;
-  steps: Array<{ position: number; text: string }>;
+  steps: Array<{
+    position: number;
+    text: string;
+    mambo?: MamboConfiguration | null;
+  }>;
   ingredients: Array<{
     position: number;
     ingredientId: string;
@@ -661,6 +666,138 @@ postgres('product flow on PostgreSQL', () => {
         where: { importId: '00000000-0000-4000-8000-000000000102' },
       }),
     ).toBe(1);
+  });
+
+  it('persists Mambo over HTTP, preserves it through edits and supports clearing it', async () => {
+    const mambo = {
+      speed: 0,
+      temperature: 0,
+      ct: 0,
+      durationSeconds: 0,
+      observations: 'Sin cubilete',
+    };
+    const payload = {
+      name: 'Mambo HTTP',
+      ingredients: [],
+      steps: [
+        { position: 0, text: 'Cocinar', mambo },
+        { position: 1, text: 'Servir' },
+      ],
+    };
+    const created = bodyAs<RecipeBody>(
+      await request(server).post('/api/v1/recipes').send(payload).expect(201),
+    );
+    const read = () =>
+      request(server).get(`/api/v1/recipes/${created.id}`).expect(200);
+    expect(
+      bodyAs<RecipeBody>(await read()).steps.map((step) => step.mambo),
+    ).toEqual([mambo, null]);
+    await request(server)
+      .put(`/api/v1/recipes/${created.id}`)
+      .send({
+        ...payload,
+        notes: 'Otra nota',
+        steps: [
+          { ...payload.steps[0], text: 'Cocinar despacio' },
+          payload.steps[1],
+        ],
+      })
+      .expect(200);
+    expect(bodyAs<RecipeBody>(await read()).steps[0]).toMatchObject({
+      text: 'Cocinar despacio',
+      mambo,
+    });
+    for (const value of [{}, { speed: null, durationSeconds: null }, null]) {
+      await request(server)
+        .put(`/api/v1/recipes/${created.id}`)
+        .send({
+          ...payload,
+          steps: [{ position: 0, text: 'Sin robot', mambo: value }],
+        })
+        .expect(200);
+      expect(bodyAs<RecipeBody>(await read()).steps[0].mambo).toBeNull();
+    }
+    for (const value of [
+      { speed: -1 },
+      { durationSeconds: 0.5 },
+      { ct: '' },
+      { temperature: 2147483648 },
+      { unexpected: 1 },
+      [],
+    ]) {
+      await request(server)
+        .put(`/api/v1/recipes/${created.id}`)
+        .send({
+          ...payload,
+          steps: [{ position: 0, text: 'Inválido', mambo: value }],
+        })
+        .expect(400);
+    }
+    expect(bodyAs<RecipeBody>(await read()).steps[0]).toMatchObject({
+      text: 'Sin robot',
+      mambo: null,
+    });
+  });
+
+  it('confirms corrected imported Mambo association, zeros and legacy steps idempotently', async () => {
+    const mambo = { speed: 0, temperature: 100, ct: 6, durationSeconds: 240 };
+    const payload = {
+      importId: '00000000-0000-4000-8000-000000000120',
+      name: 'Mambo importada',
+      ingredients: [],
+      categories: [],
+      tags: [],
+      steps: ['Preparar', { text: 'Sofreír', mambo }],
+    };
+    const first = bodyAs<RecipeBody>(
+      await request(server)
+        .post('/api/v1/imports/confirmations')
+        .send(payload)
+        .expect(201),
+    );
+    const stored = bodyAs<RecipeBody>(
+      await request(server).get(`/api/v1/recipes/${first.id}`).expect(200),
+    );
+    expect(stored.steps[0]).toMatchObject({
+      position: 0,
+      text: 'Preparar',
+      mambo: null,
+    });
+    expect(stored.steps[1]).toMatchObject({
+      position: 1,
+      text: 'Sofreír',
+      mambo,
+    });
+    expect(
+      bodyAs<RecipeBody>(
+        await request(server)
+          .post('/api/v1/imports/confirmations')
+          .send(payload)
+          .expect(201),
+      ).id,
+    ).toBe(first.id);
+    for (const value of [
+      { durationSeconds: -1 },
+      { speed: '' },
+      { ct: 0.5 },
+      { durationSeconds: 2147483648 },
+      { arbitrary: 0 },
+      [],
+    ]) {
+      await request(server)
+        .post('/api/v1/imports/confirmations')
+        .send({
+          ...payload,
+          importId: '00000000-0000-4000-8000-000000000121',
+          steps: [{ text: 'No guardar', mambo: value }],
+        })
+        .expect(400);
+    }
+    expect(
+      await app.get(PrismaService).importConfirmation.count({
+        where: { importId: '00000000-0000-4000-8000-000000000121' },
+      }),
+    ).toBe(0);
   });
 
   it('serializes concurrent confirmations and returns the same recipe on retries', async () => {

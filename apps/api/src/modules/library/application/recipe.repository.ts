@@ -1,4 +1,4 @@
-import type { RecipeInput } from '../domain/recipe.js';
+import type { MamboConfiguration, RecipeInput } from '../domain/recipe.js';
 
 export type NamedReference = { id: string; name: string };
 export type RecipeRecord = {
@@ -13,7 +13,12 @@ export type RecipeRecord = {
   createdAt: Date;
   updatedAt: Date;
   archivedAt: Date | null;
-  steps: Array<{ id: string; position: number; text: string }>;
+  steps: Array<{
+    id: string;
+    position: number;
+    text: string;
+    mambo: MamboConfiguration | null;
+  }>;
   ingredients: Array<{
     id: string;
     position: number;
