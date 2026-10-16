@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
 import { PrismaService } from '../../../infrastructure/prisma/prisma.service.js';
 import { shoppingDateToUtc, utcToShoppingDate } from '../domain/shopping.js';
 import type {
@@ -109,55 +110,75 @@ export class PrismaShoppingRepository implements ShoppingRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async createGenerated(input: GeneratedListInput) {
-    const id = await this.prisma.run(async () => {
-      const list = await this.prisma.getDb().shoppingList.create({
-        data: {
-          name: input.name,
-          sourceFrom: shoppingDateToUtc(input.from),
-          sourceTo: shoppingDateToUtc(input.to),
-          generatedAt: new Date(),
-        },
-      });
-      const sources = new Map<string, string>();
-      for (const source of input.sources) {
-        const created = await this.prisma.getDb().shoppingListSource.create({
-          data: {
-            shoppingListId: list.id,
-            plannedMealId: source.plannedMealId,
-            recipeId: source.recipeId,
-            recipeName: source.recipeName,
-            plannedDate: shoppingDateToUtc(source.plannedDate),
-          },
+    // Allocate identities before writing so each table can be inserted in batches.
+    const id = randomUUID();
+    const sources = input.sources.map((source) => ({
+      id: randomUUID(),
+      shoppingListId: id,
+      plannedMealId: source.plannedMealId,
+      recipeId: source.recipeId,
+      recipeName: source.recipeName,
+      plannedDate: shoppingDateToUtc(source.plannedDate),
+    }));
+    const sourceIds = new Map(
+      sources.map((source) => [source.plannedMealId, source.id]),
+    );
+    const itemSources: Array<{
+      shoppingItemId: string;
+      listSourceId: string;
+      recipeIngredientId: string;
+    }> = [];
+    const items = input.items.map((item, position) => {
+      const itemId = randomUUID();
+      for (const source of item.sources) {
+        const listSourceId = sourceIds.get(source.plannedMealId);
+        if (!listSourceId) throw new Error('Procedencia no encontrada');
+        itemSources.push({
+          shoppingItemId: itemId,
+          listSourceId,
+          recipeIngredientId: source.recipeIngredientId,
         });
-        sources.set(source.plannedMealId, created.id);
       }
-      for (const [position, item] of input.items.entries()) {
-        const created = await this.prisma.getDb().shoppingItem.create({
-          data: {
-            shoppingListId: list.id,
-            position,
-            ingredientId: item.ingredientId,
-            variantId: item.variantId,
-            quantity: item.quantity,
-            unitId: item.unitId,
-            observations: item.observations,
-            optional: item.optional,
-          },
-        });
-        for (const source of item.sources) {
-          const listSourceId = sources.get(source.plannedMealId);
-          if (!listSourceId) throw new Error('Procedencia no encontrada');
-          await this.prisma.getDb().shoppingItemSource.create({
-            data: {
-              shoppingItemId: created.id,
-              listSourceId,
-              recipeIngredientId: source.recipeIngredientId,
-            },
-          });
-        }
-      }
-      return list.id;
+      return {
+        id: itemId,
+        shoppingListId: id,
+        position,
+        ingredientId: item.ingredientId,
+        variantId: item.variantId,
+        quantity: item.quantity,
+        unitId: item.unitId,
+        observations: item.observations,
+        optional: item.optional,
+      };
     });
+    await this.prisma.run(
+      async () => {
+        const db = this.prisma.getDb();
+        await db.shoppingList.create({
+          data: {
+            id,
+            name: input.name,
+            sourceFrom: shoppingDateToUtc(input.from),
+            sourceTo: shoppingDateToUtc(input.to),
+            generatedAt: new Date(),
+          },
+        });
+        // Bound batch sizes to avoid PostgreSQL's parameter limit on large lists.
+        for (let offset = 0; offset < sources.length; offset += 500)
+          await db.shoppingListSource.createMany({
+            data: sources.slice(offset, offset + 500),
+          });
+        for (let offset = 0; offset < items.length; offset += 500)
+          await db.shoppingItem.createMany({
+            data: items.slice(offset, offset + 500),
+          });
+        for (let offset = 0; offset < itemSources.length; offset += 500)
+          await db.shoppingItemSource.createMany({
+            data: itemSources.slice(offset, offset + 500),
+          });
+      },
+      { timeout: 30000 },
+    );
     const result = await this.findById(id);
     if (!result) throw new Error('No se pudo leer la lista recién creada');
     return result;
