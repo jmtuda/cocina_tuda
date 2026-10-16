@@ -20,8 +20,18 @@ export type PlannedMealModel =
 
 export type AggregatePlannedMeal = {
   _count: PlannedMealCountAggregateOutputType | null;
+  _avg: PlannedMealAvgAggregateOutputType | null;
+  _sum: PlannedMealSumAggregateOutputType | null;
   _min: PlannedMealMinAggregateOutputType | null;
   _max: PlannedMealMaxAggregateOutputType | null;
+};
+
+export type PlannedMealAvgAggregateOutputType = {
+  diners: number | null;
+};
+
+export type PlannedMealSumAggregateOutputType = {
+  diners: number | null;
 };
 
 export type PlannedMealMinAggregateOutputType = {
@@ -29,6 +39,7 @@ export type PlannedMealMinAggregateOutputType = {
   recipeId: string | null;
   plannedDate: Date | null;
   mealName: string | null;
+  diners: number | null;
   createdAt: Date | null;
   updatedAt: Date | null;
 };
@@ -38,6 +49,7 @@ export type PlannedMealMaxAggregateOutputType = {
   recipeId: string | null;
   plannedDate: Date | null;
   mealName: string | null;
+  diners: number | null;
   createdAt: Date | null;
   updatedAt: Date | null;
 };
@@ -47,9 +59,18 @@ export type PlannedMealCountAggregateOutputType = {
   recipeId: number;
   plannedDate: number;
   mealName: number;
+  diners: number;
   createdAt: number;
   updatedAt: number;
   _all: number;
+};
+
+export type PlannedMealAvgAggregateInputType = {
+  diners?: true;
+};
+
+export type PlannedMealSumAggregateInputType = {
+  diners?: true;
 };
 
 export type PlannedMealMinAggregateInputType = {
@@ -57,6 +78,7 @@ export type PlannedMealMinAggregateInputType = {
   recipeId?: true;
   plannedDate?: true;
   mealName?: true;
+  diners?: true;
   createdAt?: true;
   updatedAt?: true;
 };
@@ -66,6 +88,7 @@ export type PlannedMealMaxAggregateInputType = {
   recipeId?: true;
   plannedDate?: true;
   mealName?: true;
+  diners?: true;
   createdAt?: true;
   updatedAt?: true;
 };
@@ -75,6 +98,7 @@ export type PlannedMealCountAggregateInputType = {
   recipeId?: true;
   plannedDate?: true;
   mealName?: true;
+  diners?: true;
   createdAt?: true;
   updatedAt?: true;
   _all?: true;
@@ -123,6 +147,18 @@ export type PlannedMealAggregateArgs<
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    *
+   * Select which fields to average
+   **/
+  _avg?: PlannedMealAvgAggregateInputType;
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   *
+   * Select which fields to sum
+   **/
+  _sum?: PlannedMealSumAggregateInputType;
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   *
    * Select which fields to find the minimum value
    **/
   _min?: PlannedMealMinAggregateInputType;
@@ -155,6 +191,8 @@ export type PlannedMealGroupByArgs<
   take?: number;
   skip?: number;
   _count?: PlannedMealCountAggregateInputType | true;
+  _avg?: PlannedMealAvgAggregateInputType;
+  _sum?: PlannedMealSumAggregateInputType;
   _min?: PlannedMealMinAggregateInputType;
   _max?: PlannedMealMaxAggregateInputType;
 };
@@ -164,9 +202,12 @@ export type PlannedMealGroupByOutputType = {
   recipeId: string;
   plannedDate: Date;
   mealName: string | null;
+  diners: number;
   createdAt: Date;
   updatedAt: Date;
   _count: PlannedMealCountAggregateOutputType | null;
+  _avg: PlannedMealAvgAggregateOutputType | null;
+  _sum: PlannedMealSumAggregateOutputType | null;
   _min: PlannedMealMinAggregateOutputType | null;
   _max: PlannedMealMaxAggregateOutputType | null;
 };
@@ -192,6 +233,7 @@ export type PlannedMealWhereInput = {
   recipeId?: Prisma.UuidFilter<'PlannedMeal'> | string;
   plannedDate?: Prisma.DateTimeFilter<'PlannedMeal'> | Date | string;
   mealName?: Prisma.StringNullableFilter<'PlannedMeal'> | string | null;
+  diners?: Prisma.IntFilter<'PlannedMeal'> | number;
   createdAt?: Prisma.DateTimeFilter<'PlannedMeal'> | Date | string;
   updatedAt?: Prisma.DateTimeFilter<'PlannedMeal'> | Date | string;
   recipe?: Prisma.XOR<
@@ -205,6 +247,7 @@ export type PlannedMealOrderByWithRelationInput = {
   recipeId?: Prisma.SortOrder;
   plannedDate?: Prisma.SortOrder;
   mealName?: Prisma.SortOrderInput | Prisma.SortOrder;
+  diners?: Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
   recipe?: Prisma.RecipeOrderByWithRelationInput;
@@ -219,6 +262,7 @@ export type PlannedMealWhereUniqueInput = Prisma.AtLeast<
     recipeId?: Prisma.UuidFilter<'PlannedMeal'> | string;
     plannedDate?: Prisma.DateTimeFilter<'PlannedMeal'> | Date | string;
     mealName?: Prisma.StringNullableFilter<'PlannedMeal'> | string | null;
+    diners?: Prisma.IntFilter<'PlannedMeal'> | number;
     createdAt?: Prisma.DateTimeFilter<'PlannedMeal'> | Date | string;
     updatedAt?: Prisma.DateTimeFilter<'PlannedMeal'> | Date | string;
     recipe?: Prisma.XOR<
@@ -234,11 +278,14 @@ export type PlannedMealOrderByWithAggregationInput = {
   recipeId?: Prisma.SortOrder;
   plannedDate?: Prisma.SortOrder;
   mealName?: Prisma.SortOrderInput | Prisma.SortOrder;
+  diners?: Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
   _count?: Prisma.PlannedMealCountOrderByAggregateInput;
+  _avg?: Prisma.PlannedMealAvgOrderByAggregateInput;
   _max?: Prisma.PlannedMealMaxOrderByAggregateInput;
   _min?: Prisma.PlannedMealMinOrderByAggregateInput;
+  _sum?: Prisma.PlannedMealSumOrderByAggregateInput;
 };
 
 export type PlannedMealScalarWhereWithAggregatesInput = {
@@ -255,6 +302,7 @@ export type PlannedMealScalarWhereWithAggregatesInput = {
     Prisma.DateTimeWithAggregatesFilter<'PlannedMeal'> | Date | string;
   mealName?:
     Prisma.StringNullableWithAggregatesFilter<'PlannedMeal'> | string | null;
+  diners?: Prisma.IntWithAggregatesFilter<'PlannedMeal'> | number;
   createdAt?:
     Prisma.DateTimeWithAggregatesFilter<'PlannedMeal'> | Date | string;
   updatedAt?:
@@ -265,6 +313,7 @@ export type PlannedMealCreateInput = {
   id?: string;
   plannedDate: Date | string;
   mealName?: string | null;
+  diners?: number;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   recipe: Prisma.RecipeCreateNestedOneWithoutPlannedMealsInput;
@@ -275,6 +324,7 @@ export type PlannedMealUncheckedCreateInput = {
   recipeId: string;
   plannedDate: Date | string;
   mealName?: string | null;
+  diners?: number;
   createdAt?: Date | string;
   updatedAt?: Date | string;
 };
@@ -283,6 +333,7 @@ export type PlannedMealUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   plannedDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   mealName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  diners?: Prisma.IntFieldUpdateOperationsInput | number;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   recipe?: Prisma.RecipeUpdateOneRequiredWithoutPlannedMealsNestedInput;
@@ -293,6 +344,7 @@ export type PlannedMealUncheckedUpdateInput = {
   recipeId?: Prisma.StringFieldUpdateOperationsInput | string;
   plannedDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   mealName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  diners?: Prisma.IntFieldUpdateOperationsInput | number;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -302,6 +354,7 @@ export type PlannedMealCreateManyInput = {
   recipeId: string;
   plannedDate: Date | string;
   mealName?: string | null;
+  diners?: number;
   createdAt?: Date | string;
   updatedAt?: Date | string;
 };
@@ -310,6 +363,7 @@ export type PlannedMealUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   plannedDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   mealName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  diners?: Prisma.IntFieldUpdateOperationsInput | number;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -319,6 +373,7 @@ export type PlannedMealUncheckedUpdateManyInput = {
   recipeId?: Prisma.StringFieldUpdateOperationsInput | string;
   plannedDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   mealName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  diners?: Prisma.IntFieldUpdateOperationsInput | number;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -338,8 +393,13 @@ export type PlannedMealCountOrderByAggregateInput = {
   recipeId?: Prisma.SortOrder;
   plannedDate?: Prisma.SortOrder;
   mealName?: Prisma.SortOrder;
+  diners?: Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
+};
+
+export type PlannedMealAvgOrderByAggregateInput = {
+  diners?: Prisma.SortOrder;
 };
 
 export type PlannedMealMaxOrderByAggregateInput = {
@@ -347,6 +407,7 @@ export type PlannedMealMaxOrderByAggregateInput = {
   recipeId?: Prisma.SortOrder;
   plannedDate?: Prisma.SortOrder;
   mealName?: Prisma.SortOrder;
+  diners?: Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
 };
@@ -356,8 +417,13 @@ export type PlannedMealMinOrderByAggregateInput = {
   recipeId?: Prisma.SortOrder;
   plannedDate?: Prisma.SortOrder;
   mealName?: Prisma.SortOrder;
+  diners?: Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
+};
+
+export type PlannedMealSumOrderByAggregateInput = {
+  diners?: Prisma.SortOrder;
 };
 
 export type PlannedMealCreateNestedManyWithoutRecipeInput = {
@@ -458,10 +524,19 @@ export type PlannedMealUncheckedUpdateManyWithoutRecipeNestedInput = {
     Prisma.PlannedMealScalarWhereInput | Prisma.PlannedMealScalarWhereInput[];
 };
 
+export type IntFieldUpdateOperationsInput = {
+  set?: number;
+  increment?: number;
+  decrement?: number;
+  multiply?: number;
+  divide?: number;
+};
+
 export type PlannedMealCreateWithoutRecipeInput = {
   id?: string;
   plannedDate: Date | string;
   mealName?: string | null;
+  diners?: number;
   createdAt?: Date | string;
   updatedAt?: Date | string;
 };
@@ -470,6 +545,7 @@ export type PlannedMealUncheckedCreateWithoutRecipeInput = {
   id?: string;
   plannedDate: Date | string;
   mealName?: string | null;
+  diners?: number;
   createdAt?: Date | string;
   updatedAt?: Date | string;
 };
@@ -527,6 +603,7 @@ export type PlannedMealScalarWhereInput = {
   recipeId?: Prisma.UuidFilter<'PlannedMeal'> | string;
   plannedDate?: Prisma.DateTimeFilter<'PlannedMeal'> | Date | string;
   mealName?: Prisma.StringNullableFilter<'PlannedMeal'> | string | null;
+  diners?: Prisma.IntFilter<'PlannedMeal'> | number;
   createdAt?: Prisma.DateTimeFilter<'PlannedMeal'> | Date | string;
   updatedAt?: Prisma.DateTimeFilter<'PlannedMeal'> | Date | string;
 };
@@ -535,6 +612,7 @@ export type PlannedMealCreateManyRecipeInput = {
   id?: string;
   plannedDate: Date | string;
   mealName?: string | null;
+  diners?: number;
   createdAt?: Date | string;
   updatedAt?: Date | string;
 };
@@ -543,6 +621,7 @@ export type PlannedMealUpdateWithoutRecipeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   plannedDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   mealName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  diners?: Prisma.IntFieldUpdateOperationsInput | number;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -551,6 +630,7 @@ export type PlannedMealUncheckedUpdateWithoutRecipeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   plannedDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   mealName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  diners?: Prisma.IntFieldUpdateOperationsInput | number;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -559,6 +639,7 @@ export type PlannedMealUncheckedUpdateManyWithoutRecipeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   plannedDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   mealName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  diners?: Prisma.IntFieldUpdateOperationsInput | number;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -572,6 +653,7 @@ export type PlannedMealSelect<
     recipeId?: boolean;
     plannedDate?: boolean;
     mealName?: boolean;
+    diners?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
     recipe?: boolean | Prisma.RecipeDefaultArgs<ExtArgs>;
@@ -588,6 +670,7 @@ export type PlannedMealSelectCreateManyAndReturn<
     recipeId?: boolean;
     plannedDate?: boolean;
     mealName?: boolean;
+    diners?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
     recipe?: boolean | Prisma.RecipeDefaultArgs<ExtArgs>;
@@ -604,6 +687,7 @@ export type PlannedMealSelectUpdateManyAndReturn<
     recipeId?: boolean;
     plannedDate?: boolean;
     mealName?: boolean;
+    diners?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
     recipe?: boolean | Prisma.RecipeDefaultArgs<ExtArgs>;
@@ -616,6 +700,7 @@ export type PlannedMealSelectScalar = {
   recipeId?: boolean;
   plannedDate?: boolean;
   mealName?: boolean;
+  diners?: boolean;
   createdAt?: boolean;
   updatedAt?: boolean;
 };
@@ -624,7 +709,13 @@ export type PlannedMealOmit<
   ExtArgs extends runtime.Types.Extensions.InternalArgs =
     runtime.Types.Extensions.DefaultArgs,
 > = runtime.Types.Extensions.GetOmit<
-  'id' | 'recipeId' | 'plannedDate' | 'mealName' | 'createdAt' | 'updatedAt',
+  | 'id'
+  | 'recipeId'
+  | 'plannedDate'
+  | 'mealName'
+  | 'diners'
+  | 'createdAt'
+  | 'updatedAt',
   ExtArgs['result']['plannedMeal']
 >;
 export type PlannedMealInclude<
@@ -660,6 +751,7 @@ export type $PlannedMealPayload<
       recipeId: string;
       plannedDate: Date;
       mealName: string | null;
+      diners: number;
       createdAt: Date;
       updatedAt: Date;
     },
@@ -1269,6 +1361,7 @@ export interface PlannedMealFieldRefs {
   readonly recipeId: Prisma.FieldRef<'PlannedMeal', 'String'>;
   readonly plannedDate: Prisma.FieldRef<'PlannedMeal', 'DateTime'>;
   readonly mealName: Prisma.FieldRef<'PlannedMeal', 'String'>;
+  readonly diners: Prisma.FieldRef<'PlannedMeal', 'Int'>;
   readonly createdAt: Prisma.FieldRef<'PlannedMeal', 'DateTime'>;
   readonly updatedAt: Prisma.FieldRef<'PlannedMeal', 'DateTime'>;
 }

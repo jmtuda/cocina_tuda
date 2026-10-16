@@ -710,14 +710,6 @@ export type ShoppingItemUncheckedUpdateManyWithoutShoppingListNestedInput = {
     Prisma.ShoppingItemScalarWhereInput | Prisma.ShoppingItemScalarWhereInput[];
 };
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number;
-  increment?: number;
-  decrement?: number;
-  multiply?: number;
-  divide?: number;
-};
-
 export type NullableDecimalFieldUpdateOperationsInput = {
   set?: runtime.Decimal | runtime.DecimalJsLike | number | string | null;
   increment?: runtime.Decimal | runtime.DecimalJsLike | number | string;

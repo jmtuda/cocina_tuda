@@ -14,6 +14,7 @@ type PlannedMeal = {
   recipeId: string;
   plannedDate: string;
   mealName: string | null;
+  diners: number;
   recipe: RecipeSummary;
 };
 type RecipeDetail = RecipeSummary & {
@@ -63,6 +64,7 @@ export function PlanningWorkspace() {
   const [recipeId, setRecipeId] = useState("");
   const [plannedDate, setPlannedDate] = useState(initialDay);
   const [mealName, setMealName] = useState("");
+  const [diners, setDiners] = useState("2");
   const [editingId, setEditingId] = useState("");
   const [detail, setDetail] = useState<RecipeDetail | null>(null);
   const [message, setMessage] = useState("Cargando la semana…");
@@ -123,6 +125,7 @@ export function PlanningWorkspace() {
           recipeId,
           plannedDate,
           mealName: mealName.trim() || null,
+          diners: Number(diners),
         }),
       },
     );
@@ -131,6 +134,7 @@ export function PlanningWorkspace() {
     }
     setEditingId("");
     setMealName("");
+    setDiners("2");
     await loadWeek();
     setMessage(editingId ? "Planificación actualizada." : "Comida añadida.");
   }
@@ -140,6 +144,7 @@ export function PlanningWorkspace() {
     setRecipeId(meal.recipeId);
     setPlannedDate(meal.plannedDate);
     setMealName(meal.mealName ?? "");
+    setDiners(String(meal.diners ?? 2));
     if (
       meal.recipe.status === "ARCHIVED" &&
       !recipes.some((recipe) => recipe.id === meal.recipe.id)
@@ -154,7 +159,11 @@ export function PlanningWorkspace() {
       method: "DELETE",
     });
     if (!response.ok) throw new Error("No se pudo retirar la planificación");
-    if (editingId === id) setEditingId("");
+    if (editingId === id) {
+      setEditingId("");
+      setMealName("");
+      setDiners("2");
+    }
     await loadWeek();
     setMessage("Planificación retirada definitivamente.");
   }
@@ -220,6 +229,7 @@ export function PlanningWorkspace() {
                       {meal.recipe.name}
                       {meal.recipe.status === "ARCHIVED" && " · Archivada"}
                     </span>
+                    <small>{meal.diners ?? 2} comensales</small>
                     <div>
                       <button
                         className="quiet"
@@ -280,6 +290,18 @@ export function PlanningWorkspace() {
               </option>
             ))}
           </select>
+        </label>
+        <label>
+          Comensales
+          <input
+            type="number"
+            min="1"
+            max="2147483647"
+            step="1"
+            required
+            value={diners}
+            onChange={(event) => setDiners(event.target.value)}
+          />
         </label>
         <label>
           Denominación opcional

@@ -46,6 +46,7 @@ export class PlanningService {
       .filter((meal) => !excluded.has(meal.id))
       .map((meal) => ({
         id: meal.id,
+        diners: meal.diners,
         plannedDate: meal.plannedDate,
         recipeId: meal.recipeId,
         recipeName: meal.recipe.name,
@@ -55,7 +56,10 @@ export class PlanningService {
   async update(id: string, input: PlannedMealInput) {
     const current = await this.repository.findById(id);
     if (!current) throw new NotFoundException('Planificación no encontrada');
-    const value = this.validate(input);
+    const value = this.validate({
+      ...input,
+      diners: input.diners === undefined ? current.diners : input.diners,
+    });
     if (value.recipeId !== current.recipeId) {
       await this.requireActiveRecipe(value.recipeId);
     }

@@ -1,6 +1,10 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsOptional,
+  IsInt,
+  Min,
+  Max,
+  ValidateIf,
   IsString,
   IsUUID,
   Matches,
@@ -10,6 +14,13 @@ import {
 const CALENDAR_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 export class SavePlannedMealDto {
+  @ApiPropertyOptional({ default: 2, minimum: 1 })
+  @ValidateIf((_object, value) => value !== undefined)
+  @IsInt()
+  @Min(1)
+  @Max(2147483647)
+  diners?: number;
+
   @ApiProperty({ format: 'uuid' })
   @IsUUID('4')
   recipeId!: string;
@@ -42,6 +53,7 @@ class PlannedRecipeDto {
 }
 
 export class PlannedMealResponseDto {
+  @ApiProperty({ default: 2, minimum: 1 }) diners!: number;
   @ApiProperty({ format: 'uuid' }) id!: string;
   @ApiProperty({ format: 'uuid' }) recipeId!: string;
   @ApiProperty({ example: '2026-09-21' }) plannedDate!: string;

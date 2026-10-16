@@ -58,13 +58,15 @@ Clasificación flexible y plana. Una receta puede tener varias etiquetas y una e
 
 ### Comida planificada
 
-Referencia una receta para una fecha y puede incluir una denominación de comida. No conserva una copia de la receta y utiliza su versión actual.
+Referencia una receta para una fecha, indica un número entero positivo de comensales (2 por defecto) y puede incluir una denominación de comida. No conserva una copia de la receta y utiliza su versión actual.
 
 Si la receta se archiva, las planificaciones existentes se conservan y permiten consultarla. Una receta archivada no está disponible normalmente para nuevas planificaciones y vuelve a estarlo al reactivarse.
 
 ### Lista de compra
 
 Agrupa elementos de compra, tiene nombre y fechas y conserva la procedencia de la selección planificada con la que se generó. Es una instantánea independiente: los cambios posteriores de recetas o planificación no la recalculan y una regeneración crea otra lista.
+
+Al generar una nueva lista, cada cantidad conocida se ajusta por comensales/raciones de la receta antes de consolidar. Si faltan las raciones o la cantidad, se conserva la cantidad original, incluida su ausencia. No se convierten unidades ni se altera la receta. El ajuste usa aritmética decimal exacta con redondeo al más próximo, mitad hacia arriba, a tres decimales por contribución; los cambios posteriores de comensales no alteran listas guardadas.
 
 ### Elemento de compra
 

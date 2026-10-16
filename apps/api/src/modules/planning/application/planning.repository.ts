@@ -2,6 +2,7 @@ import type { PlannedMealInput } from '../domain/planned-meal.js';
 
 export type PlannedMealRecord = PlannedMealInput & {
   id: string;
+  diners: number;
   mealName: string | null;
   createdAt: Date;
   updatedAt: Date;

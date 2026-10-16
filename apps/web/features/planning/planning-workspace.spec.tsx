@@ -88,7 +88,13 @@ describe("PlanningWorkspace", () => {
     await user.clear(screen.getByLabelText("Fecha"));
     await user.type(screen.getByLabelText("Fecha"), "2026-10-03");
     await user.type(screen.getByLabelText("Denominación opcional"), "Cena");
+    expect(screen.getByLabelText("Comensales")).toHaveValue(2);
+    await user.clear(screen.getByLabelText("Comensales"));
+    await user.type(screen.getByLabelText("Comensales"), "4");
     await user.click(screen.getByRole("button", { name: "Añadir al plan" }));
+    expect(JSON.parse(String(fetchMock.mock.calls[2]?.[1]?.body)).diners).toBe(
+      4,
+    );
     await waitFor(() =>
       expect(screen.getAllByText("Tortilla")).toHaveLength(2),
     );

@@ -21,6 +21,7 @@ import {
   consolidateContributions,
   isShoppingDate,
   normalizeQuantity,
+  scaleShoppingQuantity,
   normalizeShoppingName,
   type ShoppingContribution,
 } from '../domain/shopping.js';
@@ -74,6 +75,20 @@ export class ShoppingService {
         snapshots.set(source.recipeId, recipe);
       }
       for (const item of recipe.ingredients) {
+        let quantity: string | null;
+        try {
+          quantity = scaleShoppingQuantity(
+            item.quantity,
+            source.diners,
+            recipe.servings,
+          );
+        } catch (error) {
+          throw new BadRequestException(
+            error instanceof Error
+              ? error.message
+              : 'Cantidad ajustada no válida',
+          );
+        }
         contributions.push({
           plannedMealId: source.id,
           recipeId: source.recipeId,
@@ -82,7 +97,7 @@ export class ShoppingService {
           ingredientName: item.ingredientName,
           variantId: item.variantId,
           variantName: item.variantName,
-          quantity: item.quantity,
+          quantity,
           unitId: item.unitId,
           unitName: item.unitName,
           unitAbbreviation: item.unitAbbreviation,

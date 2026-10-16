@@ -56,7 +56,7 @@ Durante la revisión, cada referencia muestra lo detectado por IA y su estado. P
 
 ## Desarrollo
 
-La biblioteca usa filtros compactos con selección múltiple: abre el desplegable, busca y marca opciones; «Aplicar filtros» consulta y «Borrar filtros» restablece Activas y la primera página inmediatamente. «Crear receta» es una sección independiente con el mismo editor que la edición del detalle. «Gestionar catálogos» abre un único formulario Nuevo/Editar para ingredientes, variantes, unidades, categorías y etiquetas, también durante la creación/edición sin perder el borrador. Las cantidades siguen siendo decimales libres, no conversiones ni escalado. El propietario aprobó la revisión local y autorizó su integración y publicación el 15 de octubre de 2026.
+La biblioteca usa filtros compactos con selección múltiple: abre el desplegable, busca y marca opciones; «Aplicar filtros» consulta y «Borrar filtros» restablece Activas y la primera página inmediatamente. «Crear receta» es una sección independiente con el mismo editor que la edición del detalle. «Gestionar catálogos» abre un único formulario Nuevo/Editar para ingredientes, variantes, unidades, categorías y etiquetas, también durante la creación/edición sin perder el borrador. La receta conserva sus cantidades originales. Cada comida planificada indica comensales (2 por defecto); al generar compras, las cantidades conocidas se multiplican por comensales/raciones. Sin raciones o sin cantidad se conserva el valor original, sin convertir unidades. «Ver resumen» muestra la lista guardada completa en una ventana emergente. El propietario aprobó la revisión local y autorizó su integración y publicación el 15 de octubre de 2026.
 
 Ejecutar API y web simultáneamente:
 
@@ -80,7 +80,7 @@ pnpm test:e2e
 pnpm build
 ```
 
-Las siete migraciones acumuladas cubren biblioteca, catálogo y clasificación, búsqueda, planificación, compras, idempotencia de confirmación de importaciones y configuración Mambo opcional por paso. La séptima se aplicó a Neon con autorización y copia restaurada verificada. Se añadieron 45 configuraciones históricas en 19 recetas sin borrar ni modificar los pasos antiguos; seis tiempos sin unidad requieren revisión manual. Consulta [`docs/mambo.md`](docs/mambo.md) para contrato, revisión, evidencia y orden de publicación.
+Las ocho migraciones acumuladas cubren biblioteca, catálogo y clasificación, búsqueda, planificación, compras, idempotencia de importaciones, Mambo opcional y comensales por comida. La octava añade comensales positivos (2 por defecto); se aplicó a Neon tras verificar una copia restaurada y ensayar la actualización, sin alterar recetas ni listas guardadas. La séptima se aplicó a Neon con autorización y copia restaurada verificada. Se añadieron 45 configuraciones históricas en 19 recetas sin borrar ni modificar los pasos antiguos; seis tiempos sin unidad requieren revisión manual. Consulta [`docs/mambo.md`](docs/mambo.md) para contrato, revisión, evidencia y orden de publicación.
 
 Las comprobaciones específicas de búsqueda, planificación y compras sobre PostgreSQL se ejecutan contra una base de pruebas desechable ya migrada. Estas pruebas truncan tablas; nunca deben apuntar a la base del propietario. Sin `TEST_POSTGRES_URL` se omiten:
 

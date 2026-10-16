@@ -35,3 +35,13 @@ describe('PlannedMeal', () => {
     expect(utcToCalendarDate(stored)).toBe('2026-09-21');
   });
 });
+
+it('defaults to two diners and rejects invalid values', () => {
+  const input = { recipeId: 'r', plannedDate: '2026-10-16' };
+  expect(normalizePlannedMeal(input).diners).toBe(2);
+  expect(normalizePlannedMeal({ ...input, diners: 4 }).diners).toBe(4);
+  for (const diners of [0, -1, 1.5, NaN, 2147483648])
+    expect(() => normalizePlannedMeal({ ...input, diners })).toThrow(
+      'entero positivo',
+    );
+});

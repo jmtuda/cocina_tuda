@@ -2,6 +2,7 @@ export type PlannedMealInput = {
   recipeId: string;
   plannedDate: string;
   mealName?: string | null;
+  diners?: number;
 };
 
 const DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
@@ -31,7 +32,10 @@ export function normalizePlannedMeal(
   if (mealName && mealName.length > 120) {
     throw new Error('La denominación no puede superar 120 caracteres');
   }
-  return { ...input, mealName };
+  const diners = input.diners === undefined ? 2 : input.diners;
+  if (!Number.isInteger(diners) || diners < 1 || diners > 2147483647)
+    throw new Error('Los comensales deben ser un número entero positivo');
+  return { ...input, mealName, diners };
 }
 
 export function calendarDateToUtc(value: string): Date {

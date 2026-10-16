@@ -1050,3 +1050,29 @@ fieldset {
   width: auto;
   flex-shrink: 0;
 }
+
+.shopping-summary {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.shopping-summary li {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.shopping-summary li > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.shopping-summary strong {
+  overflow-wrap: anywhere;
+}
+.shopping-summary li > div > span {
+  flex-shrink: 0;
+}
+.shopping-summary small {
+  display: block;
+  white-space: pre-wrap;
+  color: var(--ink-soft);
+}

@@ -2,11 +2,13 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { apiFetch, apiUrl, responseError } from "../../lib/api";
+import { RecipeModal } from "../recipes/recipe-modal";
 
 type PlannedMeal = {
   id: string;
   plannedDate: string;
   mealName: string | null;
+  diners: number;
   recipe: { id: string; name: string; status: "ACTIVE" | "ARCHIVED" };
 };
 type Unit = { id: string; name: string; abbreviation: string };
@@ -52,6 +54,7 @@ export function ShoppingWorkspace() {
   const [excluded, setExcluded] = useState<string[]>([]);
   const [lists, setLists] = useState<ShoppingList[]>([]);
   const [current, setCurrent] = useState<ShoppingList | null>(null);
+  const [summary, setSummary] = useState<ShoppingList | null>(null);
   const [units, setUnits] = useState<Unit[]>([]);
   const [manualName, setManualName] = useState("");
   const [manualQuantity, setManualQuantity] = useState("");
@@ -114,6 +117,13 @@ export function ShoppingWorkspace() {
     const response = await apiFetch(`${apiUrl}/shopping-lists/${id}`);
     if (!response.ok) throw new Error("No se pudo abrir la lista");
     setCurrent((await response.json()) as ShoppingList);
+  }
+
+  async function openSummary() {
+    if (!current) return;
+    const response = await apiFetch(`${apiUrl}/shopping-lists/${current.id}`);
+    if (!response.ok) throw new Error("No se pudo consultar el resumen");
+    setSummary((await response.json()) as ShoppingList);
   }
 
   async function addManual(event: FormEvent) {
@@ -245,7 +255,7 @@ export function ShoppingWorkspace() {
                 onChange={() => toggleExcluded(meal.id)}
               />
               {meal.plannedDate} · {meal.mealName || "Sin denominación"} ·{" "}
-              {meal.recipe.name}
+              {meal.recipe.name} · {meal.diners ?? 2} comensales
             </label>
           ))}
         </div>
@@ -273,7 +283,12 @@ export function ShoppingWorkspace() {
 
       {current && (
         <section className="panel recipe shopping-detail">
-          <h2>{current.name}</h2>
+          <div className="panel-title">
+            <h2>{current.name}</h2>
+            <button type="button" onClick={() => void safely(openSummary)}>
+              Ver resumen
+            </button>
+          </div>
           {current.sourceFrom && (
             <p>
               Instantánea de {current.sourceFrom} a {current.sourceTo} ·{" "}
@@ -481,6 +496,53 @@ export function ShoppingWorkspace() {
             </button>
           </form>
         </section>
+      )}
+      {summary && (
+        <RecipeModal
+          active
+          title={summary.name}
+          label="Lista de compra"
+          onClose={() => setSummary(null)}
+        >
+          <h2>{summary.name}</h2>
+          <p>{summary.items.length} elementos · Lista completa guardada</p>
+          {summary.items.length === 0 ? (
+            <p>La lista está vacía.</p>
+          ) : (
+            <ul className="shopping-summary">
+              {summary.items.map((item) => (
+                <li
+                  key={item.id}
+                  className={item.purchased ? "purchased" : undefined}
+                >
+                  <div>
+                    <strong>
+                      {item.ingredient?.name ?? item.manualName}
+                      {item.variant ? ` · ${item.variant.name}` : ""}
+                    </strong>
+                    <span>
+                      {item.quantity == null ? "Sin cantidad" : item.quantity}
+                      {item.unit
+                        ? ` ${item.unit.abbreviation || item.unit.name}`
+                        : ""}
+                    </span>
+                  </div>
+                  {(item.optional || item.purchased || item.observations) && (
+                    <small>
+                      {[
+                        item.optional ? "Opcional" : "",
+                        item.purchased ? "Comprado" : "",
+                        item.observations ?? "",
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </small>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </RecipeModal>
       )}
       <p className="status" role="status">
         {message}
