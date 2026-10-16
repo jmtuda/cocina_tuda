@@ -35,6 +35,7 @@ postgres('planning persistence on PostgreSQL', () => {
     const second = await repository.create(input);
     expect(first.id).not.toBe(second.id);
     expect(first.plannedDate).toBe('2026-09-21');
+    expect(first.diners).toBe(2);
     expect(second.plannedDate).toBe('2026-09-21');
     expect(
       await repository.findBetween('2026-09-21', '2026-09-21'),
@@ -70,10 +71,12 @@ postgres('planning persistence on PostgreSQL', () => {
       recipeId,
       plannedDate: '2026-09-22',
       mealName: 'Invitados',
+      diners: 4,
     });
     expect(updated).toMatchObject({
       plannedDate: '2026-09-22',
       mealName: 'Invitados',
+      diners: 4,
     });
     expect(await repository.delete(chosen.id)).toBe(true);
     expect(await repository.findById(chosen.id)).toBeNull();

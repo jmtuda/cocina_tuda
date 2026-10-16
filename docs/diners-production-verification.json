@@ -1,0 +1,14 @@
+{
+  "time": "2026-10-16T06:59:04.824Z",
+  "migration": "20261016090000_planned_meal_diners",
+  "branch": "br-morning-rain-b1ixq8dj",
+  "migrationCount": 8,
+  "backupSha256": "75b2d2c4a11577a243c0d0f69b0a98286db8c4912fce534c8c7bcb2d24433f40",
+  "restoreVerified": true,
+  "migrationRehearsed": true,
+  "existingApplicationTablesUnchanged": 16,
+  "plannedMealsAssignedTwo": 3,
+  "recipes": 85,
+  "steps": 433,
+  "shoppingListsUnchanged": 4
+}

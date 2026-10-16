@@ -96,18 +96,21 @@ describe('ShoppingService generation', () => {
         plannedDate: '2026-09-21',
         recipeId: 'recipe-1',
         recipeName: 'Tortilla',
+        diners: 2,
       },
       {
         id: 'meal-2',
         plannedDate: '2026-09-22',
         recipeId: 'recipe-1',
         recipeName: 'Tortilla',
+        diners: 2,
       },
       {
         id: 'meal-3',
         plannedDate: '2026-09-23',
         recipeId: 'recipe-2',
         recipeName: 'Sopa',
+        diners: 2,
       },
     ];
     const planning: PlanningSourceReader = {
@@ -121,6 +124,7 @@ describe('ShoppingService generation', () => {
           id,
           name: id === 'recipe-1' ? 'Tortilla' : 'Sopa',
           status: 'ACTIVE',
+          servings: null,
           ingredients: [
             {
               id: `use-${id}`,
@@ -186,5 +190,77 @@ describe('ShoppingService generation', () => {
     await expect(service.addItem('missing', input)).rejects.toThrow(
       'Lista de compra no encontrada',
     );
+  });
+  it('scales each repeated meal independently before summing, preserving unknown quantities and old lists', async () => {
+    const repository = new MemoryShoppingRepository();
+    const meals = [
+      {
+        id: 'm1',
+        plannedDate: '2026-10-16',
+        recipeId: 'r',
+        recipeName: 'Receta',
+        diners: 4,
+      },
+      {
+        id: 'm2',
+        plannedDate: '2026-10-17',
+        recipeId: 'r',
+        recipeName: 'Receta',
+        diners: 1,
+      },
+    ];
+    let servings: number | null = 2;
+    const ingredient = {
+      id: 'use',
+      ingredientId: 'i',
+      ingredientName: 'Arroz',
+      variantId: null,
+      variantName: null,
+      quantity: '100',
+      unitId: 'g',
+      unitName: 'Gramo',
+      unitAbbreviation: 'g',
+      optional: false,
+      observations: null,
+    };
+    const service = new ShoppingService(
+      repository,
+      {
+        findPlanningSources: (_from, _to, excluded) =>
+          Promise.resolve(meals.filter((m) => !excluded.includes(m.id))),
+      },
+      {
+        findRecipeReference: () => Promise.resolve(null),
+        findShoppingRecipeSnapshot: () =>
+          Promise.resolve({
+            id: 'r',
+            name: 'Receta',
+            status: 'ACTIVE',
+            servings,
+            ingredients: [
+              ingredient,
+              { ...ingredient, id: 'unknown', quantity: null },
+            ],
+          }),
+      },
+      catalog,
+    );
+    const input = { name: 'Compra', from: '2026-10-16', to: '2026-10-17' };
+    const first = await service.generate(input);
+    expect(first.items.map((i) => i.quantity)).toEqual(['250', null]);
+    expect(first.items[0]?.sources).toHaveLength(2);
+    servings = null;
+    expect(
+      (await service.generate(input)).items.map((i) => i.quantity),
+    ).toEqual(['200', null]);
+    expect(
+      (
+        await service.generate({ ...input, excludedPlannedMealIds: ['m2'] })
+      ).items.map((i) => i.quantity),
+    ).toEqual(['100', null]);
+    expect((await service.get(first.id)).items.map((i) => i.quantity)).toEqual([
+      '250',
+      null,
+    ]);
   });
 });

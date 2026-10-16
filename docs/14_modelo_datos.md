@@ -22,7 +22,7 @@ Describe la traducción persistente vigente de `03_modelo_dominio.md` y separa e
 | `recipe_categories`     | recipe_id, category_id                                                                                                             |
 | `tags`                  | id, name, normalized_name                                                                                                          |
 | `recipe_tags`           | recipe_id, tag_id                                                                                                                  |
-| `planned_meals`         | id, recipe_id, planned_date, meal_name?, created_at, updated_at                                                                    |
+| `planned_meals`         | id, recipe_id, planned_date, meal_name?, diners, created_at, updated_at                                                            |
 | `shopping_lists`        | id, name, source_from?, source_to?, generated_at?, created_at, updated_at                                                          |
 | `shopping_list_sources` | id, shopping_list_id, planned_meal_id, recipe_id, recipe_name, planned_date                                                        |
 | `shopping_items`        | id, shopping_list_id, position, ingredient_id?, variant_id?, manual_name?, quantity?, unit_id?, observations?, optional, purchased |
@@ -42,6 +42,7 @@ No existen tablas para fuentes o propuestas de importación, usuarios, grupos de
 - Las tablas intermedias evitan pares duplicados.
 - Cantidades nunca se almacenan en ingredientes o unidades.
 - Cada comida planificada referencia una receta sin copiar su contenido; fecha, receta y denominación no son únicas.
+- `planned_meals.diners` es INTEGER NOT NULL DEFAULT 2, con CHECK de valor positivo. La octava migración añade el campo y asigna 2 a las comidas existentes; no modifica las listas guardadas.
 - `planned_meals.planned_date` es un día de calendario `DATE`, no un instante temporal.
 - Cada elemento de compra pertenece a una lista y su posición es única en ella.
 - Un elemento referencia un ingrediente de catálogo o contiene un nombre manual, nunca ambos; una variante catalogada debe pertenecer al ingrediente indicado.
@@ -68,3 +69,5 @@ La séptima migración, `20261015120000_recipe_step_mambo`, añade únicamente c
 ## 7. Conceptos no persistidos
 
 La importación conserva sus propuestas y fuentes de forma transitoria. Solo persiste el vínculo técnico entre `import_id` y la receta definitiva para garantizar reintentos idempotentes; no almacena la fuente ni el borrador.
+
+La octava migración, `20261016090000_planned_meal_diners`, se aplicó a Neon el 16 de octubre de 2026 tras verificar pg_dump y restauración de las 17 tablas y ensayar la actualización. Las tres comidas existentes recibieron 2 comensales; las columnas previas de las 16 tablas de aplicación permanecieron idénticas. Evidencia sin datos privados: `diners-production-verification.json`.

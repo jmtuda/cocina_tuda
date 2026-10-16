@@ -19,6 +19,7 @@ type PersistedMeal = {
   recipeId: string;
   plannedDate: Date;
   mealName: string | null;
+  diners: number;
   createdAt: Date;
   updatedAt: Date;
   recipe: {
@@ -33,6 +34,7 @@ const toRecord = (meal: PersistedMeal): PlannedMealRecord => ({
   recipeId: meal.recipeId,
   plannedDate: utcToCalendarDate(meal.plannedDate),
   mealName: meal.mealName,
+  diners: meal.diners,
   createdAt: meal.createdAt,
   updatedAt: meal.updatedAt,
   recipe: meal.recipe,
@@ -93,6 +95,7 @@ export class PrismaPlanningRepository implements PlanningRepository {
       recipeId: input.recipeId,
       plannedDate: calendarDateToUtc(input.plannedDate),
       mealName: input.mealName ?? null,
+      diners: input.diners ?? 2,
     };
   }
 }

@@ -7,7 +7,9 @@ export function RecipeModal({
   title,
   onClose,
   children,
+  label = "Receta",
 }: {
+  label?: string;
   active: boolean;
   title: string;
   onClose(): void;
@@ -58,7 +60,7 @@ export function RecipeModal({
       }}
     >
       <div className="recipe-modal-bar">
-        <span>Receta</span>
+        <span>{label}</span>
         <button type="button" className="quiet" onClick={onClose}>
           Cerrar
         </button>

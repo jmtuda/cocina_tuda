@@ -44,6 +44,7 @@ export class RecipeService {
           id: recipe.id,
           name: recipe.name,
           status: recipe.status,
+          servings: recipe.servings,
           ingredients: recipe.ingredients.map((item) => ({
             id: item.id,
             ingredientId: item.ingredientId,

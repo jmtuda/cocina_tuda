@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   consolidateContributions,
+  scaleShoppingQuantity,
   type ShoppingContribution,
 } from './shopping.js';
 
@@ -76,5 +77,30 @@ describe('shopping consolidation', () => {
       }),
     ]);
     expect(result[0]?.observations).toBe('Tamizada\nPara espolvorear');
+  });
+});
+
+describe('quantities by diners', () => {
+  it.each([
+    ['100', 4, 2, '200'],
+    ['100', 1, 2, '50'],
+    ['0.1', 3, 2, '0.15'],
+    ['1', 1, 3, '0.333'],
+    ['1', 2, 3, '0.667'],
+    ['0.001', 1, 2, '0.001'],
+    ['0', 4, 2, '0'],
+    [null, 4, 2, null],
+    ['2', 4, null, '2'],
+    [null, 4, null, null],
+  ] as const)(
+    'scales %s for %s diners from %s servings',
+    (q, d, s, expected) => {
+      expect(scaleShoppingQuantity(q, d, s)).toBe(expected);
+    },
+  );
+  it('rejects overflow before starting persistence', () => {
+    expect(() => scaleShoppingQuantity('999999999.999', 4, 2)).toThrow(
+      'máximo',
+    );
   });
 });

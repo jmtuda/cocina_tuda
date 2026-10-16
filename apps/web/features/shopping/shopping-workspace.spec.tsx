@@ -1,4 +1,11 @@
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ShoppingWorkspace } from "./shopping-workspace";
@@ -132,4 +139,67 @@ describe("ShoppingWorkspace", () => {
     });
     expect(request).not.toHaveProperty("ingredientId");
   });
+});
+
+it("opens a concise read-only summary with saved quantities, unknowns and manual items", async () => {
+  const saved = {
+    ...list,
+    items: [
+      list.items[0],
+      {
+        ...list.items[0],
+        id: "manual",
+        ingredient: null,
+        manualName: "Papel",
+        quantity: null,
+        optional: true,
+        purchased: true,
+        observations: "Dos rollos",
+        sources: [],
+      },
+      {
+        ...list.items[0],
+        id: "zero",
+        ingredient: { id: "salt", name: "Sal" },
+        quantity: "0",
+      },
+    ],
+  };
+  const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input) => {
+    const url = String(input);
+    return new Response(
+      JSON.stringify(
+        url.includes("/planned-meals?")
+          ? []
+          : url.endsWith("/catalog/units")
+            ? []
+            : url.endsWith(`/shopping-lists/${list.id}`)
+              ? saved
+              : [saved],
+      ),
+    );
+  });
+  vi.stubGlobal("fetch", fetchMock);
+  const user = userEvent.setup();
+  render(<ShoppingWorkspace />);
+  await user.click(
+    await screen.findByRole("button", { name: "Compra semanal" }),
+  );
+  const trigger = screen.getByRole("button", { name: "Ver resumen" });
+  await user.click(trigger);
+  const dialog = await screen.findByRole("dialog", { name: "Compra semanal" });
+  expect(within(dialog).getAllByRole("listitem")).toHaveLength(3);
+  expect(within(dialog).getByText("Huevo")).toBeVisible();
+  expect(within(dialog).getByText("Sin cantidad")).toBeVisible();
+  expect(within(dialog).getByText("0")).toBeVisible();
+  expect(
+    within(dialog).getByText(/Opcional · Comprado · Dos rollos/),
+  ).toBeVisible();
+  expect(within(dialog).queryByRole("textbox")).not.toBeInTheDocument();
+  fireEvent(dialog, new Event("cancel", { bubbles: true, cancelable: true }));
+  await waitFor(() =>
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+  );
+  expect(trigger).toHaveFocus();
+  expect(fetchMock.mock.calls.every((call) => !call[1]?.method)).toBe(true);
 });

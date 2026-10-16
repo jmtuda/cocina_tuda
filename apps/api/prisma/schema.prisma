@@ -50,6 +50,7 @@ model PlannedMeal {
   recipeId    String   @map("recipe_id") @db.Uuid
   plannedDate DateTime @map("planned_date") @db.Date
   mealName    String?  @map("meal_name")
+  diners      Int      @default(2)
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
   recipe      Recipe   @relation(fields: [recipeId], references: [id], onDelete: Restrict)

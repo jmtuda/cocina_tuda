@@ -1,5 +1,6 @@
 export type PlanningSource = {
   id: string;
+  diners: number;
   plannedDate: string;
   recipeId: string;
   recipeName: string;

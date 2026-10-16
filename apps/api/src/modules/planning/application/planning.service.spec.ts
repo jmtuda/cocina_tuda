@@ -48,6 +48,7 @@ class MemoryPlanningRepository implements PlanningRepository {
     return {
       id,
       ...input,
+      diners: input.diners ?? 2,
       mealName: input.mealName ?? null,
       createdAt: new Date(0),
       updatedAt: new Date(0),

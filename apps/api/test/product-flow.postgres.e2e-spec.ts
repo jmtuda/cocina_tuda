@@ -845,4 +845,104 @@ postgres('product flow on PostgreSQL', () => {
       }),
     ).toBe(1);
   });
+  it('persists diners, scales shopping and preserves old snapshots through later edits', async () => {
+    const created = await request(server)
+      .post('/api/v1/recipes')
+      .send({
+        name: 'Receta sintética comensales',
+        servings: 2,
+        steps: [],
+        ingredients: [
+          {
+            position: 0,
+            ingredientId,
+            quantity: '100',
+            unitId,
+            optional: false,
+          },
+          { position: 1, ingredientId: secondIngredientId, optional: false },
+        ],
+      })
+      .expect(201);
+    const recipeId = idOf(created);
+    const input = { recipeId, plannedDate: '2026-11-01', mealName: 'Cena' };
+    for (const diners of [0, -1, 1.5, null, '4'])
+      await request(server)
+        .post('/api/v1/planned-meals')
+        .send({ ...input, diners })
+        .expect(400);
+    const meal = await request(server)
+      .post('/api/v1/planned-meals')
+      .send({ ...input, diners: 4 })
+      .expect(201);
+    expect(bodyAs<{ diners: number }>(meal).diners).toBe(4);
+    const defaultMeal = await request(server)
+      .post('/api/v1/planned-meals')
+      .send(input)
+      .expect(201);
+    expect(bodyAs<{ diners: number }>(defaultMeal).diners).toBe(2);
+    await request(server)
+      .put(`/api/v1/planned-meals/${idOf(meal)}`)
+      .send({ ...input, mealName: 'Otra denominación' })
+      .expect(200)
+      .expect((r) => expect(bodyAs<{ diners: number }>(r).diners).toBe(4));
+    const generated = await request(server)
+      .post('/api/v1/shopping-lists/generate')
+      .send({ name: 'Por comensales', from: '2026-11-01', to: '2026-11-01' })
+      .expect(201);
+    expect(
+      bodyAs<{
+        items: Array<{ ingredientId: string; quantity: string | null }>;
+      }>(generated).items.find(
+        (i: { ingredientId: string }) => i.ingredientId === ingredientId,
+      )?.quantity,
+    ).toBe('300');
+    expect(
+      bodyAs<{
+        items: Array<{ ingredientId: string; quantity: string | null }>;
+      }>(generated).items.find(
+        (i: { ingredientId: string }) => i.ingredientId === secondIngredientId,
+      )?.quantity,
+    ).toBeNull();
+    await request(server)
+      .put(`/api/v1/planned-meals/${idOf(meal)}`)
+      .send({ ...input, diners: 8 })
+      .expect(200);
+    const original = await request(server)
+      .get(`/api/v1/shopping-lists/${idOf(generated)}`)
+      .expect(200);
+    expect(
+      bodyAs<{
+        items: Array<{ ingredientId: string; quantity: string | null }>;
+      }>(original).items.find(
+        (i: { ingredientId: string }) => i.ingredientId === ingredientId,
+      )?.quantity,
+    ).toBe('300');
+    const noServings = await request(server)
+      .post('/api/v1/recipes')
+      .send({
+        name: 'Sin raciones sintética',
+        steps: [],
+        ingredients: [
+          { position: 0, ingredientId, quantity: '7', optional: false },
+        ],
+      })
+      .expect(201);
+    await request(server)
+      .post('/api/v1/planned-meals')
+      .send({
+        recipeId: idOf(noServings),
+        plannedDate: '2026-11-02',
+        diners: 4,
+      })
+      .expect(201);
+    const unchanged = await request(server)
+      .post('/api/v1/shopping-lists/generate')
+      .send({ name: 'Sin raciones', from: '2026-11-02', to: '2026-11-02' })
+      .expect(201);
+    expect(
+      bodyAs<{ items: Array<{ quantity: string | null }> }>(unchanged).items[0]
+        ?.quantity,
+    ).toBe('7');
+  });
 });

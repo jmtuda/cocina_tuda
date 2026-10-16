@@ -5,6 +5,7 @@ export type RecipeReference = {
 };
 
 export type ShoppingRecipeSnapshot = RecipeReference & {
+  servings: number | null;
   ingredients: Array<{
     id: string;
     ingredientId: string;

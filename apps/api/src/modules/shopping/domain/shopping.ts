@@ -82,6 +82,30 @@ function formatThousandths(value: bigint) {
     : `${whole}.${fraction.replace(/0+$/, '')}`;
 }
 
+// Match DECIMAL(12,3), using integer arithmetic and half-up rounding per contribution.
+export function scaleShoppingQuantity(
+  quantity: string | null,
+  diners: number,
+  servings: number | null,
+) {
+  if (quantity == null || servings == null) return quantity;
+  if (
+    !Number.isInteger(diners) ||
+    diners < 1 ||
+    !Number.isInteger(servings) ||
+    servings < 1
+  )
+    throw new Error('Comensales o raciones no válidos');
+  const normalized = normalizeQuantity(quantity);
+  if (normalized == null) return null;
+  const numerator = toThousandths(normalized) * BigInt(diners);
+  const divisor = BigInt(servings);
+  const scaled = (numerator * 2n + divisor) / (2n * divisor);
+  if (scaled > 999999999999n)
+    throw new Error('La cantidad ajustada supera el máximo permitido');
+  return formatThousandths(scaled);
+}
+
 const contributionKey = (item: ShoppingContribution) =>
   [
     item.ingredientId,
