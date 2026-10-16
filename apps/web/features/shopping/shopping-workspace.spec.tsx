@@ -84,7 +84,7 @@ describe("ShoppingWorkspace", () => {
       screen.getByRole("button", { name: "Generar nueva lista" }),
     );
 
-    await screen.findByText("Huevo");
+    await screen.findByRole("region", { name: "Totales de compra" });
     const request = JSON.parse(String(fetchMock.mock.calls[3]?.[1]?.body)) as {
       excludedPlannedMealIds: string[];
     };
@@ -122,6 +122,7 @@ describe("ShoppingWorkspace", () => {
     await user.click(
       screen.getByRole("button", { name: "Generar nueva lista" }),
     );
+    await user.click(screen.getByText("Editar cantidades y elementos"));
     await user.type(screen.getByLabelText("Nombre"), "Papel de cocina");
     await user.click(screen.getByRole("button", { name: "Añadir" }));
 
@@ -150,6 +151,7 @@ it("opens a concise read-only summary with saved quantities, unknowns and manual
         ...list.items[0],
         id: "manual",
         ingredient: null,
+        ingredientId: null,
         manualName: "Papel",
         quantity: null,
         optional: true,
@@ -161,6 +163,7 @@ it("opens a concise read-only summary with saved quantities, unknowns and manual
         ...list.items[0],
         id: "zero",
         ingredient: { id: "salt", name: "Sal" },
+        ingredientId: "salt",
         quantity: "0",
       },
     ],
