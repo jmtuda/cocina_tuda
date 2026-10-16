@@ -227,3 +227,9 @@ El propietario aprueba el cambio y autoriza commit, GitHub, integración y actua
 - Sin pruebas, seed ni benchmark sobre Neon, sin envío de recetas a IA y sin importador/conversor histórico permanente. Scripts puntuales, plan y trazabilidad privados archivados junto al backup ignorado. Evidencia pública sin texto ni credenciales: [`mambo-production-verification.json`](mambo-production-verification.json).
 
 La publicación de código usa PR protegida desde `feat/mambo-step-configuration`, `validate` obligatorio, integración squash sin bypass y despliegues Git de los dos proyectos existentes. El estado efectivo de CI y producción se contrasta con el commit integrado en GitHub/Vercel, no con un build local. Queda revisión manual del propietario para retirar los pasos antiguos redundantes y resolver las seis duraciones sin unidad. Las llamadas IA reales no quedan acreditadas por esta operación ni se han modificado secretos o protecciones de Vercel.
+
+### Eliminación desde el gestor de catálogos — 16 de octubre de 2026, local
+
+El selector Acción incorpora Eliminar para ingredientes, variantes, unidades, categorías y etiquetas, con selección y confirmación explícita. Las relaciones existentes impiden eliminar elementos en uso (409); los ingredientes con variantes deben vaciarse primero. Las variantes se eliminan bajo su ingrediente base. No se eliminan asociaciones ni recetas en cascada. Tras eliminar se recargan los catálogos; si falla la recarga solo se reintenta GET, sin repetir DELETE. Sin cambios de esquema ni migraciones, sin escrituras de prueba sobre Neon y sin publicación.
+
+Validación de este ajuste: web 100 pruebas correctas; catálogo API 15 correctas, incluidas rutas DELETE, UUID, 404/409 y alcance de variantes. Typecheck de web/API y lint de los archivos afectados correctos. Pruebas HTTP y persistencia con dobles de repositorio/Prisma; no se ha ejecutado esta eliminación contra PostgreSQL real ni sobre la biblioteca del propietario.

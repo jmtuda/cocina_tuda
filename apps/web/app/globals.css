@@ -1039,3 +1039,14 @@ fieldset {
     min-height: 2.75rem;
   }
 }
+
+.catalog-delete-confirmation {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.catalog-delete-confirmation input[type="checkbox"] {
+  width: auto;
+  flex-shrink: 0;
+}

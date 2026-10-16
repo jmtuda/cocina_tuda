@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseUUIDPipe,
@@ -12,6 +13,7 @@ import { CatalogService } from '../application/catalog.service.js';
 import { CreateNamedCatalogItemDto, CreateUnitDto } from './catalog.dto.js';
 import {
   CatalogItemDto,
+  DeletedResponseDto,
   IngredientResponseDto,
   IngredientVariantResponseDto,
   UnitResponseDto,
@@ -21,6 +23,30 @@ import {
 @Controller('catalog')
 export class CatalogController {
   constructor(private readonly catalog: CatalogService) {}
+
+  @Delete('ingredients/:id')
+  @ApiOkResponse({ type: DeletedResponseDto })
+  removeIngredient(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ) {
+    return this.catalog.removeIngredient(id);
+  }
+
+  @Delete('ingredients/:ingredientId/variants/:id')
+  @ApiOkResponse({ type: DeletedResponseDto })
+  removeVariant(
+    @Param('ingredientId', new ParseUUIDPipe({ version: '4' }))
+    ingredientId: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ) {
+    return this.catalog.removeVariant(ingredientId, id);
+  }
+
+  @Delete('units/:id')
+  @ApiOkResponse({ type: DeletedResponseDto })
+  removeUnit(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+    return this.catalog.removeUnit(id);
+  }
 
   @Patch('ingredients/:id')
   @ApiOkResponse({ type: CatalogItemDto })

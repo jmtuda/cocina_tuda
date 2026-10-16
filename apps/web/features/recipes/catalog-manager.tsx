@@ -18,7 +18,11 @@ export function CatalogManager({
 }) {
   const [open, setOpen] = useState(false);
   const [kind, setKind] = useState("ingredients");
-  const [editing, setEditing] = useState(false);
+  const [action, setAction] = useState("new");
+  const editing = action !== "new";
+  const deleting = action === "delete";
+  const [confirmed, setConfirmed] = useState(false);
+  const reloadMessage = useRef("Catálogo guardado.");
   const [id, setId] = useState("");
   const [base, setBase] = useState("");
   const [name, setName] = useState("");
@@ -39,6 +43,7 @@ export function CatalogManager({
             ? tags
             : (ingredients.find((item) => item.id === base)?.variants ?? []);
   const reset = () => {
+    setConfirmed(false);
     setId("");
     setName("");
     setAbbreviation("");
@@ -51,7 +56,8 @@ export function CatalogManager({
     trigger.current?.focus();
   };
   async function save() {
-    if (busy || reloadPending) return;
+    if (busy || reloadPending || (editing && !id) || (deleting && !confirmed))
+      return;
     setBusy(true);
     setMessage("");
     try {
@@ -62,22 +68,37 @@ export function CatalogManager({
       const response = await apiFetch(
         `${apiUrl}/${path}${editing ? `/${id}` : ""}`,
         {
-          method: editing ? "PATCH" : "POST",
+          method: deleting ? "DELETE" : editing ? "PATCH" : "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name,
-            ...(kind === "units" ? { abbreviation } : {}),
-          }),
+          ...(deleting
+            ? {}
+            : {
+                body: JSON.stringify({
+                  name,
+                  ...(kind === "units" ? { abbreviation } : {}),
+                }),
+              }),
         },
       );
       if (!response.ok)
         throw new Error(
-          await responseError(response, "No se pudo guardar el catálogo"),
+          await responseError(
+            response,
+            deleting
+              ? "No se pudo eliminar el elemento"
+              : "No se pudo guardar el catálogo",
+          ),
         );
-      const saved = (await response.json()) as { id: string };
-      setId(saved.id);
-      setEditing(true);
-      setSavedItem({ id: saved.id, name, abbreviation });
+      if (deleting) {
+        reloadMessage.current = "Elemento eliminado.";
+        reset();
+      } else {
+        const saved = (await response.json()) as { id: string };
+        reloadMessage.current = "Catálogo guardado.";
+        setId(saved.id);
+        setAction("edit");
+        setSavedItem({ id: saved.id, name, abbreviation });
+      }
       await reload();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "No se pudo guardar");
@@ -90,11 +111,11 @@ export function CatalogManager({
     try {
       await refresh();
       setReloadPending(false);
-      setMessage("Catálogo guardado.");
+      setMessage(reloadMessage.current);
     } catch {
       setReloadPending(true);
       setMessage(
-        "Catálogo guardado, pero no se pudo recargar. Reintenta sólo la recarga.",
+        `${reloadMessage.current} No se pudo recargar. Reintenta sólo la recarga.`,
       );
     } finally {
       setBusy(false);
@@ -124,7 +145,7 @@ export function CatalogManager({
       {open && (
         <div className="panel">
           <h3>Catálogos</h3>
-          {editing && (
+          {editing && !deleting && (
             <p>
               Los cambios de nombres, etiquetas y unidades se reflejan en todas
               las recetas que los usan. No convierten cantidades.
@@ -158,15 +179,16 @@ export function CatalogManager({
             <label>
               Acción
               <select
-                value={editing ? "edit" : "new"}
+                value={action}
                 disabled={busy || reloadPending}
                 onChange={(event) => {
-                  setEditing(event.target.value === "edit");
+                  setAction(event.target.value);
                   reset();
                 }}
               >
                 <option value="new">Nuevo</option>
                 <option value="edit">Editar</option>
+                <option value="delete">Eliminar</option>
               </select>
             </label>
             {kind === "variants" && (
@@ -201,6 +223,8 @@ export function CatalogManager({
                     const item = items.find(
                       (item) => item.id === event.target.value,
                     );
+                    setConfirmed(false);
+                    setMessage("");
                     setId(event.target.value);
                     setName(item?.name ?? "");
                     setAbbreviation(item?.abbreviation ?? "");
@@ -219,16 +243,18 @@ export function CatalogManager({
                 </select>
               </label>
             )}
-            <label>
-              Nombre de catálogo
-              <input
-                required
-                value={name}
-                disabled={busy || reloadPending}
-                onChange={(event) => setName(event.target.value)}
-              />
-            </label>
-            {kind === "units" && (
+            {!deleting && (
+              <label>
+                Nombre de catálogo
+                <input
+                  required
+                  value={name}
+                  disabled={busy || reloadPending}
+                  onChange={(event) => setName(event.target.value)}
+                />
+              </label>
+            )}
+            {kind === "units" && !deleting && (
               <label>
                 Abreviatura
                 <input
@@ -239,7 +265,24 @@ export function CatalogManager({
                 />
               </label>
             )}
-            <button disabled={busy || reloadPending}>Guardar catálogo</button>
+            {deleting && id && (
+              <label className="catalog-delete-confirmation">
+                <input
+                  type="checkbox"
+                  checked={confirmed}
+                  disabled={busy || reloadPending}
+                  onChange={(event) => setConfirmed(event.target.checked)}
+                />
+                Confirmo eliminar «{name}». Solo se eliminará si no está en uso.
+              </label>
+            )}
+            <button
+              disabled={
+                busy || reloadPending || (deleting && (!id || !confirmed))
+              }
+            >
+              {deleting ? "Eliminar elemento" : "Guardar catálogo"}
+            </button>
             <button
               type="button"
               disabled={busy}

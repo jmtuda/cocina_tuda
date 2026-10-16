@@ -6,6 +6,20 @@ import type { CatalogRepository } from '../application/catalog.repository.js';
 export class PrismaCatalogRepository implements CatalogRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  async removeIngredient(id: string): Promise<void> {
+    await this.prisma.getDb().ingredient.delete({ where: { id } });
+  }
+
+  async removeVariant(ingredientId: string, id: string): Promise<void> {
+    await this.prisma
+      .getDb()
+      .ingredientVariant.delete({ where: { id, ingredientId } });
+  }
+
+  async removeUnit(id: string): Promise<void> {
+    await this.prisma.getDb().unit.delete({ where: { id } });
+  }
+
   createIngredient(name: string, normalizedName: string) {
     return this.prisma.getDb().ingredient.create({
       data: { name, normalizedName },

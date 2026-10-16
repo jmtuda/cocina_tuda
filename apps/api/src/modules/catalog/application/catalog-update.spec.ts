@@ -98,3 +98,22 @@ describe('catalog updates without replacing identities', () => {
     );
   });
 });
+
+it('deletes by identity and scopes a variant to its original ingredient', async () => {
+  const db = {
+    ingredient: { delete: vi.fn() },
+    ingredientVariant: { delete: vi.fn() },
+    unit: { delete: vi.fn() },
+  };
+  const repository = new PrismaCatalogRepository({
+    getDb: () => db,
+  } as unknown as PrismaService);
+  await repository.removeIngredient('i');
+  await repository.removeVariant('i', 'v');
+  await repository.removeUnit('u');
+  expect(db.ingredient.delete).toHaveBeenCalledWith({ where: { id: 'i' } });
+  expect(db.ingredientVariant.delete).toHaveBeenCalledWith({
+    where: { id: 'v', ingredientId: 'i' },
+  });
+  expect(db.unit.delete).toHaveBeenCalledWith({ where: { id: 'u' } });
+});
