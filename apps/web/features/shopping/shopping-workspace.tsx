@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { apiFetch, apiUrl, responseError } from "../../lib/api";
 import { RecipeModal } from "../recipes/recipe-modal";
+import { ShoppingSummary, aggregateShoppingItems } from "./shopping-summary";
 
 type PlannedMeal = {
   id: string;
@@ -55,6 +56,7 @@ export function ShoppingWorkspace() {
   const [lists, setLists] = useState<ShoppingList[]>([]);
   const [current, setCurrent] = useState<ShoppingList | null>(null);
   const [summary, setSummary] = useState<ShoppingList | null>(null);
+  const [savedCurrent, setSavedCurrent] = useState<ShoppingList | null>(null);
   const [units, setUnits] = useState<Unit[]>([]);
   const [manualName, setManualName] = useState("");
   const [manualQuantity, setManualQuantity] = useState("");
@@ -109,6 +111,7 @@ export function ShoppingWorkspace() {
       throw new Error(await responseError(response, "No se pudo generar"));
     const list = (await response.json()) as ShoppingList;
     setCurrent(list);
+    setSavedCurrent(list);
     await loadLists();
     setMessage("Lista generada como una instantánea independiente.");
   }
@@ -116,7 +119,9 @@ export function ShoppingWorkspace() {
   async function openList(id: string) {
     const response = await apiFetch(`${apiUrl}/shopping-lists/${id}`);
     if (!response.ok) throw new Error("No se pudo abrir la lista");
-    setCurrent((await response.json()) as ShoppingList);
+    const list = (await response.json()) as ShoppingList;
+    setCurrent(list);
+    setSavedCurrent(list);
   }
 
   async function openSummary() {
@@ -295,102 +300,193 @@ export function ShoppingWorkspace() {
               {current.sources.length} comidas
             </p>
           )}
-          {current.items.map((item) => (
-            <article
-              className={
-                item.purchased ? "shopping-item purchased" : "shopping-item"
+          <section aria-label="Totales de compra">
+            <ShoppingSummary
+              items={
+                savedCurrent?.id === current.id
+                  ? savedCurrent.items
+                  : current.items
               }
-              key={item.id}
-            >
-              <label className="purchase-check">
-                <input
-                  type="checkbox"
-                  checked={item.purchased}
-                  onChange={() =>
-                    void safely(() =>
-                      saveItem(item, { purchased: !item.purchased }),
-                    )
-                  }
-                />
-                Comprado
-              </label>
-              <strong>
-                {item.ingredient?.name}
-                {item.variant ? ` · ${item.variant.name}` : ""}
-              </strong>
-              {item.manualName !== null && (
-                <label>
-                  Nombre
+              compact
+            />
+          </section>
+          <details className="shopping-editor">
+            <summary>Editar cantidades y elementos</summary>
+            <p className="shopping-summary-count">
+              Guarda los cambios para actualizar los totales.
+            </p>
+            {current.items.map((item) => (
+              <article
+                className={
+                  item.purchased ? "shopping-item purchased" : "shopping-item"
+                }
+                key={item.id}
+              >
+                <label className="purchase-check">
                   <input
-                    value={item.manualName}
+                    type="checkbox"
+                    checked={item.purchased}
+                    onChange={() =>
+                      void safely(() =>
+                        saveItem(item, { purchased: !item.purchased }),
+                      )
+                    }
+                  />
+                  Comprado
+                </label>
+                <strong>
+                  {item.ingredient?.name}
+                  {item.variant ? ` · ${item.variant.name}` : ""}
+                </strong>
+                {item.manualName !== null && (
+                  <label>
+                    Nombre
+                    <input
+                      value={item.manualName}
+                      onChange={(event) =>
+                        setCurrent({
+                          ...current,
+                          items: current.items.map((candidate) =>
+                            candidate.id === item.id
+                              ? { ...candidate, manualName: event.target.value }
+                              : candidate,
+                          ),
+                        })
+                      }
+                    />
+                  </label>
+                )}
+                <label>
+                  Cantidad
+                  <input
+                    value={item.quantity ?? ""}
                     onChange={(event) =>
                       setCurrent({
                         ...current,
                         items: current.items.map((candidate) =>
                           candidate.id === item.id
-                            ? { ...candidate, manualName: event.target.value }
+                            ? {
+                                ...candidate,
+                                quantity: event.target.value || null,
+                              }
                             : candidate,
                         ),
                       })
                     }
                   />
                 </label>
-              )}
-              <label>
-                Cantidad
-                <input
-                  value={item.quantity ?? ""}
-                  onChange={(event) =>
-                    setCurrent({
-                      ...current,
-                      items: current.items.map((candidate) =>
-                        candidate.id === item.id
-                          ? {
-                              ...candidate,
-                              quantity: event.target.value || null,
-                            }
-                          : candidate,
+                <label>
+                  Observaciones
+                  <textarea
+                    value={item.observations ?? ""}
+                    onChange={(event) =>
+                      setCurrent({
+                        ...current,
+                        items: current.items.map((candidate) =>
+                          candidate.id === item.id
+                            ? {
+                                ...candidate,
+                                observations: event.target.value || null,
+                              }
+                            : candidate,
+                        ),
+                      })
+                    }
+                  />
+                </label>
+                <label>
+                  Unidad
+                  <select
+                    value={item.unitId ?? ""}
+                    onChange={(event) =>
+                      setCurrent({
+                        ...current,
+                        items: current.items.map((candidate) =>
+                          candidate.id === item.id
+                            ? {
+                                ...candidate,
+                                unitId: event.target.value || null,
+                              }
+                            : candidate,
+                        ),
+                      })
+                    }
+                  >
+                    <option value="">Sin unidad</option>
+                    {units.map((unit) => (
+                      <option value={unit.id} key={unit.id}>
+                        {unit.name} ({unit.abbreviation})
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="purchase-check">
+                  <input
+                    type="checkbox"
+                    checked={item.optional}
+                    onChange={() =>
+                      void safely(() =>
+                        saveItem(item, { optional: !item.optional }),
+                      )
+                    }
+                  />
+                  Opcional
+                </label>
+                {item.sources.length > 0 && (
+                  <small>
+                    Origen:{" "}
+                    {[
+                      ...new Set(
+                        item.sources.map(
+                          (source) =>
+                            `${source.recipeName} (${source.plannedDate})`,
+                        ),
                       ),
-                    })
-                  }
+                    ].join(", ")}
+                  </small>
+                )}
+                <div>
+                  <button
+                    className="quiet"
+                    onClick={() => void safely(() => saveItem(item, {}))}
+                  >
+                    Guardar
+                  </button>
+                  <button
+                    className="quiet"
+                    onClick={() => void safely(() => removeItem(item.id))}
+                  >
+                    Retirar
+                  </button>
+                </div>
+              </article>
+            ))}
+
+            <form
+              className="manual-item-form"
+              onSubmit={(event) => void safely(() => addManual(event))}
+            >
+              <h3>Añadir elemento libre</h3>
+              <label>
+                Nombre
+                <input
+                  value={manualName}
+                  onChange={(e) => setManualName(e.target.value)}
+                  required
                 />
               </label>
               <label>
-                Observaciones
-                <textarea
-                  value={item.observations ?? ""}
-                  onChange={(event) =>
-                    setCurrent({
-                      ...current,
-                      items: current.items.map((candidate) =>
-                        candidate.id === item.id
-                          ? {
-                              ...candidate,
-                              observations: event.target.value || null,
-                            }
-                          : candidate,
-                      ),
-                    })
-                  }
+                Cantidad
+                <input
+                  value={manualQuantity}
+                  onChange={(e) => setManualQuantity(e.target.value)}
                 />
               </label>
               <label>
                 Unidad
                 <select
-                  value={item.unitId ?? ""}
-                  onChange={(event) =>
-                    setCurrent({
-                      ...current,
-                      items: current.items.map((candidate) =>
-                        candidate.id === item.id
-                          ? {
-                              ...candidate,
-                              unitId: event.target.value || null,
-                            }
-                          : candidate,
-                      ),
-                    })
-                  }
+                  value={manualUnitId}
+                  onChange={(e) => setManualUnitId(e.target.value)}
                 >
                   <option value="">Sin unidad</option>
                   {units.map((unit) => (
@@ -400,101 +496,26 @@ export function ShoppingWorkspace() {
                   ))}
                 </select>
               </label>
+              <label>
+                Observaciones
+                <input
+                  value={manualObservations}
+                  onChange={(e) => setManualObservations(e.target.value)}
+                />
+              </label>
               <label className="purchase-check">
                 <input
                   type="checkbox"
-                  checked={item.optional}
-                  onChange={() =>
-                    void safely(() =>
-                      saveItem(item, { optional: !item.optional }),
-                    )
-                  }
+                  checked={manualOptional}
+                  onChange={(e) => setManualOptional(e.target.checked)}
                 />
                 Opcional
               </label>
-              {item.sources.length > 0 && (
-                <small>
-                  Origen:{" "}
-                  {[
-                    ...new Set(
-                      item.sources.map(
-                        (source) =>
-                          `${source.recipeName} (${source.plannedDate})`,
-                      ),
-                    ),
-                  ].join(", ")}
-                </small>
-              )}
-              <div>
-                <button
-                  className="quiet"
-                  onClick={() => void safely(() => saveItem(item, {}))}
-                >
-                  Guardar
-                </button>
-                <button
-                  className="quiet"
-                  onClick={() => void safely(() => removeItem(item.id))}
-                >
-                  Retirar
-                </button>
-              </div>
-            </article>
-          ))}
-
-          <form
-            className="manual-item-form"
-            onSubmit={(event) => void safely(() => addManual(event))}
-          >
-            <h3>Añadir elemento libre</h3>
-            <label>
-              Nombre
-              <input
-                value={manualName}
-                onChange={(e) => setManualName(e.target.value)}
-                required
-              />
-            </label>
-            <label>
-              Cantidad
-              <input
-                value={manualQuantity}
-                onChange={(e) => setManualQuantity(e.target.value)}
-              />
-            </label>
-            <label>
-              Unidad
-              <select
-                value={manualUnitId}
-                onChange={(e) => setManualUnitId(e.target.value)}
-              >
-                <option value="">Sin unidad</option>
-                {units.map((unit) => (
-                  <option value={unit.id} key={unit.id}>
-                    {unit.name} ({unit.abbreviation})
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Observaciones
-              <input
-                value={manualObservations}
-                onChange={(e) => setManualObservations(e.target.value)}
-              />
-            </label>
-            <label className="purchase-check">
-              <input
-                type="checkbox"
-                checked={manualOptional}
-                onChange={(e) => setManualOptional(e.target.checked)}
-              />
-              Opcional
-            </label>
-            <button className="primary" type="submit">
-              Añadir
-            </button>
-          </form>
+              <button className="primary" type="submit">
+                Añadir
+              </button>
+            </form>
+          </details>
         </section>
       )}
       {summary && (
@@ -502,46 +523,15 @@ export function ShoppingWorkspace() {
           active
           title={summary.name}
           label="Lista de compra"
+          className="shopping-summary-modal"
           onClose={() => setSummary(null)}
         >
           <h2>{summary.name}</h2>
-          <p>{summary.items.length} elementos · Lista completa guardada</p>
-          {summary.items.length === 0 ? (
-            <p>La lista está vacía.</p>
-          ) : (
-            <ul className="shopping-summary">
-              {summary.items.map((item) => (
-                <li
-                  key={item.id}
-                  className={item.purchased ? "purchased" : undefined}
-                >
-                  <div>
-                    <strong>
-                      {item.ingredient?.name ?? item.manualName}
-                      {item.variant ? ` · ${item.variant.name}` : ""}
-                    </strong>
-                    <span>
-                      {item.quantity == null ? "Sin cantidad" : item.quantity}
-                      {item.unit
-                        ? ` ${item.unit.abbreviation || item.unit.name}`
-                        : ""}
-                    </span>
-                  </div>
-                  {(item.optional || item.purchased || item.observations) && (
-                    <small>
-                      {[
-                        item.optional ? "Opcional" : "",
-                        item.purchased ? "Comprado" : "",
-                        item.observations ?? "",
-                      ]
-                        .filter(Boolean)
-                        .join(" · ")}
-                    </small>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
+          <p className="shopping-summary-count">
+            {aggregateShoppingItems(summary.items).length} ingredientes · Total
+            de la lista guardada
+          </p>
+          <ShoppingSummary items={summary.items} compact />
         </RecipeModal>
       )}
       <p className="status" role="status">

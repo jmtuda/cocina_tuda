@@ -8,8 +8,10 @@ export function RecipeModal({
   onClose,
   children,
   label = "Receta",
+  className = "",
 }: {
   label?: string;
+  className?: string;
   active: boolean;
   title: string;
   onClose(): void;
@@ -35,7 +37,7 @@ export function RecipeModal({
   return (
     <dialog
       ref={dialog}
-      className="recipe-modal"
+      className={`recipe-modal ${className}`.trim()}
       aria-label={title}
       onKeyDown={(event) => {
         if (event.key !== "Tab") return;

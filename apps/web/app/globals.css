@@ -1051,28 +1051,70 @@ fieldset {
   flex-shrink: 0;
 }
 
+/* Totales de compra: una fila por ingrediente y variante. */
 .shopping-summary {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 .shopping-summary li {
-  padding: 0.6rem 0;
+  min-width: 0;
+  padding: 0.4rem 0;
   border-bottom: 1px solid var(--line);
+  break-inside: avoid;
 }
 .shopping-summary li > div {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0.6rem;
 }
 .shopping-summary strong {
+  font-size: 0.85rem;
+  font-weight: 600;
   overflow-wrap: anywhere;
 }
 .shopping-summary li > div > span {
-  flex-shrink: 0;
+  font-size: 0.85rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  max-width: 16rem;
 }
 .shopping-summary small {
   display: block;
-  white-space: pre-wrap;
   color: var(--ink-soft);
+  font-size: 0.72rem;
+}
+.shopping-summary .purchased strong {
+  text-decoration: line-through;
+}
+.shopping-summary-compact {
+  columns: 2;
+  column-gap: 1.5rem;
+}
+.shopping-summary-modal .recipe-modal-content {
+  padding: 0.65rem 0.9rem 0.9rem;
+}
+.shopping-summary-modal h2 {
+  font-size: 1.15rem;
+  margin-bottom: 0.25rem;
+}
+.shopping-summary-count {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  margin-bottom: 0.55rem;
+}
+.shopping-editor {
+  margin-top: 1rem;
+}
+.shopping-editor > summary {
+  color: var(--ink-soft);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.5rem 0;
+}
+@media (max-width: 680px) {
+  .shopping-summary-compact {
+    columns: 1;
+  }
 }
