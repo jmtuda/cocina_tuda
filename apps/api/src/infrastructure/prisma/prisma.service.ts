@@ -29,10 +29,11 @@ export class PrismaService
     return this.transactions.getStore() ?? this;
   }
 
-  run<T>(work: () => Promise<T>): Promise<T> {
+  run<T>(work: () => Promise<T>, options?: { timeout: number }): Promise<T> {
     if (this.transactions.getStore()) return work();
-    return this.$transaction((transaction) =>
-      this.transactions.run(transaction, work),
+    return this.$transaction(
+      (transaction) => this.transactions.run(transaction, work),
+      options,
     );
   }
 

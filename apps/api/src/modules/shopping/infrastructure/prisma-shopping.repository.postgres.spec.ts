@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { randomUUID } from 'node:crypto';
 import { PrismaService } from '../../../infrastructure/prisma/prisma.service.js';
 import { PrismaShoppingRepository } from './prisma-shopping.repository.js';
 
@@ -128,5 +129,108 @@ postgres('shopping persistence on PostgreSQL', () => {
     expect(await repository.deleteItem(list.id, added.id)).toBe(true);
     const persisted = await repository.findById(list.id);
     expect(persisted?.items).toHaveLength(1);
+  });
+  it('persists multiple batches with complete provenance and decimal quantities', async () => {
+    const sources = [0, 1].map(() => ({
+      plannedMealId: randomUUID(),
+      recipeId: randomUUID(),
+      recipeName: 'Receta sintética',
+      plannedDate: '2026-10-16',
+    }));
+    const list = await repository.createGenerated({
+      name: 'Lotes sintéticos',
+      from: '2026-10-16',
+      to: '2026-10-17',
+      sources,
+      items: Array.from({ length: 501 }, (_, index) => ({
+        ingredientId,
+        ingredientName: 'Tomate',
+        variantId,
+        variantName: 'Chérry',
+        quantity: index === 0 ? '0' : '0.125',
+        unitId,
+        unitName: 'Gramo',
+        unitAbbreviation: 'g',
+        optional: index % 2 === 0,
+        observations: `Línea ${index}`,
+        sources: sources.map((source) => ({
+          plannedMealId: source.plannedMealId,
+          recipeIngredientId: randomUUID(),
+        })),
+      })),
+    });
+    expect(list.items).toHaveLength(501);
+    expect(list.sources).toHaveLength(2);
+    expect(list.items[0]?.quantity).toBe('0');
+    expect(list.items[500]).toMatchObject({
+      position: 500,
+      quantity: '0.125',
+      observations: 'Línea 500',
+      optional: true,
+    });
+    expect(list.items.every((item) => item.sources.length === 2)).toBe(true);
+    const persisted = await repository.findById(list.id);
+    expect(persisted).toEqual(list);
+    expect(
+      await prisma.shoppingItemSource.count({
+        where: { shoppingItem: { shoppingListId: list.id } },
+      }),
+    ).toBe(1002);
+  }, 30000);
+
+  it('rolls back all batches when a later batch has an invalid reference', async () => {
+    const counts = async () =>
+      Promise.all([
+        prisma.shoppingList.count(),
+        prisma.shoppingListSource.count(),
+        prisma.shoppingItem.count(),
+        prisma.shoppingItemSource.count(),
+      ]);
+    const before = await counts();
+    const source = {
+      plannedMealId: randomUUID(),
+      recipeId: randomUUID(),
+      recipeName: 'Rollback sintético',
+      plannedDate: '2026-10-16',
+    };
+    await expect(
+      repository.createGenerated({
+        name: 'No debe persistir',
+        from: '2026-10-16',
+        to: '2026-10-16',
+        sources: [source],
+        items: Array.from({ length: 501 }, (_, index) => ({
+          ingredientId: index === 500 ? randomUUID() : ingredientId,
+          ingredientName: 'Tomate',
+          variantId: null,
+          variantName: null,
+          quantity: '1',
+          unitId,
+          unitName: 'Gramo',
+          unitAbbreviation: 'g',
+          optional: false,
+          observations: null,
+          sources: [
+            {
+              plannedMealId: source.plannedMealId,
+              recipeIngredientId: randomUUID(),
+            },
+          ],
+        })),
+      }),
+    ).rejects.toMatchObject({ code: 'P2003' });
+    expect(await counts()).toEqual(before);
+  }, 30000);
+
+  it('creates an empty list without invoking empty batch operations', async () => {
+    const list = await repository.createGenerated({
+      name: 'Sin comidas',
+      from: '2026-10-16',
+      to: '2026-10-16',
+      sources: [],
+      items: [],
+    });
+    expect(list.items).toEqual([]);
+    expect(list.sources).toEqual([]);
   });
 });

@@ -17,6 +17,33 @@ export class CatalogService {
     @Inject(CATALOG_REPOSITORY) private readonly repository: CatalogRepository,
   ) {}
 
+  removeIngredient(id: string) {
+    return this.remove(() => this.repository.removeIngredient(id));
+  }
+
+  removeVariant(ingredientId: string, id: string) {
+    return this.remove(() => this.repository.removeVariant(ingredientId, id));
+  }
+
+  removeUnit(id: string) {
+    return this.remove(() => this.repository.removeUnit(id));
+  }
+
+  private async remove(operation: () => Promise<void>) {
+    try {
+      await operation();
+      return { deleted: true };
+    } catch (error) {
+      if (this.errorCode(error) === 'P2025')
+        throw new NotFoundException('Elemento no encontrado');
+      if (this.errorCode(error) === 'P2003')
+        throw new ConflictException(
+          'No se puede eliminar: el elemento está en uso en recetas, compras o variantes. Retira primero sus asociaciones.',
+        );
+      throw error;
+    }
+  }
+
   async createIngredient(rawName: string) {
     const name = new CatalogName(rawName);
     try {

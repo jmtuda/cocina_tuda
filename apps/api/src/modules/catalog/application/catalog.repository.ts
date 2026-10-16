@@ -3,6 +3,9 @@ import type { Ingredient, IngredientVariant, Unit } from '../domain/catalog.js';
 export const CATALOG_REPOSITORY = Symbol('CATALOG_REPOSITORY');
 
 export interface CatalogRepository {
+  removeIngredient(id: string): Promise<void>;
+  removeVariant(ingredientId: string, id: string): Promise<void>;
+  removeUnit(id: string): Promise<void>;
   updateIngredient(
     id: string,
     name: string,
