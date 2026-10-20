@@ -111,6 +111,75 @@ postgres('recipe search on PostgreSQL', () => {
 
   afterAll(async () => prisma?.$disconnect());
 
+  it('defaults to unreviewed, toggles review and preserves it when omitted on update', async () => {
+    const recipes = new PrismaRecipeRepository(prisma);
+    const input: RecipeInput = {
+      name: 'Revisión editable',
+      notes: 'Conservar',
+      steps: [
+        {
+          position: 0,
+          text: 'Cocinar',
+          mambo: { speed: 0, durationSeconds: 90 },
+        },
+      ],
+      ingredients: [
+        {
+          position: 0,
+          ingredientId: basilId,
+          quantity: '0.125',
+          optional: true,
+        },
+      ],
+    };
+    const created = await recipes.create(input);
+    try {
+      expect(created.reviewed).toBe(false);
+      expect(
+        (await recipes.update(created.id, { ...input, reviewed: true }))
+          ?.reviewed,
+      ).toBe(true);
+      expect(
+        (await recipes.update(created.id, { ...input, notes: 'Otra nota' }))
+          ?.reviewed,
+      ).toBe(true);
+      const read = await recipes.findById(created.id);
+      expect(read).toMatchObject({ reviewed: true, notes: 'Otra nota' });
+      expect(
+        read?.steps.map(({ position, text, mambo }) => ({
+          position,
+          text,
+          mambo,
+        })),
+      ).toEqual(
+        created.steps.map(({ position, text, mambo }) => ({
+          position,
+          text,
+          mambo,
+        })),
+      );
+      expect(read?.ingredients[0]).toMatchObject({
+        quantity: '0.125',
+        optional: true,
+      });
+      for (const text of ['', 'Revisión editable']) {
+        const result = await repository.search(query({ text }));
+        expect(
+          result.items.find((item) => item.id === created.id)?.reviewed,
+        ).toBe(true);
+      }
+      expect((await recipes.archive(created.id))?.reviewed).toBe(true);
+      expect((await recipes.restore(created.id))?.reviewed).toBe(true);
+      expect(
+        (await recipes.update(created.id, { ...input, reviewed: false }))
+          ?.reviewed,
+      ).toBe(false);
+      expect((await recipes.findById(created.id))?.reviewed).toBe(false);
+    } finally {
+      await prisma.recipe.delete({ where: { id: created.id } });
+    }
+  });
+
   it('roundtrips optional Mambo configuration, zeros, edits and removal on PostgreSQL', async () => {
     const recipes = new PrismaRecipeRepository(prisma);
     const input: RecipeInput = {

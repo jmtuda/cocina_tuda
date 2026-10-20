@@ -15,6 +15,7 @@ export type RecipeSummary = {
   id: string;
   name: string;
   description: string | null;
+  reviewed: boolean;
   status: 'ACTIVE' | 'ARCHIVED';
   categories: NamedReference[];
   tags: NamedReference[];

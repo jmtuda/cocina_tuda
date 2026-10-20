@@ -194,6 +194,7 @@ describe("RecipeWorkspace", () => {
     const request = fetchMock.mock.calls[6]?.[1];
     expect(JSON.parse(String(request?.body))).toEqual({
       name: "Ensalada",
+      reviewed: false,
       description: "Fresca",
       author: "Tuda",
       servings: 2,

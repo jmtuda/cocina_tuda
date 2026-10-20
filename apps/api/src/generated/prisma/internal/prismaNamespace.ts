@@ -1748,6 +1748,7 @@ export const RecipeScalarFieldEnum = {
   servings: 'servings',
   difficulty: 'difficulty',
   notes: 'notes',
+  reviewed: 'reviewed',
   status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
@@ -1983,6 +1984,14 @@ export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<
 >;
 
 /**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<
+  $PrismaModel,
+  'Boolean'
+>;
+
+/**
  * Reference to a field of type 'RecipeStatus'
  */
 export type EnumRecipeStatusFieldRefInput<$PrismaModel> = FieldRefInputType<
@@ -2028,14 +2037,6 @@ export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<
 export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<
   $PrismaModel,
   'Decimal[]'
->;
-
-/**
- * Reference to a field of type 'Boolean'
- */
-export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<
-  $PrismaModel,
-  'Boolean'
 >;
 
 /**

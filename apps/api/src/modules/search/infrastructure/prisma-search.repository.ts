@@ -17,6 +17,7 @@ type PersistedSummary = {
   id: string;
   name: string;
   description: string | null;
+  reviewed: boolean;
   status: 'ACTIVE' | 'ARCHIVED';
   categories: Array<{ category: { id: string; name: string } }>;
   tags: Array<{ tag: { id: string; name: string } }>;
@@ -26,6 +27,7 @@ const toSummary = (recipe: PersistedSummary): RecipeSummary => ({
   id: recipe.id,
   name: recipe.name,
   description: recipe.description,
+  reviewed: recipe.reviewed,
   status: recipe.status,
   categories: recipe.categories.map(({ category }) => ({
     id: category.id,

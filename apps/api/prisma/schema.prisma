@@ -21,6 +21,7 @@ model Recipe {
   servings           Int?
   difficulty         String?
   notes              String?
+  reviewed           Boolean             @default(false)
   status             RecipeStatus        @default(ACTIVE)
   createdAt          DateTime            @default(now()) @map("created_at")
   updatedAt          DateTime            @updatedAt @map("updated_at")

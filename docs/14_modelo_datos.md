@@ -1,6 +1,6 @@
 # Cocina Tuda — Modelo de datos
 
-**Versión:** 2.5
+**Versión:** 2.6
 **Estado:** Aprobado
 **Responsable:** Arquitecto Técnico
 
@@ -12,7 +12,7 @@ Describe la traducción persistente vigente de `03_modelo_dominio.md` y separa e
 
 | Tabla                   | Datos principales                                                                                                                  |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `recipes`               | id, name, description?, author?, servings?, difficulty?, notes?, status, created_at, updated_at, archived_at?                      |
+| `recipes`               | id, name, description?, author?, servings?, difficulty?, notes?, reviewed, status, created_at, updated_at, archived_at?            |
 | `recipe_steps`          | id, recipe_id, position, text, mambo_speed?, mambo_temperature?, mambo_ct?, mambo_duration_seconds?, mambo_observations?           |
 | `ingredients`           | id, name, normalized_name, created_at, updated_at                                                                                  |
 | `ingredient_variants`   | id, ingredient_id, name, normalized_name                                                                                           |
@@ -34,6 +34,7 @@ No existen tablas para fuentes o propuestas de importación, usuarios, grupos de
 ## 3. Relaciones y restricciones
 
 - `recipe_steps.position` es único por receta.
+- `recipes.reviewed` es BOOLEAN NOT NULL DEFAULT false. La novena migración `20261020141000_recipe_reviewed` añade el campo y deja sin revisar las recetas anteriores. POST/PUT admiten booleanos explícitos; omitirlo en un PUT conserva el valor, mientras que `false` lo desmarca y `null` se rechaza. La confirmación de importaciones usa el valor predeterminado sin interpretar la revisión de propuesta como revisión de receta. Aplicada a Neon el 20 de octubre de 2026 con autorización expresa y copia restaurada verificada: 85 recetas sin revisar, columnas anteriores intactas.
 - La configuración Mambo es única por paso mediante cinco columnas anulables, sin nueva entidad ni paso adicional. `NULL` es ausencia; `0` se conserva. Velocidad, temperatura, CT y duración son `INTEGER` no negativos (máximo técnico 2147483647), con restricciones `CHECK`. La duración se persiste en segundos. Una configuración vacía se normaliza a ausencia en la aplicación.
 - Ingredientes, unidades, categorías y etiquetas tienen nombre normalizado único.
 - Una variante tiene nombre normalizado único dentro de su ingrediente.

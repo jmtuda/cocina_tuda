@@ -60,6 +60,7 @@ export type RecipeInput = {
   servings?: number | null;
   difficulty?: string | null;
   notes?: string | null;
+  reviewed?: boolean;
   steps: RecipeStepInput[];
   ingredients: RecipeIngredientInput[];
   categoryIds?: string[];
@@ -72,6 +73,9 @@ export class RecipeDraft {
   constructor(input: RecipeInput) {
     const name = input.name.trim();
     if (!name) throw new Error('Recipe name is required');
+    if (input.reviewed !== undefined && typeof input.reviewed !== 'boolean') {
+      throw new Error('Reviewed must be a boolean');
+    }
     this.assertUniquePositions(input.steps, 'step');
     this.assertUniquePositions(input.ingredients, 'ingredient');
     if (

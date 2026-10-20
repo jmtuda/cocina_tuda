@@ -49,6 +49,7 @@ export class NamedSummaryDto {
 }
 
 export class RecipeSummaryDto {
+  @ApiProperty({ default: false }) reviewed!: boolean;
   @ApiProperty({ format: 'uuid' }) id!: string;
   @ApiProperty() name!: string;
   @ApiPropertyOptional({ nullable: true }) description!: string | null;

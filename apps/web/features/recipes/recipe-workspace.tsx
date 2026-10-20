@@ -29,6 +29,7 @@ type IngredientDraft = {
   observations: string;
 };
 type Summary = Named & {
+  reviewed: boolean;
   status: "ACTIVE" | "ARCHIVED";
   categories: Named[];
   tags: Named[];
@@ -90,6 +91,7 @@ export function RecipeWorkspace({
   const [servings, setServings] = useState("");
   const [difficulty, setDifficulty] = useState("");
   const [notes, setNotes] = useState("");
+  const [reviewed, setReviewed] = useState(false);
   const [steps, setSteps] = useState<StepDraft[]>([]);
   const [recipeIngredients, setRecipeIngredients] = useState<IngredientDraft[]>(
     [],
@@ -185,6 +187,7 @@ export function RecipeWorkspace({
     setServings(recipe.servings?.toString() ?? "");
     setDifficulty(recipe.difficulty ?? "");
     setNotes(recipe.notes ?? "");
+    setReviewed(recipe.reviewed ?? false);
     setSteps(recipe.steps.map(stepDraft));
     setRecipeIngredients(
       recipe.ingredients.map((item) => ({
@@ -210,6 +213,7 @@ export function RecipeWorkspace({
     setServings("");
     setDifficulty("");
     setNotes("");
+    setReviewed(false);
     setSteps([]);
     setRecipeIngredients([]);
     setCategoryIds([]);
@@ -227,6 +231,7 @@ export function RecipeWorkspace({
       servings: servings ? Number(servings) : null,
       difficulty: difficulty || null,
       notes: notes || null,
+      reviewed,
       steps: steps.map((item, position) => ({
         position,
         text: item.text,
@@ -395,6 +400,8 @@ export function RecipeWorkspace({
                 <strong>{recipe.name}</strong>
                 <span>
                   {recipe.status === "ARCHIVED" ? "Archivada" : "Activa"}
+                  {" · "}
+                  {recipe.reviewed ? "Revisada" : "Sin revisar"}
                 </span>
               </button>
             ))}
@@ -440,6 +447,7 @@ export function RecipeWorkspace({
               <h2>{detail.name}</h2>
               {detail.description && <p>{detail.description}</p>}
               <div className="recipe-meta">
+                <span>{detail.reviewed ? "Revisada" : "Sin revisar"}</span>
                 {detail.author && <span>Por {detail.author}</span>}
                 {detail.servings && <span>{detail.servings} raciones</span>}
                 {detail.difficulty && <span>{detail.difficulty}</span>}
@@ -560,6 +568,14 @@ export function RecipeWorkspace({
                   onChange={(e) => setName(e.target.value)}
                   required
                 />
+              </label>
+              <label className="check">
+                <input
+                  type="checkbox"
+                  checked={reviewed}
+                  onChange={(event) => setReviewed(event.target.checked)}
+                />
+                Revisada
               </label>
               <label>
                 Descripción
