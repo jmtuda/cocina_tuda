@@ -9,6 +9,7 @@ export type RecipeRecord = {
   servings: number | null;
   difficulty: string | null;
   notes: string | null;
+  reviewed: boolean;
   status: 'ACTIVE' | 'ARCHIVED';
   createdAt: Date;
   updatedAt: Date;

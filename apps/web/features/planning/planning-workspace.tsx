@@ -19,6 +19,7 @@ type PlannedMeal = {
 };
 type RecipeDetail = RecipeSummary & {
   description: string | null;
+  reviewed: boolean;
   steps: Array<RecipeStep & { id: string }>;
 };
 
@@ -321,6 +322,7 @@ export function PlanningWorkspace() {
         <section className="panel recipe-detail">
           <div className="panel-title">
             <h2>{detail.name}</h2>
+            <span>{detail.reviewed ? "Revisada" : "Sin revisar"}</span>
             <button className="quiet" onClick={() => setDetail(null)}>
               Cerrar
             </button>

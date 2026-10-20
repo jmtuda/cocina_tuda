@@ -45,6 +45,7 @@ export class RecipeResponseDto {
   @ApiPropertyOptional({ nullable: true }) servings!: number | null;
   @ApiPropertyOptional({ nullable: true }) difficulty!: string | null;
   @ApiPropertyOptional({ nullable: true }) notes!: string | null;
+  @ApiProperty({ default: false }) reviewed!: boolean;
   @ApiProperty({ enum: ['ACTIVE', 'ARCHIVED'] }) status!: string;
   @ApiProperty({ type: String, format: 'date-time' }) createdAt!: Date;
   @ApiProperty({ type: String, format: 'date-time' }) updatedAt!: Date;

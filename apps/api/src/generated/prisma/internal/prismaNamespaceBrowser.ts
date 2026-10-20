@@ -97,6 +97,7 @@ export const RecipeScalarFieldEnum = {
   servings: 'servings',
   difficulty: 'difficulty',
   notes: 'notes',
+  reviewed: 'reviewed',
   status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',

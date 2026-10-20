@@ -263,3 +263,19 @@ Octava migración aplicada a producción: las tres comidas existentes reciben 2 
 La vista principal y el resumen muestran una fila por ingrediente y variante, sumando cantidades de todas las líneas guardadas. Se convierten medidas métricas equivalentes (g/kg y ml/l) y alias de unidades; las medidas incompatibles permanecen juntas en la misma fila, sin inventar equivalencias. Cantidades desconocidas, ceros, observaciones y estados parciales se conservan. La conversión usa aritmética decimal exacta. No cambia el esquema ni las líneas persistidas o su procedencia; el detalle original sigue disponible en «Editar cantidades y elementos». Los totales usan el último estado guardado, sin alterar borradores.
 
 El modal reutiliza el estilo de recetas con filas compactas y dos columnas en pantallas amplias, una en pantallas estrechas. Verificación en navegador con 23 ingredientes sintéticos: patata 3 ud, agua 1,3 l y arroz 500 g. Web: 107 pruebas correctas; typecheck, lint y build correctos. Sin cambios en Neon ni publicación de esta ampliación.
+
+### Indicador de receta revisada — 20 de octubre de 2026, local
+
+Campo `reviewed` por receta, por defecto falso. Casilla «Revisada» en el formulario compartido de creación/edición; visible como «Revisada»/«Sin revisar» en biblioteca, detalle y consulta desde planificación. Se carga, guarda y puede desmarcarse como cualquier otro dato. Se conserva al editar otros campos, cancelar, archivar/reactivar o enviar un PUT antiguo sin ese campo. POST/PUT solo aceptan booleanos; `null`, cadenas y números se rechazan. Las importaciones nuevas quedan sin revisar: la IA no decide este estado.
+
+Novena migración aditiva `20261020141000_recipe_reviewed`: columna `recipes.reviewed BOOLEAN NOT NULL DEFAULT false`; recetas anteriores sin revisar. Cliente Prisma y contratos de detalle/listado regenerados. Sin nuevas dependencias, servicios ni cambios de filtros.
+
+Verificación pertinente: 13 pruebas web de revisión/editor/Mambo, 100 unitarias de dominio/DTO/repositorio y 6 PostgreSQL de biblioteca/búsqueda correctas. Cubren marcar/desmarcar, valor predeterminado, cancelación, conservación de notas/ingredientes/Mambo y omisión en clientes anteriores, listado y búsqueda. Typecheck de web/API y lint afectado correctos. Pruebas de DB exclusivamente en PostgreSQL local desechable, sin cargar `.env` histórico. No se ha aplicado la migración a Neon ni hecho commit, push o despliegue de este campo; `AGENTS.md` previo intacto. Para publicarlo, aplicar primero la nueva migración con autorización y después API/web compatibles.
+
+### Publicación autorizada de «Revisada» — 20 de octubre de 2026
+
+El propietario autoriza Neon, GitHub y Vercel; esta autorización posterior sustituye el alcance solo-local del apartado anterior. Novena migración aplicada a la base `cocina_tuda`, rama verificada `br-morning-rain-b1ixq8dj`, PostgreSQL 16.15 y TLS con certificado validado. Las 85 recetas quedaron sin revisar, ninguna marcada automáticamente. Huellas de todas las columnas anteriores de las 16 tablas de aplicación idénticas antes/después; solo se añadió `recipes.reviewed`.
+
+Copia privada custom previa de 123024 bytes, SHA-256 `5021e646bc8e252222f835f3cfb55160fcd2033750a0d034bdbd60fa0931eb4b`, en `.private-backups/reviewed-release/`, ignorada por Git, permisos 700/600 y sin cifrar. Restauración local desechable contrastada con el mismo snapshot exportado: filas completas de las 17 tablas idénticas, incluido historial de migraciones. Las ocho migraciones previas coincidían con sus checksums. Sin pruebas ni datos sintéticos sobre Neon.
+
+Código preparado desde `fcd7e35` en `feat/recipe-reviewed`, dejando `AGENTS.md` previo fuera del commit. Publicación mediante PR con `validate` obligatorio y despliegues Git de los dos proyectos existentes de Vercel, sin alterar secretos ni protección. El resultado efectivo se verifica en GitHub/Vercel contra el commit integrado; no se presume a partir de un build local.

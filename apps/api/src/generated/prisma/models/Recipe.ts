@@ -43,6 +43,7 @@ export type RecipeMinAggregateOutputType = {
   servings: number | null;
   difficulty: string | null;
   notes: string | null;
+  reviewed: boolean | null;
   status: $Enums.RecipeStatus | null;
   createdAt: Date | null;
   updatedAt: Date | null;
@@ -58,6 +59,7 @@ export type RecipeMaxAggregateOutputType = {
   servings: number | null;
   difficulty: string | null;
   notes: string | null;
+  reviewed: boolean | null;
   status: $Enums.RecipeStatus | null;
   createdAt: Date | null;
   updatedAt: Date | null;
@@ -73,6 +75,7 @@ export type RecipeCountAggregateOutputType = {
   servings: number;
   difficulty: number;
   notes: number;
+  reviewed: number;
   status: number;
   createdAt: number;
   updatedAt: number;
@@ -97,6 +100,7 @@ export type RecipeMinAggregateInputType = {
   servings?: true;
   difficulty?: true;
   notes?: true;
+  reviewed?: true;
   status?: true;
   createdAt?: true;
   updatedAt?: true;
@@ -112,6 +116,7 @@ export type RecipeMaxAggregateInputType = {
   servings?: true;
   difficulty?: true;
   notes?: true;
+  reviewed?: true;
   status?: true;
   createdAt?: true;
   updatedAt?: true;
@@ -127,6 +132,7 @@ export type RecipeCountAggregateInputType = {
   servings?: true;
   difficulty?: true;
   notes?: true;
+  reviewed?: true;
   status?: true;
   createdAt?: true;
   updatedAt?: true;
@@ -236,6 +242,7 @@ export type RecipeGroupByOutputType = {
   servings: number | null;
   difficulty: string | null;
   notes: string | null;
+  reviewed: boolean;
   status: $Enums.RecipeStatus;
   createdAt: Date;
   updatedAt: Date;
@@ -272,6 +279,7 @@ export type RecipeWhereInput = {
   servings?: Prisma.IntNullableFilter<'Recipe'> | number | null;
   difficulty?: Prisma.StringNullableFilter<'Recipe'> | string | null;
   notes?: Prisma.StringNullableFilter<'Recipe'> | string | null;
+  reviewed?: Prisma.BoolFilter<'Recipe'> | boolean;
   status?: Prisma.EnumRecipeStatusFilter<'Recipe'> | $Enums.RecipeStatus;
   createdAt?: Prisma.DateTimeFilter<'Recipe'> | Date | string;
   updatedAt?: Prisma.DateTimeFilter<'Recipe'> | Date | string;
@@ -296,6 +304,7 @@ export type RecipeOrderByWithRelationInput = {
   servings?: Prisma.SortOrderInput | Prisma.SortOrder;
   difficulty?: Prisma.SortOrderInput | Prisma.SortOrder;
   notes?: Prisma.SortOrderInput | Prisma.SortOrder;
+  reviewed?: Prisma.SortOrder;
   status?: Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
@@ -321,6 +330,7 @@ export type RecipeWhereUniqueInput = Prisma.AtLeast<
     servings?: Prisma.IntNullableFilter<'Recipe'> | number | null;
     difficulty?: Prisma.StringNullableFilter<'Recipe'> | string | null;
     notes?: Prisma.StringNullableFilter<'Recipe'> | string | null;
+    reviewed?: Prisma.BoolFilter<'Recipe'> | boolean;
     status?: Prisma.EnumRecipeStatusFilter<'Recipe'> | $Enums.RecipeStatus;
     createdAt?: Prisma.DateTimeFilter<'Recipe'> | Date | string;
     updatedAt?: Prisma.DateTimeFilter<'Recipe'> | Date | string;
@@ -347,6 +357,7 @@ export type RecipeOrderByWithAggregationInput = {
   servings?: Prisma.SortOrderInput | Prisma.SortOrder;
   difficulty?: Prisma.SortOrderInput | Prisma.SortOrder;
   notes?: Prisma.SortOrderInput | Prisma.SortOrder;
+  reviewed?: Prisma.SortOrder;
   status?: Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
@@ -376,6 +387,7 @@ export type RecipeScalarWhereWithAggregatesInput = {
   difficulty?:
     Prisma.StringNullableWithAggregatesFilter<'Recipe'> | string | null;
   notes?: Prisma.StringNullableWithAggregatesFilter<'Recipe'> | string | null;
+  reviewed?: Prisma.BoolWithAggregatesFilter<'Recipe'> | boolean;
   status?:
     Prisma.EnumRecipeStatusWithAggregatesFilter<'Recipe'> | $Enums.RecipeStatus;
   createdAt?: Prisma.DateTimeWithAggregatesFilter<'Recipe'> | Date | string;
@@ -396,6 +408,7 @@ export type RecipeCreateInput = {
   servings?: number | null;
   difficulty?: string | null;
   notes?: string | null;
+  reviewed?: boolean;
   status?: $Enums.RecipeStatus;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -417,6 +430,7 @@ export type RecipeUncheckedCreateInput = {
   servings?: number | null;
   difficulty?: string | null;
   notes?: string | null;
+  reviewed?: boolean;
   status?: $Enums.RecipeStatus;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -438,6 +452,7 @@ export type RecipeUpdateInput = {
   servings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
   difficulty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  reviewed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   status?:
     Prisma.EnumRecipeStatusFieldUpdateOperationsInput | $Enums.RecipeStatus;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -461,6 +476,7 @@ export type RecipeUncheckedUpdateInput = {
   servings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
   difficulty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  reviewed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   status?:
     Prisma.EnumRecipeStatusFieldUpdateOperationsInput | $Enums.RecipeStatus;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -484,6 +500,7 @@ export type RecipeCreateManyInput = {
   servings?: number | null;
   difficulty?: string | null;
   notes?: string | null;
+  reviewed?: boolean;
   status?: $Enums.RecipeStatus;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -499,6 +516,7 @@ export type RecipeUpdateManyMutationInput = {
   servings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
   difficulty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  reviewed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   status?:
     Prisma.EnumRecipeStatusFieldUpdateOperationsInput | $Enums.RecipeStatus;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -516,6 +534,7 @@ export type RecipeUncheckedUpdateManyInput = {
   servings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
   difficulty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  reviewed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   status?:
     Prisma.EnumRecipeStatusFieldUpdateOperationsInput | $Enums.RecipeStatus;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -533,6 +552,7 @@ export type RecipeCountOrderByAggregateInput = {
   servings?: Prisma.SortOrder;
   difficulty?: Prisma.SortOrder;
   notes?: Prisma.SortOrder;
+  reviewed?: Prisma.SortOrder;
   status?: Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
@@ -552,6 +572,7 @@ export type RecipeMaxOrderByAggregateInput = {
   servings?: Prisma.SortOrder;
   difficulty?: Prisma.SortOrder;
   notes?: Prisma.SortOrder;
+  reviewed?: Prisma.SortOrder;
   status?: Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
@@ -567,6 +588,7 @@ export type RecipeMinOrderByAggregateInput = {
   servings?: Prisma.SortOrder;
   difficulty?: Prisma.SortOrder;
   notes?: Prisma.SortOrder;
+  reviewed?: Prisma.SortOrder;
   status?: Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
@@ -596,6 +618,10 @@ export type NullableIntFieldUpdateOperationsInput = {
   decrement?: number;
   multiply?: number;
   divide?: number;
+};
+
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean;
 };
 
 export type EnumRecipeStatusFieldUpdateOperationsInput = {
@@ -775,6 +801,7 @@ export type RecipeCreateWithoutImportConfirmationInput = {
   servings?: number | null;
   difficulty?: string | null;
   notes?: string | null;
+  reviewed?: boolean;
   status?: $Enums.RecipeStatus;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -795,6 +822,7 @@ export type RecipeUncheckedCreateWithoutImportConfirmationInput = {
   servings?: number | null;
   difficulty?: string | null;
   notes?: string | null;
+  reviewed?: boolean;
   status?: $Enums.RecipeStatus;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -843,6 +871,7 @@ export type RecipeUpdateWithoutImportConfirmationInput = {
   servings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
   difficulty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  reviewed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   status?:
     Prisma.EnumRecipeStatusFieldUpdateOperationsInput | $Enums.RecipeStatus;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -865,6 +894,7 @@ export type RecipeUncheckedUpdateWithoutImportConfirmationInput = {
   servings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
   difficulty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  reviewed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   status?:
     Prisma.EnumRecipeStatusFieldUpdateOperationsInput | $Enums.RecipeStatus;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -887,6 +917,7 @@ export type RecipeCreateWithoutPlannedMealsInput = {
   servings?: number | null;
   difficulty?: string | null;
   notes?: string | null;
+  reviewed?: boolean;
   status?: $Enums.RecipeStatus;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -907,6 +938,7 @@ export type RecipeUncheckedCreateWithoutPlannedMealsInput = {
   servings?: number | null;
   difficulty?: string | null;
   notes?: string | null;
+  reviewed?: boolean;
   status?: $Enums.RecipeStatus;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -955,6 +987,7 @@ export type RecipeUpdateWithoutPlannedMealsInput = {
   servings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
   difficulty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  reviewed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   status?:
     Prisma.EnumRecipeStatusFieldUpdateOperationsInput | $Enums.RecipeStatus;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -977,6 +1010,7 @@ export type RecipeUncheckedUpdateWithoutPlannedMealsInput = {
   servings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
   difficulty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  reviewed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   status?:
     Prisma.EnumRecipeStatusFieldUpdateOperationsInput | $Enums.RecipeStatus;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -999,6 +1033,7 @@ export type RecipeCreateWithoutStepsInput = {
   servings?: number | null;
   difficulty?: string | null;
   notes?: string | null;
+  reviewed?: boolean;
   status?: $Enums.RecipeStatus;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -1019,6 +1054,7 @@ export type RecipeUncheckedCreateWithoutStepsInput = {
   servings?: number | null;
   difficulty?: string | null;
   notes?: string | null;
+  reviewed?: boolean;
   status?: $Enums.RecipeStatus;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -1067,6 +1103,7 @@ export type RecipeUpdateWithoutStepsInput = {
   servings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
   difficulty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  reviewed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   status?:
     Prisma.EnumRecipeStatusFieldUpdateOperationsInput | $Enums.RecipeStatus;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -1089,6 +1126,7 @@ export type RecipeUncheckedUpdateWithoutStepsInput = {
   servings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
   difficulty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  reviewed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   status?:
     Prisma.EnumRecipeStatusFieldUpdateOperationsInput | $Enums.RecipeStatus;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -1111,6 +1149,7 @@ export type RecipeCreateWithoutIngredientsInput = {
   servings?: number | null;
   difficulty?: string | null;
   notes?: string | null;
+  reviewed?: boolean;
   status?: $Enums.RecipeStatus;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -1131,6 +1170,7 @@ export type RecipeUncheckedCreateWithoutIngredientsInput = {
   servings?: number | null;
   difficulty?: string | null;
   notes?: string | null;
+  reviewed?: boolean;
   status?: $Enums.RecipeStatus;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -1179,6 +1219,7 @@ export type RecipeUpdateWithoutIngredientsInput = {
   servings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
   difficulty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  reviewed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   status?:
     Prisma.EnumRecipeStatusFieldUpdateOperationsInput | $Enums.RecipeStatus;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -1201,6 +1242,7 @@ export type RecipeUncheckedUpdateWithoutIngredientsInput = {
   servings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
   difficulty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  reviewed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   status?:
     Prisma.EnumRecipeStatusFieldUpdateOperationsInput | $Enums.RecipeStatus;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -1223,6 +1265,7 @@ export type RecipeCreateWithoutCategoriesInput = {
   servings?: number | null;
   difficulty?: string | null;
   notes?: string | null;
+  reviewed?: boolean;
   status?: $Enums.RecipeStatus;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -1243,6 +1286,7 @@ export type RecipeUncheckedCreateWithoutCategoriesInput = {
   servings?: number | null;
   difficulty?: string | null;
   notes?: string | null;
+  reviewed?: boolean;
   status?: $Enums.RecipeStatus;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -1291,6 +1335,7 @@ export type RecipeUpdateWithoutCategoriesInput = {
   servings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
   difficulty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  reviewed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   status?:
     Prisma.EnumRecipeStatusFieldUpdateOperationsInput | $Enums.RecipeStatus;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -1313,6 +1358,7 @@ export type RecipeUncheckedUpdateWithoutCategoriesInput = {
   servings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
   difficulty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  reviewed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   status?:
     Prisma.EnumRecipeStatusFieldUpdateOperationsInput | $Enums.RecipeStatus;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -1335,6 +1381,7 @@ export type RecipeCreateWithoutTagsInput = {
   servings?: number | null;
   difficulty?: string | null;
   notes?: string | null;
+  reviewed?: boolean;
   status?: $Enums.RecipeStatus;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -1355,6 +1402,7 @@ export type RecipeUncheckedCreateWithoutTagsInput = {
   servings?: number | null;
   difficulty?: string | null;
   notes?: string | null;
+  reviewed?: boolean;
   status?: $Enums.RecipeStatus;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -1403,6 +1451,7 @@ export type RecipeUpdateWithoutTagsInput = {
   servings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
   difficulty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  reviewed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   status?:
     Prisma.EnumRecipeStatusFieldUpdateOperationsInput | $Enums.RecipeStatus;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -1425,6 +1474,7 @@ export type RecipeUncheckedUpdateWithoutTagsInput = {
   servings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
   difficulty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  reviewed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   status?:
     Prisma.EnumRecipeStatusFieldUpdateOperationsInput | $Enums.RecipeStatus;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -1537,6 +1587,7 @@ export type RecipeSelect<
     servings?: boolean;
     difficulty?: boolean;
     notes?: boolean;
+    reviewed?: boolean;
     status?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
@@ -1566,6 +1617,7 @@ export type RecipeSelectCreateManyAndReturn<
     servings?: boolean;
     difficulty?: boolean;
     notes?: boolean;
+    reviewed?: boolean;
     status?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
@@ -1587,6 +1639,7 @@ export type RecipeSelectUpdateManyAndReturn<
     servings?: boolean;
     difficulty?: boolean;
     notes?: boolean;
+    reviewed?: boolean;
     status?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
@@ -1604,6 +1657,7 @@ export type RecipeSelectScalar = {
   servings?: boolean;
   difficulty?: boolean;
   notes?: boolean;
+  reviewed?: boolean;
   status?: boolean;
   createdAt?: boolean;
   updatedAt?: boolean;
@@ -1622,6 +1676,7 @@ export type RecipeOmit<
   | 'servings'
   | 'difficulty'
   | 'notes'
+  | 'reviewed'
   | 'status'
   | 'createdAt'
   | 'updatedAt'
@@ -1672,6 +1727,7 @@ export type $RecipePayload<
       servings: number | null;
       difficulty: string | null;
       notes: string | null;
+      reviewed: boolean;
       status: $Enums.RecipeStatus;
       createdAt: Date;
       updatedAt: Date;
@@ -2340,6 +2396,7 @@ export interface RecipeFieldRefs {
   readonly servings: Prisma.FieldRef<'Recipe', 'Int'>;
   readonly difficulty: Prisma.FieldRef<'Recipe', 'String'>;
   readonly notes: Prisma.FieldRef<'Recipe', 'String'>;
+  readonly reviewed: Prisma.FieldRef<'Recipe', 'Boolean'>;
   readonly status: Prisma.FieldRef<'Recipe', 'RecipeStatus'>;
   readonly createdAt: Prisma.FieldRef<'Recipe', 'DateTime'>;
   readonly updatedAt: Prisma.FieldRef<'Recipe', 'DateTime'>;

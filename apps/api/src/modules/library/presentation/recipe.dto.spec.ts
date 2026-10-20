@@ -12,6 +12,27 @@ const dto = (mambo: unknown) =>
   });
 
 describe('Mambo step DTO validation', () => {
+  it.each([undefined, false, true])(
+    'accepts review status: %j',
+    async (reviewed) => {
+      const value = dto(undefined);
+      value.reviewed = reviewed;
+      expect(await validate(value)).toEqual([]);
+    },
+  );
+
+  it.each([null, '', 'false', 'true', 0, 1])(
+    'rejects non-boolean review status: %j',
+    async (reviewed) => {
+      const value = plainToInstance(SaveRecipeDto, {
+        name: 'Receta',
+        ingredients: [],
+        steps: [],
+        reviewed,
+      });
+      expect(await validate(value)).not.toEqual([]);
+    },
+  );
   it.each([
     undefined,
     null,

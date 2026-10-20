@@ -49,6 +49,7 @@ export function toRecipeRecord(recipe: PersistedRecipe): RecipeRecord {
     servings: recipe.servings,
     difficulty: recipe.difficulty,
     notes: recipe.notes,
+    reviewed: recipe.reviewed,
     status: recipe.status,
     createdAt: recipe.createdAt,
     updatedAt: recipe.updatedAt,
@@ -176,6 +177,7 @@ export class PrismaRecipeRepository implements RecipeRepository {
       servings: input.servings,
       difficulty: input.difficulty,
       notes: input.notes,
+      reviewed: input.reviewed,
       steps: {
         create: input.steps.map(({ position, text, mambo }) => {
           const configuration = normalizeMambo(mambo);

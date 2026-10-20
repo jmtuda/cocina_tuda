@@ -13,6 +13,7 @@ import {
   Max,
   ValidateNested,
   ArrayUnique,
+  ValidateIf,
 } from 'class-validator';
 
 export class MamboConfigurationDto {
@@ -94,6 +95,14 @@ export class RecipeIngredientDto {
 }
 
 export class SaveRecipeDto {
+  @ApiPropertyOptional({
+    default: false,
+    description:
+      'Human review status; omitted on update preserves the current value',
+  })
+  @ValidateIf((_object, value: unknown) => value !== undefined)
+  @IsBoolean()
+  reviewed?: boolean;
   @ApiProperty() @IsString() @IsNotEmpty() name!: string;
   @ApiPropertyOptional({ nullable: true })
   @IsOptional()

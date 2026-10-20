@@ -1,6 +1,6 @@
 # Cocina Tuda — Modelo de dominio
 
-**Versión:** 2.5
+**Versión:** 2.6
 **Estado:** Aprobado
 **Responsable:** Project Manager
 
@@ -12,7 +12,9 @@ Define los conceptos, relaciones e invariantes del MVP. La persistencia descrita
 
 ### Receta
 
-Atributos: nombre, descripción opcional, autor opcional, raciones opcionales, dificultad opcional, notas opcionales, estado, fechas de creación y modificación.
+Atributos: nombre, descripción opcional, autor opcional, raciones opcionales, dificultad opcional, notas opcionales, indicador de revisión humana, estado, fechas de creación y modificación.
+
+La receta comienza sin revisar (`reviewed=false`), también si procede de una importación. El usuario puede marcar y desmarcar «Revisada» en el formulario de creación/edición. Confirmar una importación no equivale a declarar revisada la receta y la IA no asigna ese indicador. Editar otros datos, archivar o reactivar conserva el valor; no se desmarca automáticamente. Las recetas anteriores quedan sin revisar al aplicar la migración.
 
 Relaciones: contiene pasos e ingredientes de receta; puede asociarse con categorías y etiquetas.
 

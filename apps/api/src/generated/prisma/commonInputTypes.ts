@@ -65,6 +65,11 @@ export type IntNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedIntNullableFilter<$PrismaModel> | number | null;
 };
 
+export type BoolFilter<$PrismaModel = never> = {
+  equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel>;
+  not?: Prisma.NestedBoolFilter<$PrismaModel> | boolean;
+};
+
 export type EnumRecipeStatusFilter<$PrismaModel = never> = {
   equals?:
     $Enums.RecipeStatus | Prisma.EnumRecipeStatusFieldRefInput<$PrismaModel>;
@@ -176,6 +181,14 @@ export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
   _sum?: Prisma.NestedIntNullableFilter<$PrismaModel>;
   _min?: Prisma.NestedIntNullableFilter<$PrismaModel>;
   _max?: Prisma.NestedIntNullableFilter<$PrismaModel>;
+};
+
+export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel>;
+  not?: Prisma.NestedBoolWithAggregatesFilter<$PrismaModel> | boolean;
+  _count?: Prisma.NestedIntFilter<$PrismaModel>;
+  _min?: Prisma.NestedBoolFilter<$PrismaModel>;
+  _max?: Prisma.NestedBoolFilter<$PrismaModel>;
 };
 
 export type EnumRecipeStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -323,11 +336,6 @@ export type DecimalNullableFilter<$PrismaModel = never> = {
     | null;
 };
 
-export type BoolFilter<$PrismaModel = never> = {
-  equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel>;
-  not?: Prisma.NestedBoolFilter<$PrismaModel> | boolean;
-};
-
 export type UuidNullableWithAggregatesFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel> | null;
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel> | null;
@@ -404,14 +412,6 @@ export type DecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedDecimalNullableFilter<$PrismaModel>;
 };
 
-export type BoolWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel>;
-  not?: Prisma.NestedBoolWithAggregatesFilter<$PrismaModel> | boolean;
-  _count?: Prisma.NestedIntFilter<$PrismaModel>;
-  _min?: Prisma.NestedBoolFilter<$PrismaModel>;
-  _max?: Prisma.NestedBoolFilter<$PrismaModel>;
-};
-
 export type NestedUuidFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>;
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>;
@@ -460,6 +460,11 @@ export type NestedIntNullableFilter<$PrismaModel = never> = {
   gt?: number | Prisma.IntFieldRefInput<$PrismaModel>;
   gte?: number | Prisma.IntFieldRefInput<$PrismaModel>;
   not?: Prisma.NestedIntNullableFilter<$PrismaModel> | number | null;
+};
+
+export type NestedBoolFilter<$PrismaModel = never> = {
+  equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel>;
+  not?: Prisma.NestedBoolFilter<$PrismaModel> | boolean;
 };
 
 export type NestedEnumRecipeStatusFilter<$PrismaModel = never> = {
@@ -587,6 +592,14 @@ export type NestedFloatNullableFilter<$PrismaModel = never> = {
   gt?: number | Prisma.FloatFieldRefInput<$PrismaModel>;
   gte?: number | Prisma.FloatFieldRefInput<$PrismaModel>;
   not?: Prisma.NestedFloatNullableFilter<$PrismaModel> | number | null;
+};
+
+export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel>;
+  not?: Prisma.NestedBoolWithAggregatesFilter<$PrismaModel> | boolean;
+  _count?: Prisma.NestedIntFilter<$PrismaModel>;
+  _min?: Prisma.NestedBoolFilter<$PrismaModel>;
+  _max?: Prisma.NestedBoolFilter<$PrismaModel>;
 };
 
 export type NestedEnumRecipeStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -733,11 +746,6 @@ export type NestedDecimalNullableFilter<$PrismaModel = never> = {
     | null;
 };
 
-export type NestedBoolFilter<$PrismaModel = never> = {
-  equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel>;
-  not?: Prisma.NestedBoolFilter<$PrismaModel> | boolean;
-};
-
 export type NestedUuidNullableWithAggregatesFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel> | null;
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel> | null;
@@ -811,12 +819,4 @@ export type NestedDecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
   _sum?: Prisma.NestedDecimalNullableFilter<$PrismaModel>;
   _min?: Prisma.NestedDecimalNullableFilter<$PrismaModel>;
   _max?: Prisma.NestedDecimalNullableFilter<$PrismaModel>;
-};
-
-export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel>;
-  not?: Prisma.NestedBoolWithAggregatesFilter<$PrismaModel> | boolean;
-  _count?: Prisma.NestedIntFilter<$PrismaModel>;
-  _min?: Prisma.NestedBoolFilter<$PrismaModel>;
-  _max?: Prisma.NestedBoolFilter<$PrismaModel>;
 };

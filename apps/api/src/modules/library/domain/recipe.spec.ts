@@ -2,6 +2,33 @@ import { describe, expect, it } from 'vitest';
 import { RecipeDraft, type MamboConfiguration } from './recipe.js';
 
 describe('RecipeDraft', () => {
+  it.each([undefined, false, true])(
+    'preserves explicit human review status: %j',
+    (reviewed) => {
+      expect(
+        new RecipeDraft({
+          name: 'Receta',
+          ingredients: [],
+          steps: [],
+          reviewed,
+        }).value.reviewed,
+      ).toBe(reviewed);
+    },
+  );
+  it.each([null, 'true', 1])(
+    'rejects invalid review status: %j',
+    (reviewed) => {
+      expect(
+        () =>
+          new RecipeDraft({
+            name: 'Receta',
+            ingredients: [],
+            steps: [],
+            reviewed: reviewed as unknown as boolean,
+          }),
+      ).toThrow('Reviewed must be a boolean');
+    },
+  );
   const mamboDraft = (mambo?: MamboConfiguration | null) =>
     new RecipeDraft({
       name: 'Mambo',
