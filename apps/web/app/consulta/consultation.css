@@ -1,0 +1,260 @@
+.consultation {
+  width: min(100%, 46rem);
+  margin: 0 auto;
+  padding: max(1rem, env(safe-area-inset-top))
+    max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom))
+    max(1rem, env(safe-area-inset-left));
+  font-size: 1rem;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.consultation button,
+.consultation input,
+.consultation select,
+.reader-install summary {
+  min-height: 3rem;
+  font-size: 1rem;
+}
+.consultation a:focus-visible,
+.consultation summary:focus-visible,
+.consultation button:focus-visible,
+.consultation input:focus-visible,
+.consultation select:focus-visible {
+  outline: 3px solid #b84b2c;
+  outline-offset: 3px;
+}
+.consultation h1 {
+  font-size: clamp(1.65rem, 5vw, 2.1rem);
+  line-height: 1.3;
+}
+.consultation h2 {
+  margin: 1.5rem 0 0.8rem;
+  font-size: 1.3rem;
+}
+.consultation p {
+  white-space: pre-wrap;
+  line-height: 1.65;
+}
+.reader-header,
+.reader-results-heading,
+.reader-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.reader-header {
+  padding-bottom: 1.4rem;
+  color: var(--accent);
+  font-weight: 700;
+}
+.reader-mode {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  font-weight: 400;
+}
+.reader-search {
+  display: grid;
+  gap: 1rem;
+  margin: 1.2rem 0;
+}
+.reader-search label {
+  font-size: 0.95rem;
+}
+.reader-filter-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+.reader-filter-actions button[type="submit"] {
+  background: var(--accent);
+}
+.reader-hint {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+.reader-results-heading h2 {
+  margin: 0;
+}
+.reader-results-heading {
+  margin: 1.6rem 0 0.75rem;
+}
+.reader-cards {
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.9rem;
+}
+.reader-cards > li {
+  min-width: 0;
+}
+.reader-cards a {
+  display: block;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.85rem;
+  background: var(--paper);
+  text-decoration: none;
+  color: var(--foreground);
+  touch-action: manipulation;
+}
+.reader-cards a:hover {
+  border-color: var(--accent);
+}
+.reader-cards h3 {
+  font-size: 1.15rem;
+  margin: 0 0 0.5rem;
+}
+.reader-cards p {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0.7rem 0;
+}
+.reader-cards small {
+  display: block;
+  color: var(--ink-soft);
+}
+.reader-open {
+  display: block;
+  margin-top: 0.7rem;
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.reader-badge {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: 2rem;
+  background: #eee9df;
+  color: #554d43;
+  font-size: 0.8rem;
+}
+.reader-badge.is-reviewed {
+  background: #e0efdf;
+  color: #254c26;
+}
+.reader-pagination {
+  margin: 1.25rem 0;
+  font-size: 0.85rem;
+}
+.reader-pagination button {
+  padding-left: 0.65rem;
+  padding-right: 0.65rem;
+}
+.reader-install {
+  border-top: 1px solid var(--line);
+  margin-top: 2rem;
+  padding-top: 0.8rem;
+  color: var(--ink-soft);
+}
+.reader-install summary {
+  cursor: pointer;
+  padding: 0.5rem 0;
+}
+.reader-install p {
+  font-size: 0.9rem;
+}
+.reader-back {
+  margin-bottom: 1.4rem;
+  width: 100%;
+  text-align: left;
+  background: var(--paper);
+  color: var(--accent);
+  border: 1px solid var(--line);
+}
+.reader-recipe-heading h1 {
+  margin-bottom: 0.75rem;
+}
+.reader-recipe-heading > p {
+  margin-top: 1rem;
+}
+.reader-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  margin-top: 0.75rem;
+}
+.reader-ingredients {
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
+}
+.reader-ingredients li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.2rem 0.75rem;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.reader-quantity {
+  font-weight: 700;
+}
+.reader-ingredients small,
+.reader-ingredients p {
+  grid-column: 1 / -1;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  margin: 0;
+}
+.reader-steps {
+  padding-left: 1.6rem;
+}
+.reader-steps li {
+  padding-left: 0.3rem;
+  margin-bottom: 1.5rem;
+}
+.reader-steps li::marker {
+  color: var(--accent);
+  font-weight: 700;
+}
+.reader-steps p {
+  margin-bottom: 0.55rem;
+}
+.consultation .mambo-summary {
+  padding: 0.65rem;
+  margin: 0.65rem 0;
+  border-left: 3px solid var(--accent);
+  background: var(--accent-soft);
+  border-radius: 0 0.4rem 0.4rem 0;
+  font-size: 0.95rem;
+}
+.consultation .mambo-summary p {
+  margin: 0;
+}
+.reader-notes {
+  border-top: 1px solid var(--line);
+}
+.reader-offline,
+.reader-error {
+  padding: 1rem;
+  background: #fff2da;
+  border: 1px solid #d8b675;
+  border-radius: 0.65rem;
+}
+.reader-error a {
+  display: inline-block;
+  padding: 0.75rem;
+  color: var(--accent);
+}
+.reader-footer {
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  text-align: center;
+  margin-top: 2rem;
+  padding: 1rem 0;
+}
+@media (min-width: 640px) {
+  .reader-search {
+    grid-template-columns: 1fr 1fr;
+  }
+  .reader-filter-actions {
+    grid-column: 1 / -1;
+  }
+  .reader-cards {
+    grid-template-columns: 1fr 1fr;
+  }
+}

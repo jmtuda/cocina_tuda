@@ -279,3 +279,19 @@ El propietario autoriza Neon, GitHub y Vercel; esta autorización posterior sust
 Copia privada custom previa de 123024 bytes, SHA-256 `5021e646bc8e252222f835f3cfb55160fcd2033750a0d034bdbd60fa0931eb4b`, en `.private-backups/reviewed-release/`, ignorada por Git, permisos 700/600 y sin cifrar. Restauración local desechable contrastada con el mismo snapshot exportado: filas completas de las 17 tablas idénticas, incluido historial de migraciones. Las ocho migraciones previas coincidían con sus checksums. Sin pruebas ni datos sintéticos sobre Neon.
 
 Código preparado desde `fcd7e35` en `feat/recipe-reviewed`, dejando `AGENTS.md` previo fuera del commit. Publicación mediante PR con `validate` obligatorio y despliegues Git de los dos proyectos existentes de Vercel, sin alterar secretos ni protección. El resultado efectivo se verifica en GitHub/Vercel contra el commit integrado; no se presume a partir de un build local.
+
+### Consulta móvil Android — 7 de noviembre de 2026, solo local
+
+Vista independiente `/consulta` para leer recetas activas, buscar por texto/ingrediente y filtrar por categoría. Detalle legible con ingredientes, cantidades/variantes/opcionalidad, pasos y Mambo, notas y estado de revisión sin casillas editables. Paginación, enlaces directos e historial Atrás conservan búsqueda/categoría/página. No se importan formularios de edición ni se realizan escrituras: únicamente GET a los endpoints existentes, mediante el proxy web y con `no-store`.
+
+PWA online con manifiesto scoped a `/consulta`, `display: standalone` e iconos PNG 192/512 generados por Next, sin librerías nuevas. Sin service worker, biblioteca offline ni almacenamiento de recetas en localStorage/IndexedDB/Cache Storage. Se mantiene intacta la aplicación principal y la protección de Vercel; no se cambian API, esquema, datos, secretos ni servicios.
+
+Verificación: 21 pruebas nuevas correctas, lint afectado, typecheck y build web correctos. HTTP real compilado: página/manifiesto 200 e iconos PNG con firma/dimensiones correctas. Chromium local a 320/390/768 px sin desbordamiento, botones de 48 px o más y navegación/listado/detalle/Atrás correctos con datos sintéticos; manifiesto e instalabilidad sin errores reportados por CDP. No se ha probado instalación ni login en un Android real. La demostración local de 3100/3001 es sintética y no conecta con Neon.
+
+Pendiente: revisión del propietario, publicación autorizada y prueba Android con Vercel Authentication, sin retirar protección si el navegador no ofrece instalación. No se ha hecho commit, push ni despliegue de esta vista. Se conserva `AGENTS.md` local. Alcance e instrucciones en [`mobile-consultation.md`](mobile-consultation.md).
+
+### Publicación de consulta móvil autorizada — 7 de noviembre de 2026
+
+El propietario solicita continuar con la publicación y las instrucciones de instalación/uso en Android; esta autorización sustituye el alcance solo-local anterior. Se publica mediante PR protegida y Vercel sin migración ni escrituras en Neon, cambios de API, secretos o protección. Se conserva `AGENTS.md` fuera del commit.
+
+Se ajustó el enlace de manifiesto para incluir `crossorigin="use-credentials"` también en producción: la versión instalada de Next solo lo añadía automáticamente en preview. El enlace explícito evita duplicar metadata y conserva la autenticación existente. Regresión nueva y las anteriores: 22 pruebas de consulta correctas, lint afectado correcto; la validación completa corresponde al CI obligatorio antes de integrar. Se verificará la URL de producción y los recursos protegidos contra el commit integrado. La instalación y reapertura en teléfono Android real quedan para la prueba del propietario, sin afirmarlas a partir de la emulación local.
