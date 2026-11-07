@@ -23,6 +23,8 @@ Para continuar el desarrollo: [`AGENTS.md`](AGENTS.md) y [`docs/PROJECT_STATUS.m
 
 Los cambios de alcance o arquitectura deberán actualizar la documentación correspondiente antes de implementarse.
 
+Consulta móvil en `/consulta`, solo lectura, con diseño Android y manifiesto de instalación. No cambia la aplicación de mantenimiento de `/` y necesita conexión. Publicación autorizada mediante GitHub/Vercel; uso, comprobaciones y límites de instalación en dispositivo real: [`docs/mobile-consultation.md`](docs/mobile-consultation.md).
+
 ## Requisitos
 
 - Node.js 24 LTS o posterior compatible.
