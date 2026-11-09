@@ -60,6 +60,8 @@ Durante la revisión, cada referencia muestra lo detectado por IA y su estado. P
 
 La biblioteca usa filtros compactos con selección múltiple: abre el desplegable, busca y marca opciones; «Aplicar filtros» consulta y «Borrar filtros» restablece Activas y la primera página inmediatamente. «Crear receta» es una sección independiente con el mismo editor que la edición del detalle. «Gestionar catálogos» abre un único formulario Nuevo/Editar para ingredientes, variantes, unidades, categorías y etiquetas, también durante la creación/edición sin perder el borrador. La receta conserva sus cantidades originales. Cada comida planificada indica comensales (2 por defecto); al generar compras, las cantidades conocidas se multiplican por comensales/raciones. Sin raciones o sin cantidad se conserva el valor original, sin convertir unidades. «Ver resumen» muestra la lista guardada completa en una ventana emergente. El propietario aprobó la revisión local y autorizó su integración y publicación el 15 de octubre de 2026.
 
+En «Crear receta» y «Editar», las flechas ↑/↓ permiten reordenar pasos e ingredientes. Cada fila conserva todos sus datos, incluido Mambo. El botón «Marcar como revisada» de la cabecera cambia a «✓ Revisada» y permite desmarcarla. El orden y la revisión se aplican con «Guardar cambios»/«Crear receta»; «Cancelar edición» los descarta. El editor agrupa los controles y mantiene las acciones de guardado visibles al desplazarse.
+
 Ejecutar API y web simultáneamente:
 
 ```bash
