@@ -43,6 +43,15 @@ export type ShoppingListRecord = {
   items: ShoppingItemRecord[];
 };
 
+export type ShoppingListSummary = Omit<ShoppingListRecord, 'items' | 'sources'>;
+export type ShoppingListPage = {
+  items: ShoppingListSummary[];
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+};
+
 export type GeneratedListInput = {
   name: string;
   from: string;
@@ -55,7 +64,7 @@ export const SHOPPING_REPOSITORY = Symbol('SHOPPING_REPOSITORY');
 
 export interface ShoppingRepository {
   createGenerated(input: GeneratedListInput): Promise<ShoppingListRecord>;
-  list(): Promise<ShoppingListRecord[]>;
+  list(page: number, pageSize: number): Promise<ShoppingListPage>;
   findById(id: string): Promise<ShoppingListRecord | null>;
   rename(id: string, name: string): Promise<ShoppingListRecord | null>;
   addItem(

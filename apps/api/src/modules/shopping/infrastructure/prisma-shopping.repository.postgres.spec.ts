@@ -97,7 +97,10 @@ postgres('shopping persistence on PostgreSQL', () => {
   });
 
   it('allows free manual items to be edited and permanently removed', async () => {
-    const [list] = await repository.list();
+    const {
+      items: [summary],
+    } = await repository.list();
+    const list = summary ? await repository.findById(summary.id) : null;
     if (!list) throw new Error('Lista de prueba ausente');
     const added = await repository.addItem(list.id, {
       manualName: 'Papel de cocina',

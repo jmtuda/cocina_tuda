@@ -120,8 +120,18 @@ export class ShoppingService {
     });
   }
 
-  list() {
-    return this.repository.list();
+  list(page = 1, pageSize = 20) {
+    if (
+      !Number.isSafeInteger(page) ||
+      page < 1 ||
+      !Number.isSafeInteger(pageSize) ||
+      pageSize < 1 ||
+      pageSize > 100 ||
+      !Number.isSafeInteger((page - 1) * pageSize)
+    ) {
+      throw new BadRequestException('Paginación no válida');
+    }
+    return this.repository.list(page, pageSize);
   }
 
   async get(id: string) {

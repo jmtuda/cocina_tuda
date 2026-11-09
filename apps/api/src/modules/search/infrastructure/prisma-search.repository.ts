@@ -8,10 +8,15 @@ import type {
   SearchRepository,
 } from '../application/search.repository.js';
 
-const summaryInclude = {
-  categories: { include: { category: true } },
-  tags: { include: { tag: true } },
-};
+const namedSelect = { id: true, name: true } as const;
+export const summarySelect = {
+  ...namedSelect,
+  description: true,
+  reviewed: true,
+  status: true,
+  categories: { select: { category: { select: namedSelect } } },
+  tags: { select: { tag: { select: namedSelect } } },
+} satisfies Prisma.RecipeSelect;
 
 type PersistedSummary = {
   id: string;
@@ -67,15 +72,11 @@ export class PrismaSearchRepository implements SearchRepository {
         orderBy: [{ normalizedName: 'asc' }, { id: 'asc' }],
         skip: (query.page - 1) * query.pageSize,
         take: query.pageSize,
-        include: summaryInclude,
+        select: summarySelect,
       }),
       this.prisma.recipe.count({ where }),
     ]);
-    return this.result(
-      items.map((item) => toSummary(item as PersistedSummary)),
-      query,
-      total,
-    );
+    return this.result(items.map(toSummary), query, total);
   }
 
   private async advancedSearch(query: RecipeSearchQuery) {
@@ -93,12 +94,10 @@ export class PrismaSearchRepository implements SearchRepository {
     const found = ids.length
       ? await this.prisma.recipe.findMany({
           where: { id: { in: ids } },
-          include: summaryInclude,
+          select: summarySelect,
         })
       : [];
-    const byId = new Map(
-      found.map((recipe) => [recipe.id, toSummary(recipe as PersistedSummary)]),
-    );
+    const byId = new Map(found.map((recipe) => [recipe.id, toSummary(recipe)]));
     return this.result(
       ids.flatMap((id) => {
         const recipe = byId.get(id);

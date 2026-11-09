@@ -6,6 +6,68 @@ import type { CatalogRepository } from '../application/catalog.repository.js';
 export class PrismaCatalogRepository implements CatalogRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  findIngredientById(id: string) {
+    return this.prisma.getDb().ingredient.findUnique({
+      where: { id },
+      select: { id: true, name: true, normalizedName: true },
+    });
+  }
+
+  findIngredientByNormalizedName(normalizedName: string) {
+    return this.prisma.getDb().ingredient.findUnique({
+      where: { normalizedName },
+      select: { id: true, name: true, normalizedName: true },
+    });
+  }
+
+  findVariantById(ingredientId: string, id: string) {
+    return this.prisma.getDb().ingredientVariant.findUnique({
+      where: { id, ingredientId },
+      select: {
+        id: true,
+        ingredientId: true,
+        name: true,
+        normalizedName: true,
+      },
+    });
+  }
+
+  findVariantByNormalizedName(ingredientId: string, normalizedName: string) {
+    return this.prisma.getDb().ingredientVariant.findUnique({
+      where: { ingredientId_normalizedName: { ingredientId, normalizedName } },
+      select: {
+        id: true,
+        ingredientId: true,
+        name: true,
+        normalizedName: true,
+      },
+    });
+  }
+
+  findUnitById(id: string) {
+    return this.prisma.getDb().unit.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        abbreviation: true,
+        normalizedName: true,
+      },
+    });
+  }
+
+  findUnitByNormalizedName(normalizedName: string) {
+    return this.prisma.getDb().unit.findUnique({
+      where: { normalizedName },
+      select: {
+        id: true,
+        name: true,
+        abbreviation: true,
+        normalizedName: true,
+      },
+    });
+  }
+
   async removeIngredient(id: string): Promise<void> {
     await this.prisma.getDb().ingredient.delete({ where: { id } });
   }

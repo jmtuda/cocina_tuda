@@ -3,6 +3,18 @@ import type { Ingredient, IngredientVariant, Unit } from '../domain/catalog.js';
 export const CATALOG_REPOSITORY = Symbol('CATALOG_REPOSITORY');
 
 export interface CatalogRepository {
+  findIngredientById(id: string): Promise<Ingredient | null>;
+  findIngredientByNormalizedName(name: string): Promise<Ingredient | null>;
+  findVariantById(
+    ingredientId: string,
+    id: string,
+  ): Promise<IngredientVariant | null>;
+  findVariantByNormalizedName(
+    ingredientId: string,
+    name: string,
+  ): Promise<IngredientVariant | null>;
+  findUnitById(id: string): Promise<Unit | null>;
+  findUnitByNormalizedName(name: string): Promise<Unit | null>;
   removeIngredient(id: string): Promise<void>;
   removeVariant(ingredientId: string, id: string): Promise<void>;
   removeUnit(id: string): Promise<void>;

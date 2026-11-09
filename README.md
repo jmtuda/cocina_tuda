@@ -62,6 +62,8 @@ La biblioteca usa filtros compactos con selección múltiple: abre el desplegabl
 
 En «Crear receta» y «Editar», las flechas ↑/↓ permiten reordenar pasos e ingredientes. Cada fila conserva todos sus datos, incluido Mambo. El botón «Marcar como revisada» de la cabecera cambia a «✓ Revisada» y permite desmarcarla. El orden y la revisión se aplican con «Guardar cambios»/«Crear receta»; «Cancelar edición» los descarta. El editor agrupa los controles y mantiene las acciones de guardado visibles al desplazarse.
 
+Optimización de transferencias Neon: las recetas y líneas de compra reutilizan la respuesta guardada sin releer el detalle; las referencias de catálogo se consultan de forma específica. Compras carga metadatos paginados y abre el contenido completo solo al consultar una lista. El nuevo formato de `GET /api/v1/shopping-lists` requiere publicar API y web coordinadamente. Contrato, comprobaciones y límites: [`docs/neon-transfer.md`](docs/neon-transfer.md).
+
 Ejecutar API y web simultáneamente:
 
 ```bash

@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CatalogName } from '../domain/catalog.js';
+import { CatalogName, normalizeName } from '../domain/catalog.js';
 import {
   CATALOG_REPOSITORY,
   type CatalogRepository,
@@ -145,26 +145,47 @@ export class CatalogService {
     return this.repository.listUnits();
   }
 
+  findIngredientById(id: string) {
+    return this.repository.findIngredientById(id);
+  }
+
+  findIngredientByName(name: string) {
+    return this.repository.findIngredientByNormalizedName(normalizeName(name));
+  }
+
+  findVariantById(ingredientId: string, id: string) {
+    return this.repository.findVariantById(ingredientId, id);
+  }
+
+  findVariantByName(ingredientId: string, name: string) {
+    return this.repository.findVariantByNormalizedName(
+      ingredientId,
+      normalizeName(name),
+    );
+  }
+
+  findUnitById(id: string) {
+    return this.repository.findUnitById(id);
+  }
+
+  findUnitByName(name: string) {
+    return this.repository.findUnitByNormalizedName(normalizeName(name));
+  }
+
   async findShoppingCatalogReference(input: {
     ingredientId: string;
     variantId?: string | null;
     unitId?: string | null;
   }) {
-    const [ingredients, units] = await Promise.all([
-      this.repository.listIngredients(),
-      this.repository.listUnits(),
+    const [ingredient, variant, unit] = await Promise.all([
+      this.findIngredientById(input.ingredientId),
+      input.variantId
+        ? this.findVariantById(input.ingredientId, input.variantId)
+        : null,
+      input.unitId ? this.findUnitById(input.unitId) : null,
     ]);
-    const ingredient = ingredients.find(
-      (item) => item.id === input.ingredientId,
-    );
     if (!ingredient) return null;
-    const variant = input.variantId
-      ? ingredient.variants.find((item) => item.id === input.variantId)
-      : null;
     if (input.variantId && !variant) return null;
-    const unit = input.unitId
-      ? units.find((item) => item.id === input.unitId)
-      : null;
     if (input.unitId && !unit) return null;
     return {
       ingredientId: ingredient.id,
@@ -178,8 +199,7 @@ export class CatalogService {
   }
 
   async findShoppingUnitReference(unitId: string) {
-    const units = await this.repository.listUnits();
-    return units.find((item) => item.id === unitId) ?? null;
+    return this.findUnitById(unitId);
   }
 
   private handleConflict(error: unknown, message: string): never {

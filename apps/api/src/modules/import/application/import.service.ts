@@ -205,8 +205,7 @@ export class ImportService {
     if (reference.existingId) return reference.existingId;
     if (reference.createName) {
       this.assertNoCollision(
-        reference.createName,
-        await this.catalog.listIngredients(),
+        await this.catalog.findIngredientByName(reference.createName),
         'ingrediente',
       );
       return (await this.catalog.createIngredient(reference.createName)).id;
@@ -219,11 +218,13 @@ export class ImportService {
     reference: ConfirmedReference,
   ) {
     if (reference.discarded) return undefined;
-    const base = (await this.catalog.listIngredients()).find(
-      (item) => item.id === ingredientId,
-    );
     if (reference.existingId) {
-      if (!base?.variants.some((item) => item.id === reference.existingId))
+      if (
+        !(await this.catalog.findVariantById(
+          ingredientId,
+          reference.existingId,
+        ))
+      )
         throw new BadRequestException(
           'La variante debe pertenecer al ingrediente seleccionado',
         );
@@ -231,8 +232,10 @@ export class ImportService {
     }
     if (reference.createName) {
       this.assertNoCollision(
-        reference.createName,
-        base?.variants ?? [],
+        await this.catalog.findVariantByName(
+          ingredientId,
+          reference.createName,
+        ),
         'variante',
       );
       return (
@@ -247,8 +250,7 @@ export class ImportService {
     if (reference.existingId) return reference.existingId;
     if (reference.createName && reference.createAbbreviation) {
       this.assertNoCollision(
-        reference.createName,
-        await this.catalog.listUnits(),
+        await this.catalog.findUnitByName(reference.createName),
         'unidad',
       );
       return (
@@ -330,10 +332,7 @@ export class ImportService {
     return raw as RawRecipeProposal;
   }
 
-  private assertNoCollision(name: string, existing: Named[], kind: string) {
-    const collision = existing.find(
-      (item) => item.normalizedName === normalizeName(name),
-    );
+  private assertNoCollision(collision: Named | null, kind: string) {
     if (collision)
       throw new ConflictException(
         `Ya existe ${kind} «${collision.name}». Resuelve explícitamente contra el catálogo existente.`,

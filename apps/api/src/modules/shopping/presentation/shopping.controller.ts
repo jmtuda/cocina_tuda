@@ -9,6 +9,7 @@ import {
   Patch,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import {
   ApiCreatedResponse,
@@ -23,6 +24,8 @@ import {
   SaveShoppingItemDto,
   ShoppingItemResponseDto,
   ShoppingListResponseDto,
+  ShoppingListPageResponseDto,
+  ShoppingListQueryDto,
 } from './shopping.dto.js';
 
 @ApiTags('shopping')
@@ -31,9 +34,9 @@ export class ShoppingController {
   constructor(private readonly shopping: ShoppingService) {}
 
   @Get()
-  @ApiOkResponse({ type: [ShoppingListResponseDto] })
-  list() {
-    return this.shopping.list();
+  @ApiOkResponse({ type: ShoppingListPageResponseDto })
+  list(@Query() query: ShoppingListQueryDto) {
+    return this.shopping.list(query.page, query.pageSize);
   }
 
   @Get(':id')

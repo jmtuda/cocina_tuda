@@ -10,17 +10,46 @@ import type {
   ShoppingRepository,
 } from '../application/shopping.repository.js';
 
-const detailInclude = {
-  sources: { orderBy: { plannedDate: 'asc' as const } },
-  items: {
-    orderBy: { position: 'asc' as const },
-    include: {
-      ingredient: true,
-      variant: true,
-      unit: true,
-      sources: { include: { listSource: true } },
+const sourceSelect = {
+  plannedMealId: true,
+  recipeId: true,
+  recipeName: true,
+  plannedDate: true,
+} as const;
+const itemSelect = {
+  id: true,
+  position: true,
+  ingredientId: true,
+  variantId: true,
+  manualName: true,
+  quantity: true,
+  unitId: true,
+  observations: true,
+  optional: true,
+  purchased: true,
+  ingredient: { select: { id: true, name: true } },
+  variant: { select: { id: true, name: true } },
+  unit: { select: { id: true, name: true, abbreviation: true } },
+  sources: {
+    select: {
+      recipeIngredientId: true,
+      listSource: { select: sourceSelect },
     },
   },
+} as const;
+const summarySelect = {
+  id: true,
+  name: true,
+  sourceFrom: true,
+  sourceTo: true,
+  generatedAt: true,
+  createdAt: true,
+  updatedAt: true,
+} as const;
+const detailSelect = {
+  ...summarySelect,
+  sources: { orderBy: { plannedDate: 'asc' as const }, select: sourceSelect },
+  items: { orderBy: { position: 'asc' as const }, select: itemSelect },
 };
 
 type PersistedItem = {
@@ -184,18 +213,33 @@ export class PrismaShoppingRepository implements ShoppingRepository {
     return result;
   }
 
-  async list() {
-    const lists = await this.prisma.shoppingList.findMany({
-      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-      include: detailInclude,
-    });
-    return lists.map((list) => toList(list));
+  async list(page = 1, pageSize = 20) {
+    const [lists, total] = await Promise.all([
+      this.prisma.shoppingList.findMany({
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        select: summarySelect,
+      }),
+      this.prisma.shoppingList.count(),
+    ]);
+    return {
+      items: lists.map((list) => ({
+        ...list,
+        sourceFrom: list.sourceFrom ? utcToShoppingDate(list.sourceFrom) : null,
+        sourceTo: list.sourceTo ? utcToShoppingDate(list.sourceTo) : null,
+      })),
+      page,
+      pageSize,
+      total,
+      totalPages: Math.ceil(total / pageSize),
+    };
   }
 
   async findById(id: string) {
     const list = await this.prisma.shoppingList.findUnique({
       where: { id },
-      include: detailInclude,
+      select: detailSelect,
     });
     return list ? toList(list) : null;
   }
@@ -213,7 +257,11 @@ export class PrismaShoppingRepository implements ShoppingRepository {
       where: { id: listId },
       select: {
         id: true,
-        items: { orderBy: { position: 'desc' }, take: 1 },
+        items: {
+          orderBy: { position: 'desc' },
+          take: 1,
+          select: { position: true },
+        },
       },
     });
     if (!list) return null;
@@ -223,7 +271,7 @@ export class PrismaShoppingRepository implements ShoppingRepository {
         position: (list.items[0]?.position ?? -1) + 1,
         ...this.itemData(input),
       },
-      include: detailInclude.items.include,
+      select: itemSelect,
     });
     return toItem(item);
   }
@@ -231,12 +279,13 @@ export class PrismaShoppingRepository implements ShoppingRepository {
   async updateItem(listId: string, itemId: string, input: ShoppingItemInput) {
     const exists = await this.prisma.shoppingItem.findFirst({
       where: { id: itemId, shoppingListId: listId },
+      select: { id: true },
     });
     if (!exists) return null;
     const item = await this.prisma.shoppingItem.update({
       where: { id: itemId },
       data: this.itemData(input),
-      include: detailInclude.items.include,
+      select: itemSelect,
     });
     return toItem(item);
   }

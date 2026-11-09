@@ -180,6 +180,72 @@ postgres('recipe search on PostgreSQL', () => {
     }
   });
 
+  it('reads planning references and shopping snapshots without changing their public data', async () => {
+    const recipes = new PrismaRecipeRepository(prisma);
+    const created = await recipes.create({
+      name: 'Referencia ligera',
+      servings: 2,
+      notes: 'Nota que no necesitan las referencias',
+      steps: [
+        {
+          position: 0,
+          text: 'Cocer',
+          mambo: { speed: 0, durationSeconds: 90 },
+        },
+      ],
+      ingredients: [
+        {
+          position: 0,
+          ingredientId: basilId,
+          quantity: '0',
+          optional: true,
+          observations: 'Al gusto',
+        },
+      ],
+    });
+    try {
+      expect(await recipes.findRecipeReference(created.id)).toEqual({
+        id: created.id,
+        name: created.name,
+        status: 'ACTIVE',
+      });
+      const snapshot = await recipes.findShoppingRecipeSnapshot(created.id);
+      expect(snapshot).toEqual({
+        id: created.id,
+        name: created.name,
+        status: 'ACTIVE',
+        servings: 2,
+        ingredients: [
+          {
+            id: created.ingredients[0].id,
+            ingredientId: basilId,
+            ingredientName: 'Albahaca',
+            variantId: null,
+            variantName: null,
+            quantity: '0',
+            unitId: null,
+            unitName: null,
+            unitAbbreviation: null,
+            optional: true,
+            observations: 'Al gusto',
+          },
+        ],
+      });
+      expect(
+        await recipes.findRecipeReference(
+          '00000000-0000-4000-8000-000000000001',
+        ),
+      ).toBeNull();
+      expect(
+        await recipes.findShoppingRecipeSnapshot(
+          '00000000-0000-4000-8000-000000000001',
+        ),
+      ).toBeNull();
+    } finally {
+      await prisma.recipe.delete({ where: { id: created.id } });
+    }
+  });
+
   it('roundtrips optional Mambo configuration, zeros, edits and removal on PostgreSQL', async () => {
     const recipes = new PrismaRecipeRepository(prisma);
     const input: RecipeInput = {

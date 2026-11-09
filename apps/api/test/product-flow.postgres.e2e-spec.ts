@@ -354,6 +354,44 @@ postgres('product flow on PostgreSQL', () => {
         sources: Array<{ plannedMealId: string }>;
       }>;
     }>(generated);
+    const collection = bodyAs<{
+      items: Array<Record<string, unknown>>;
+      page: number;
+      pageSize: number;
+      total: number;
+      totalPages: number;
+    }>(
+      await request(server)
+        .get('/api/v1/shopping-lists?page=1&pageSize=1')
+        .expect(200),
+    );
+    expect(collection).toMatchObject({
+      page: 1,
+      pageSize: 1,
+      totalPages: collection.total,
+    });
+    expect(collection.items).toHaveLength(1);
+    expect(collection.items[0]).toMatchObject({
+      id: list.id,
+      name: 'Compra semanal',
+    });
+    expect(collection.items[0]).not.toHaveProperty('items');
+    expect(collection.items[0]).not.toHaveProperty('sources');
+    for (const query of [
+      'page=0',
+      'page=1.5',
+      'pageSize=101',
+      'pageSize=0',
+      'page=no',
+    ]) {
+      await request(server).get(`/api/v1/shopping-lists?${query}`).expect(400);
+    }
+    const emptyPage = bodyAs<{ items: unknown[] }>(
+      await request(server)
+        .get('/api/v1/shopping-lists?page=999&pageSize=100')
+        .expect(200),
+    );
+    expect(emptyPage.items).toEqual([]);
     expect(list.sources).toEqual([
       expect.objectContaining({
         plannedMealId: includedId,

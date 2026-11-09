@@ -143,14 +143,13 @@ describe("RecipeWorkspace", () => {
         new Response(JSON.stringify({ items: [summary], totalPages: 1 })),
       )
       .mockResolvedValueOnce(new Response(JSON.stringify(detail)))
-      .mockResolvedValueOnce(new Response(JSON.stringify(detail)))
-      .mockResolvedValueOnce(
-        new Response(JSON.stringify({ items: [summary], totalPages: 1 })),
-      )
       .mockResolvedValueOnce(
         new Response(
           JSON.stringify({ ...detail, name: "Ensalada actualizada" }),
         ),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ items: [summary], totalPages: 1 })),
       );
     vi.stubGlobal("fetch", fetchMock);
     const user = userEvent.setup();
@@ -187,7 +186,13 @@ describe("RecipeWorkspace", () => {
     expect(screen.getByLabelText("Nombre")).toHaveValue("Ensalada");
 
     await user.click(screen.getByRole("button", { name: "Guardar cambios" }));
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(9));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(8));
+    expect(
+      fetchMock.mock.calls.filter(
+        ([url, init]) =>
+          String(url).endsWith("/recipes/recipe-id") && !init?.method,
+      ),
+    ).toHaveLength(1);
     expect(
       screen.queryByRole("button", { name: "Guardar cambios" }),
     ).not.toBeInTheDocument();
