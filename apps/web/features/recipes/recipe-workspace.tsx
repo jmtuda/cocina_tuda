@@ -21,6 +21,7 @@ type Ingredient = Named & { variants: Variant[] };
 type Unit = Named & { abbreviation: string };
 
 type IngredientDraft = {
+  key: string;
   ingredientId: string;
   variantId: string;
   quantity: string;
@@ -55,6 +56,7 @@ type RecipeDetail = Summary & {
 };
 
 const emptyIngredient = (): IngredientDraft => ({
+  key: crypto.randomUUID(),
   ingredientId: "",
   variantId: "",
   quantity: "",
@@ -62,6 +64,55 @@ const emptyIngredient = (): IngredientDraft => ({
   optional: false,
   observations: "",
 });
+
+type EditorStep = StepDraft & { key: string };
+
+function moveItem<T>(items: T[], index: number, direction: -1 | 1): T[] {
+  const target = index + direction;
+  if (
+    index < 0 ||
+    index >= items.length ||
+    target < 0 ||
+    target >= items.length
+  )
+    return items;
+  const next = [...items];
+  [next[index], next[target]] = [next[target], next[index]];
+  return next;
+}
+
+function ReorderButtons({
+  item,
+  index,
+  count,
+  onMove,
+}: {
+  item: "paso" | "ingrediente";
+  index: number;
+  count: number;
+  onMove(direction: -1 | 1): void;
+}) {
+  return (
+    <>
+      {([-1, 1] as const).map((direction) => {
+        const label = `${direction === -1 ? "Subir" : "Bajar"} ${item} ${index + 1}`;
+        return (
+          <button
+            key={direction}
+            type="button"
+            className="quiet"
+            aria-label={label}
+            title={label}
+            disabled={direction === -1 ? index === 0 : index === count - 1}
+            onClick={() => onMove(direction)}
+          >
+            <span aria-hidden="true">{direction === -1 ? "↑" : "↓"}</span>
+          </button>
+        );
+      })}
+    </>
+  );
+}
 
 export function RecipeWorkspace({
   mode = "library",
@@ -92,7 +143,7 @@ export function RecipeWorkspace({
   const [difficulty, setDifficulty] = useState("");
   const [notes, setNotes] = useState("");
   const [reviewed, setReviewed] = useState(false);
-  const [steps, setSteps] = useState<StepDraft[]>([]);
+  const [steps, setSteps] = useState<EditorStep[]>([]);
   const [recipeIngredients, setRecipeIngredients] = useState<IngredientDraft[]>(
     [],
   );
@@ -188,9 +239,15 @@ export function RecipeWorkspace({
     setDifficulty(recipe.difficulty ?? "");
     setNotes(recipe.notes ?? "");
     setReviewed(recipe.reviewed ?? false);
-    setSteps(recipe.steps.map(stepDraft));
+    setSteps(
+      recipe.steps.map((step) => ({
+        ...stepDraft(step),
+        key: crypto.randomUUID(),
+      })),
+    );
     setRecipeIngredients(
       recipe.ingredients.map((item) => ({
+        key: crypto.randomUUID(),
         ingredientId: item.ingredientId,
         variantId: item.variantId ?? "",
         quantity: item.quantity ?? "",
@@ -548,6 +605,20 @@ export function RecipeWorkspace({
             >
               <div className="panel-title">
                 <h2>{recipeId ? "Editar receta" : "Crear receta"}</h2>
+                <button
+                  type="button"
+                  className="quiet recipe-review-toggle"
+                  aria-pressed={reviewed}
+                  aria-label={
+                    reviewed
+                      ? "Marcar como sin revisar"
+                      : "Marcar como revisada"
+                  }
+                  title="El estado de revisión se aplica al guardar la receta"
+                  onClick={() => setReviewed((current) => !current)}
+                >
+                  {reviewed ? "✓ Revisada" : "Marcar como revisada"}
+                </button>
                 {recipeId && (
                   <button
                     type="button"
@@ -569,14 +640,7 @@ export function RecipeWorkspace({
                   required
                 />
               </label>
-              <label className="check">
-                <input
-                  type="checkbox"
-                  checked={reviewed}
-                  onChange={(event) => setReviewed(event.target.checked)}
-                />
-                Revisada
-              </label>
+
               <label>
                 Descripción
                 <textarea
@@ -623,32 +687,53 @@ export function RecipeWorkspace({
                   <button
                     type="button"
                     onClick={() =>
-                      setSteps((current) => [...current, { text: "" }])
+                      setSteps((current) => [
+                        ...current,
+                        { text: "", key: crypto.randomUUID() },
+                      ])
                     }
                   >
                     Añadir paso
                   </button>
                 </div>
                 {steps.map((item, index) => (
-                  <div className="recipe-step-editor" key={index}>
+                  <div className="recipe-step-editor" key={item.key}>
                     <label>
                       Paso {index + 1}
                       <textarea
+                        rows={2}
                         value={item.text}
                         onChange={(e) => updateStep(index, e.target.value)}
                         required
                       />
                     </label>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setSteps((current) =>
-                          current.filter((_, itemIndex) => itemIndex !== index),
-                        )
-                      }
-                    >
-                      Eliminar paso
-                    </button>
+                    <div className="recipe-row-tools">
+                      <ReorderButtons
+                        item="paso"
+                        index={index}
+                        count={steps.length}
+                        onMove={(direction) =>
+                          setSteps((current) =>
+                            moveItem(current, index, direction),
+                          )
+                        }
+                      />
+                      <button
+                        type="button"
+                        className="quiet"
+                        aria-label={`Eliminar paso ${index + 1}`}
+                        title={`Eliminar paso ${index + 1}`}
+                        onClick={() =>
+                          setSteps((current) =>
+                            current.filter(
+                              (_, itemIndex) => itemIndex !== index,
+                            ),
+                          )
+                        }
+                      >
+                        <span aria-hidden="true">×</span>
+                      </button>
+                    </div>
                     <MamboEditor
                       step={index + 1}
                       value={item.mambo}
@@ -685,7 +770,7 @@ export function RecipeWorkspace({
                       (ingredient) => ingredient.id === item.ingredientId,
                     )?.variants ?? [];
                   return (
-                    <div className="recipe-ingredient-row" key={index}>
+                    <div className="recipe-ingredient-row" key={item.key}>
                       <label>
                         Ingrediente {index + 1}
                         <select
@@ -753,7 +838,7 @@ export function RecipeWorkspace({
                           ))}
                         </select>
                       </label>
-                      <label>
+                      <label className="check recipe-optional">
                         Opcional
                         <input
                           type="checkbox"
@@ -765,7 +850,7 @@ export function RecipeWorkspace({
                           }
                         />
                       </label>
-                      <label>
+                      <label className="recipe-ingredient-observations">
                         Observaciones
                         <input
                           value={item.observations}
@@ -776,18 +861,33 @@ export function RecipeWorkspace({
                           }
                         />
                       </label>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setRecipeIngredients((current) =>
-                            current.filter(
-                              (_, itemIndex) => itemIndex !== index,
-                            ),
-                          )
-                        }
-                      >
-                        Eliminar ingrediente
-                      </button>
+                      <div className="recipe-row-tools">
+                        <ReorderButtons
+                          item="ingrediente"
+                          index={index}
+                          count={recipeIngredients.length}
+                          onMove={(direction) =>
+                            setRecipeIngredients((current) =>
+                              moveItem(current, index, direction),
+                            )
+                          }
+                        />
+                        <button
+                          type="button"
+                          className="quiet"
+                          aria-label={`Eliminar ingrediente ${index + 1}`}
+                          title={`Eliminar ingrediente ${index + 1}`}
+                          onClick={() =>
+                            setRecipeIngredients((current) =>
+                              current.filter(
+                                (_, itemIndex) => itemIndex !== index,
+                              ),
+                            )
+                          }
+                        >
+                          <span aria-hidden="true">×</span>
+                        </button>
+                      </div>
                     </div>
                   );
                 })}
@@ -807,21 +907,24 @@ export function RecipeWorkspace({
                   onChange={setTagIds}
                 />
               </div>
-              <button className="primary">
-                {recipeId ? "Guardar cambios" : "Crear receta"}
-              </button>
-              {detail && (
-                <button
-                  type="button"
-                  className="quiet"
-                  onClick={() => {
-                    fillEditor(detail);
-                    setEditing(false);
-                  }}
-                >
-                  Cancelar edición
+              <div className="recipe-editor-footer">
+                <button className="primary">
+                  {recipeId ? "Guardar cambios" : "Crear receta"}
                 </button>
-              )}
+                {detail && (
+                  <button
+                    type="button"
+                    className="quiet"
+                    onClick={() => {
+                      fillEditor(detail);
+                      setEditing(false);
+                    }}
+                  >
+                    Cancelar edición
+                  </button>
+                )}
+                <small>El orden y la revisión se aplican al guardar.</small>
+              </div>
             </form>
           </>
         )}

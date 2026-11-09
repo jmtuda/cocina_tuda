@@ -63,11 +63,13 @@ it.each([false, true])(
     render(<RecipeWorkspace mode="create" />);
     await screen.findByText("Biblioteca lista.");
     expect(
-      screen.getByRole("checkbox", { name: "Revisada" }),
-    ).not.toBeChecked();
+      screen.getByRole("button", { name: "Marcar como revisada" }),
+    ).toHaveAttribute("aria-pressed", "false");
     await user.type(screen.getByLabelText("Nombre"), "Nueva receta");
     if (reviewed)
-      await user.click(screen.getByRole("checkbox", { name: "Revisada" }));
+      await user.click(
+        screen.getByRole("button", { name: "Marcar como revisada" }),
+      );
     await user.click(screen.getByRole("button", { name: "Crear receta" }));
     await screen.findByText("Receta guardada.");
     expect(writes[0].reviewed).toBe(reviewed);
@@ -87,12 +89,16 @@ it("toggles reviewed, preserves it when editing notes and cancels changes withou
     await screen.findByRole("button", { name: /Receta.*Sin revisar/ }),
   );
   await user.click(screen.getByRole("button", { name: "Editar" }));
-  await user.click(screen.getByRole("checkbox", { name: "Revisada" }));
+  await user.click(
+    screen.getByRole("button", { name: "Marcar como revisada" }),
+  );
   await user.click(screen.getByRole("button", { name: "Guardar cambios" }));
   await screen.findByText("Receta guardada.");
   expect(writes[0].reviewed).toBe(true);
   await user.click(screen.getByRole("button", { name: "Editar" }));
-  expect(screen.getByRole("checkbox", { name: "Revisada" })).toBeChecked();
+  expect(
+    screen.getByRole("button", { name: "Marcar como sin revisar" }),
+  ).toHaveAttribute("aria-pressed", "true");
   await user.type(screen.getByLabelText("Notas"), "Otra nota");
   await user.click(screen.getByRole("button", { name: "Guardar cambios" }));
   await screen.findByText("Receta guardada.");
@@ -102,12 +108,18 @@ it("toggles reviewed, preserves it when editing notes and cancels changes withou
     steps: initial.steps,
   });
   await user.click(screen.getByRole("button", { name: "Editar" }));
-  await user.click(screen.getByRole("checkbox", { name: "Revisada" }));
+  await user.click(
+    screen.getByRole("button", { name: "Marcar como sin revisar" }),
+  );
   await user.click(screen.getByRole("button", { name: "Cancelar edición" }));
   expect(writes).toHaveLength(2);
   await user.click(screen.getByRole("button", { name: "Editar" }));
-  expect(screen.getByRole("checkbox", { name: "Revisada" })).toBeChecked();
-  await user.click(screen.getByRole("checkbox", { name: "Revisada" }));
+  expect(
+    screen.getByRole("button", { name: "Marcar como sin revisar" }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await user.click(
+    screen.getByRole("button", { name: "Marcar como sin revisar" }),
+  );
   await user.click(screen.getByRole("button", { name: "Guardar cambios" }));
   await waitFor(() => expect(writes).toHaveLength(3));
   expect(writes[2].reviewed).toBe(false);
