@@ -316,18 +316,20 @@ export function RecipeWorkspace({
     );
     if (!response.ok)
       throw new Error(await responseError(response, "No se pudo guardar"));
-    const recipe = (await response.json()) as {
-      id: string;
-      status: "ACTIVE" | "ARCHIVED";
-    };
-    setRecipeId(recipe.id);
-    setRecipeStatus(recipe.status);
-    setMessage(
-      recipeId ? "Receta actualizada." : "Receta creada y persistida.",
-    );
-    await loadRecipes(1);
-    await openRecipe(recipe.id);
+    const recipe = (await response.json()) as RecipeDetail;
+    setDetail(recipe);
+    setEditing(false);
+    fillEditor(recipe);
     setMessage("Receta guardada.");
+    if (mode === "library") {
+      try {
+        await loadRecipes(1);
+      } catch {
+        setMessage(
+          "Receta guardada. No se pudo actualizar el listado; aplica los filtros para recargarlo.",
+        );
+      }
+    }
   }
 
   async function setArchived(archive: boolean) {
@@ -345,7 +347,10 @@ export function RecipeWorkspace({
 
   useEffect(() => {
     void safely(async () => {
-      await Promise.all([refreshCatalogs(), loadRecipes(1)]);
+      await Promise.all([
+        refreshCatalogs(),
+        ...(mode === "library" ? [loadRecipes(1)] : []),
+      ]);
       setMessage("Biblioteca lista.");
     });
     // La carga inicial debe ejecutarse una sola vez al abrir esta sección.

@@ -1,6 +1,7 @@
 import { BadGatewayException, BadRequestException } from '@nestjs/common';
 import { describe, expect, it, vi } from 'vitest';
 import type { CatalogService } from '../../catalog/application/catalog.service.js';
+import { normalizeName } from '../../catalog/domain/catalog.js';
 import type { ClassificationService } from '../../catalog/application/classification.service.js';
 import type { RecipeService } from '../../library/application/recipe.service.js';
 import type { RecipeInterpreter } from './recipe-interpreter.js';
@@ -68,6 +69,44 @@ function harness(interpreted: unknown = raw) {
     },
   };
   const catalog = {
+    findIngredientByName: vi.fn((name: string) =>
+      Promise.resolve(
+        normalizeName(name) === 'tomate'
+          ? { id: 'tomato-id', name: 'Tomate', normalizedName: 'tomate' }
+          : null,
+      ),
+    ),
+    findVariantById: vi.fn((ingredientId: string, id: string) =>
+      Promise.resolve(
+        ingredientId === 'tomato-id' && id === 'cherry-id'
+          ? { id, ingredientId, name: 'Cherry', normalizedName: 'cherry' }
+          : null,
+      ),
+    ),
+    findVariantByName: vi.fn((ingredientId: string, name: string) =>
+      Promise.resolve(
+        ingredientId === 'tomato-id' && normalizeName(name) === 'cherry'
+          ? {
+              id: 'cherry-id',
+              ingredientId,
+              name: 'Cherry',
+              normalizedName: 'cherry',
+            }
+          : null,
+      ),
+    ),
+    findUnitByName: vi.fn((name: string) =>
+      Promise.resolve(
+        normalizeName(name) === 'gramo'
+          ? {
+              id: 'gram-id',
+              name: 'Gramo',
+              normalizedName: 'gramo',
+              abbreviation: 'g',
+            }
+          : null,
+      ),
+    ),
     listIngredients: vi.fn(() =>
       Promise.resolve([
         {
@@ -431,5 +470,70 @@ describe('ImportService', () => {
     expect(repeated.id).toBe('recipe-id');
     expect(recipes.create).toHaveBeenCalledTimes(1);
     expect(recipes.get).toHaveBeenCalledWith('recipe-id');
+  });
+
+  it('confirms selected and new references without reading full catalogs, including on retry', async () => {
+    const { service, catalog, recipes } = harness();
+    catalog.listIngredients.mockRejectedValue(new Error('Full catalog read'));
+    catalog.listUnits.mockRejectedValue(new Error('Full catalog read'));
+    const input = {
+      importId: 'targeted-confirmation',
+      name: 'Receta',
+      steps: [],
+      categories: [],
+      tags: [],
+      ingredients: [
+        {
+          ingredient: { existingId: 'tomato-id' },
+          variant: { existingId: 'cherry-id' },
+          unit: { existingId: 'gram-id' },
+          quantity: '0.125',
+          optional: true,
+        },
+        {
+          ingredient: { createName: 'Patata' },
+          variant: { createName: 'Nueva' },
+          unit: { createName: 'Kilogramo', createAbbreviation: 'kg' },
+          optional: false,
+        },
+      ],
+    };
+    await service.confirm(input);
+    await service.confirm(input);
+    expect(catalog.findVariantById).toHaveBeenCalledExactlyOnceWith(
+      'tomato-id',
+      'cherry-id',
+    );
+    expect(catalog.findIngredientByName).toHaveBeenCalledExactlyOnceWith(
+      'Patata',
+    );
+    expect(catalog.findVariantByName).toHaveBeenCalledExactlyOnceWith(
+      'Patata-id',
+      'Nueva',
+    );
+    expect(catalog.findUnitByName).toHaveBeenCalledExactlyOnceWith('Kilogramo');
+    expect(catalog.listIngredients).not.toHaveBeenCalled();
+    expect(catalog.listUnits).not.toHaveBeenCalled();
+    expect(catalog.createIngredient).toHaveBeenCalledTimes(1);
+    expect(catalog.createVariant).toHaveBeenCalledTimes(1);
+    expect(catalog.createUnit).toHaveBeenCalledTimes(1);
+    expect(recipes.create).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        ingredients: [
+          expect.objectContaining({
+            ingredientId: 'tomato-id',
+            variantId: 'cherry-id',
+            unitId: 'gram-id',
+            quantity: '0.125',
+            optional: true,
+          }),
+          expect.objectContaining({
+            ingredientId: 'Patata-id',
+            variantId: 'new-variant-id',
+            unitId: 'new-unit-id',
+          }),
+        ],
+      }),
+    );
   });
 });

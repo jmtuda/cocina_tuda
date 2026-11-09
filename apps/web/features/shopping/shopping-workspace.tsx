@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { apiFetch, apiUrl, responseError } from "../../lib/api";
 import { RecipeModal } from "../recipes/recipe-modal";
 import { ShoppingSummary, aggregateShoppingItems } from "./shopping-summary";
@@ -41,6 +41,14 @@ type ShoppingList = {
   items: ShoppingItem[];
 };
 
+type ShoppingListPage = {
+  items: Omit<ShoppingList, "items" | "sources">[];
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+};
+
 const today = () => {
   const value = new Date();
   return `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, "0")}-${String(value.getDate()).padStart(2, "0")}`;
@@ -53,11 +61,18 @@ export function ShoppingWorkspace() {
   const [name, setName] = useState("Compra semanal");
   const [plannedMeals, setPlannedMeals] = useState<PlannedMeal[]>([]);
   const [excluded, setExcluded] = useState<string[]>([]);
-  const [lists, setLists] = useState<ShoppingList[]>([]);
+  const [lists, setLists] = useState<ShoppingListPage>({
+    items: [],
+    page: 1,
+    pageSize: 20,
+    total: 0,
+    totalPages: 0,
+  });
   const [current, setCurrent] = useState<ShoppingList | null>(null);
   const [summary, setSummary] = useState<ShoppingList | null>(null);
   const [savedCurrent, setSavedCurrent] = useState<ShoppingList | null>(null);
   const [units, setUnits] = useState<Unit[]>([]);
+  const listsRequest = useRef(0);
   const [manualName, setManualName] = useState("");
   const [manualQuantity, setManualQuantity] = useState("");
   const [manualUnitId, setManualUnitId] = useState("");
@@ -84,15 +99,38 @@ export function ShoppingWorkspace() {
     setMessage("Selecciona las comidas que contribuirán a la lista.");
   }
 
-  async function loadLists() {
-    const [listResponse, unitResponse] = await Promise.all([
-      apiFetch(`${apiUrl}/shopping-lists`),
-      apiFetch(`${apiUrl}/catalog/units`),
-    ]);
-    if (!listResponse.ok || !unitResponse.ok)
+  async function loadLists(page = 1) {
+    const request = ++listsRequest.current;
+    const listResponse = await apiFetch(
+      `${apiUrl}/shopping-lists?page=${page}&pageSize=20`,
+    );
+    if (request !== listsRequest.current) return;
+    if (!listResponse.ok)
       throw new Error("No se pudieron cargar las listas de compra");
-    setLists((await listResponse.json()) as ShoppingList[]);
-    setUnits((await unitResponse.json()) as Unit[]);
+    const result = (await listResponse.json()) as ShoppingListPage;
+    if (request === listsRequest.current) setLists(result);
+  }
+
+  async function loadUnits() {
+    const response = await apiFetch(`${apiUrl}/catalog/units`);
+    if (!response.ok) throw new Error("No se pudieron cargar las unidades");
+    setUnits((await response.json()) as Unit[]);
+  }
+
+  function acceptItem(listId: string, item: ShoppingItem) {
+    const apply = (list: ShoppingList | null) => {
+      if (list?.id !== listId) return list;
+      return {
+        ...list,
+        items: list.items.some((candidate) => candidate.id === item.id)
+          ? list.items.map((candidate) =>
+              candidate.id === item.id ? item : candidate,
+            )
+          : [...list.items, item],
+      };
+    };
+    setCurrent(apply);
+    setSavedCurrent(apply);
   }
 
   async function generate(event: FormEvent) {
@@ -112,8 +150,14 @@ export function ShoppingWorkspace() {
     const list = (await response.json()) as ShoppingList;
     setCurrent(list);
     setSavedCurrent(list);
-    await loadLists();
     setMessage("Lista generada como una instantánea independiente.");
+    try {
+      await loadLists();
+    } catch {
+      setMessage(
+        "Lista generada. No se pudo actualizar el listado; pulsa «Actualizar listas».",
+      );
+    }
   }
 
   async function openList(id: string) {
@@ -151,12 +195,12 @@ export function ShoppingWorkspace() {
     );
     if (!response.ok)
       throw new Error(await responseError(response, "No se pudo añadir"));
+    acceptItem(current.id, (await response.json()) as ShoppingItem);
     setManualName("");
     setManualQuantity("");
     setManualUnitId("");
     setManualObservations("");
     setManualOptional(false);
-    await openList(current.id);
     setMessage("Elemento manual añadido sin modificar el catálogo.");
   }
 
@@ -182,7 +226,7 @@ export function ShoppingWorkspace() {
     );
     if (!response.ok)
       throw new Error(await responseError(response, "No se pudo editar"));
-    await openList(current.id);
+    acceptItem(current.id, (await response.json()) as ShoppingItem);
   }
 
   async function removeItem(itemId: string) {
@@ -192,7 +236,13 @@ export function ShoppingWorkspace() {
       { method: "DELETE" },
     );
     if (!response.ok) throw new Error("No se pudo retirar el elemento");
-    await openList(current.id);
+    const listId = current.id;
+    const apply = (list: ShoppingList | null) =>
+      list?.id === listId
+        ? { ...list, items: list.items.filter((item) => item.id !== itemId) }
+        : list;
+    setCurrent(apply);
+    setSavedCurrent(apply);
   }
 
   const toggleExcluded = (id: string) =>
@@ -204,7 +254,7 @@ export function ShoppingWorkspace() {
 
   useEffect(() => {
     void safely(async () => {
-      await Promise.all([loadPlanning(), loadLists()]);
+      await Promise.all([loadPlanning(), loadLists(), loadUnits()]);
       setMessage("Listas y planificación cargadas.");
     });
     // El intervalo inicial se carga una vez; las consultas posteriores son explícitas.
@@ -274,8 +324,18 @@ export function ShoppingWorkspace() {
       <section className="panel recipe shopping-lists">
         <div className="panel-title">
           <h2>Listas guardadas</h2>
+          <button
+            onClick={() =>
+              void safely(async () => {
+                await loadLists(lists.page);
+                setMessage("Listas actualizadas.");
+              })
+            }
+          >
+            Actualizar listas
+          </button>
         </div>
-        {lists.map((list) => (
+        {lists.items.map((list) => (
           <button
             className="recipe-card"
             key={list.id}
@@ -284,6 +344,24 @@ export function ShoppingWorkspace() {
             {list.name}
           </button>
         ))}
+        <nav aria-label="Páginas de listas de compra">
+          <button
+            disabled={lists.page <= 1}
+            onClick={() => void safely(() => loadLists(lists.page - 1))}
+          >
+            Anterior
+          </button>
+          <span>
+            Página {lists.page} de {Math.max(1, lists.totalPages)} ·{" "}
+            {lists.total} listas
+          </span>
+          <button
+            disabled={lists.page >= lists.totalPages}
+            onClick={() => void safely(() => loadLists(lists.page + 1))}
+          >
+            Siguiente
+          </button>
+        </nav>
       </section>
 
       {current && (

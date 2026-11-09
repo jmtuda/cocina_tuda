@@ -23,7 +23,8 @@ it("creates exact zero, decimal and absent quantities and offers the library", a
       if (url.includes("/recipes?")) data = { items: [summary], totalPages: 1 };
       else if (url.endsWith("/ingredients"))
         data = [{ id: "i", name: "Tomate", variants: [] }];
-      else if (init?.method === "POST") data = summary;
+      else if (init?.method === "POST")
+        data = { ...summary, ...JSON.parse(String(init.body)) };
       else if (url.endsWith("/new-recipe"))
         data = { ...summary, steps: [], ingredients: [] };
       return new Response(JSON.stringify(data));

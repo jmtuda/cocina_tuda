@@ -60,8 +60,16 @@ class MemoryShoppingRepository implements ShoppingRepository {
     return Promise.resolve(structuredClone(list));
   }
 
-  list() {
-    return Promise.resolve(structuredClone(this.lists));
+  list(page: number, pageSize: number) {
+    return Promise.resolve({
+      items: structuredClone(
+        this.lists.slice((page - 1) * pageSize, page * pageSize),
+      ),
+      page,
+      pageSize,
+      total: this.lists.length,
+      totalPages: Math.ceil(this.lists.length / pageSize),
+    });
   }
   findById(id: string) {
     return Promise.resolve(

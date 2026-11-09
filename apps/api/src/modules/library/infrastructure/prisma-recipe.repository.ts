@@ -6,39 +6,55 @@ import type {
 } from '../application/recipe.repository.js';
 import type { RecipeInput } from '../domain/recipe.js';
 import { normalizeMambo } from '../domain/recipe.js';
-import type { RecipeStep } from '../../../generated/prisma/client.js';
+import type { Prisma } from '../../../generated/prisma/client.js';
 import { normalizeName } from '../../catalog/domain/catalog.js';
 
-export const recipeInclude = {
-  steps: { orderBy: { position: 'asc' as const } },
-  ingredients: {
-    orderBy: { position: 'asc' as const },
-    include: { ingredient: true, variant: true, unit: true },
-  },
-  categories: { include: { category: true } },
-  tags: { include: { tag: true } },
-};
+const namedSelect = { id: true, name: true } as const;
+const ingredientSelect = {
+  id: true,
+  position: true,
+  ingredientId: true,
+  variantId: true,
+  quantity: true,
+  unitId: true,
+  optional: true,
+  observations: true,
+  ingredient: { select: namedSelect },
+  variant: { select: namedSelect },
+  unit: { select: { ...namedSelect, abbreviation: true } },
+} as const;
 
-type PersistedRecipe = Awaited<
-  ReturnType<PrismaService['recipe']['findUniqueOrThrow']>
-> & {
-  steps: RecipeStep[];
-  ingredients: Array<{
-    id: string;
-    position: number;
-    ingredientId: string;
-    variantId: string | null;
-    quantity: { toString(): string } | null;
-    unitId: string | null;
-    optional: boolean;
-    observations: string | null;
-    ingredient: { id: string; name: string };
-    variant: { id: string; name: string } | null;
-    unit: { id: string; name: string; abbreviation: string } | null;
-  }>;
-  categories: Array<{ category: { id: string; name: string } }>;
-  tags: Array<{ tag: { id: string; name: string } }>;
-};
+const referenceSelect = { id: true, name: true, status: true } as const;
+export const recipeSelect = {
+  ...referenceSelect,
+  description: true,
+  author: true,
+  servings: true,
+  difficulty: true,
+  notes: true,
+  reviewed: true,
+  createdAt: true,
+  updatedAt: true,
+  archivedAt: true,
+  steps: {
+    orderBy: { position: 'asc' },
+    select: {
+      id: true,
+      position: true,
+      text: true,
+      mamboSpeed: true,
+      mamboTemperature: true,
+      mamboCt: true,
+      mamboDurationSeconds: true,
+      mamboObservations: true,
+    },
+  },
+  ingredients: { orderBy: { position: 'asc' }, select: ingredientSelect },
+  categories: { select: { category: { select: namedSelect } } },
+  tags: { select: { tag: { select: namedSelect } } },
+} satisfies Prisma.RecipeSelect;
+
+type PersistedRecipe = Prisma.RecipeGetPayload<{ select: typeof recipeSelect }>;
 
 export function toRecipeRecord(recipe: PersistedRecipe): RecipeRecord {
   return {
@@ -103,7 +119,7 @@ export class PrismaRecipeRepository implements RecipeRepository {
     const recipe = await this.prisma.run(() =>
       this.prisma.getDb().recipe.create({
         data: this.data(input),
-        include: recipeInclude,
+        select: recipeSelect,
       }),
     );
     return toRecipeRecord(recipe);
@@ -112,15 +128,57 @@ export class PrismaRecipeRepository implements RecipeRepository {
   async findById(id: string) {
     const recipe = await this.prisma.getDb().recipe.findUnique({
       where: { id },
-      include: recipeInclude,
+      select: recipeSelect,
     });
     return recipe ? toRecipeRecord(recipe) : null;
+  }
+
+  async findRecipeReference(id: string) {
+    return this.prisma.getDb().recipe.findUnique({
+      where: { id },
+      select: referenceSelect,
+    });
+  }
+
+  async findShoppingRecipeSnapshot(id: string) {
+    const recipe = await this.prisma.getDb().recipe.findUnique({
+      where: { id },
+      select: {
+        ...referenceSelect,
+        servings: true,
+        ingredients: {
+          orderBy: { position: 'asc' },
+          select: { ...ingredientSelect, position: false },
+        },
+      },
+    });
+    return recipe
+      ? {
+          id: recipe.id,
+          name: recipe.name,
+          status: recipe.status,
+          servings: recipe.servings,
+          ingredients: recipe.ingredients.map((item) => ({
+            id: item.id,
+            ingredientId: item.ingredientId,
+            ingredientName: item.ingredient.name,
+            variantId: item.variantId,
+            variantName: item.variant?.name ?? null,
+            quantity: item.quantity?.toString() ?? null,
+            unitId: item.unitId,
+            unitName: item.unit?.name ?? null,
+            unitAbbreviation: item.unit?.abbreviation ?? null,
+            optional: item.optional,
+            observations: item.observations,
+          })),
+        }
+      : null;
   }
 
   async update(id: string, input: RecipeInput) {
     const exists = await this.prisma
       .getDb()
-      .recipe.findUnique({ where: { id } });
+      .recipe.findUnique({ where: { id }, select: { id: true } });
     if (!exists) return null;
     const recipe = await this.prisma.run(async () => {
       await this.prisma
@@ -138,7 +196,7 @@ export class PrismaRecipeRepository implements RecipeRepository {
       return this.prisma.getDb().recipe.update({
         where: { id },
         data: this.data(input),
-        include: recipeInclude,
+        select: recipeSelect,
       });
     });
     return toRecipeRecord(recipe);
@@ -155,7 +213,7 @@ export class PrismaRecipeRepository implements RecipeRepository {
   private async changeStatus(id: string, status: 'ACTIVE' | 'ARCHIVED') {
     const exists = await this.prisma
       .getDb()
-      .recipe.findUnique({ where: { id } });
+      .recipe.findUnique({ where: { id }, select: { id: true } });
     if (!exists) return null;
     const recipe = await this.prisma.getDb().recipe.update({
       where: { id },
@@ -163,7 +221,7 @@ export class PrismaRecipeRepository implements RecipeRepository {
         status,
         archivedAt: status === 'ARCHIVED' ? new Date() : null,
       },
-      include: recipeInclude,
+      select: recipeSelect,
     });
     return toRecipeRecord(recipe);
   }

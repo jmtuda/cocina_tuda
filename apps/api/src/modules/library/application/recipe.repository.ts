@@ -1,4 +1,5 @@
 import type { MamboConfiguration, RecipeInput } from '../domain/recipe.js';
+import type { RecipeReferenceReader } from './recipe-reference.reader.js';
 
 export type NamedReference = { id: string; name: string };
 export type RecipeRecord = {
@@ -39,7 +40,7 @@ export type RecipeRecord = {
 
 export const RECIPE_REPOSITORY = Symbol('RECIPE_REPOSITORY');
 
-export interface RecipeRepository {
+export interface RecipeRepository extends RecipeReferenceReader {
   create(input: RecipeInput): Promise<RecipeRecord>;
   findById(id: string): Promise<RecipeRecord | null>;
   update(id: string, input: RecipeInput): Promise<RecipeRecord | null>;
